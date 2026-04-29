@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-sidebar: var(--sidebar-bg);
+  --color-card-header: var(--card-header);
+  --color-card-body: var(--card-body);
+  --color-title: var(--title-blue);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+@layer base {
+  :root {
+    --background: #f8fafc;
+    --foreground: #020817;
+    --primary: #0f172a;
+    --primary-foreground: #f8fafc;
+    --secondary: #f1f5f9;
+    --secondary-foreground: #0f172a;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    --accent: #f1f5f9;
+    --accent-foreground: #0f172a;
+    --destructive: #ef4444;
+    --destructive-foreground: #f8fafc;
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #0f172a;
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --radius: 0.75rem; /* 12px for modern rounded look */
+
+    /* Dashboard Fallbacks */
+    --sidebar-bg: #030406;
+    --card-header: #0d1117;
+    --card-body: #05070a;
+    --title-blue: #00d4ff;
+  }
+
+  .dark {
+    --background: #05070a; /* Deep night black/blue */
+    --foreground: #f1f5f9;
+    --primary: #fbbf24; /* Trophy Gold */
+    --primary-foreground: #020817;
+    --secondary: #0f1115; /* Sidebar & Subtle surfaces */
+    --secondary-foreground: #f1f5f9;
+    --muted: #0f1117;
+    --muted-foreground: #94a3b8; /* Increased brightness for dark bg */
+    --accent: #1e293b;
+    --accent-foreground: #f1f5f9;
+    --destructive: #ef4444;
+    --destructive-foreground: #f1f5f9;
+    --border: rgba(255, 255, 255, 0.08); /* Minimalist thin border */
+    --input: #0f1115;
+    --ring: #fbbf24;
+    --success: #10b981; /* Grass Green */
+    --warning: #f59e0b;
+
+    /* Custom Dashboard Tones */
+    --sidebar-bg: #030406;
+    --card-header: #0d1117;
+    --card-body: #05070a;
+    --title-blue: #00d4ff; /* Ultra vibrant Neon Cyan for high clarity */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
+
+  .bg-stadium {
+    @apply fixed inset-0 -z-50;
+    background-image: linear-gradient(to bottom, rgba(5, 7, 10, 0.4) 0%, rgba(5, 7, 10, 0.95) 100%), url("/assets/stadiumball.jpg");
+    background-size: cover;
+    background-position: center center; /* Default center */
+    background-repeat: no-repeat;
+    /* Eliminar background-attachment para prevenir el jitter en scroll, ya que el contenedor es 'fixed inset-0' */
+    
+    /* Zoom y recorte para destacar la pelota */
+    @media (min-width: 1024px) {
+       background-size: 150%; /* Zoom in on desktop */
+       background-position: center 75%; /* Lower the camera to focus on the ball */
+    }
+    /* Optimización para móviles */
+    @media (max-width: 768px) {
+      background-position: center 80%; /* Prioritize ball on mobile */
+    }
+  }
+}
+
+@layer components {
+  /* Bento Grid Card base - Premium Glassmorphism */
+  .bento-card {
+    @apply rounded-3xl border border-white/5 bg-card-body/40 backdrop-blur-3xl p-7 shadow-[0_8px_32px_0_rgba(0,0,0,0.4)] transition-all duration-500 hover:shadow-[0_8px_40px_0_rgba(0,0,0,0.6)] hover:border-primary/20 hover:-translate-y-1;
+  }
+
+  /* Match Card - Subtle interactive states */
+  .match-card {
+    @apply flex items-center justify-between p-5 rounded-2xl border border-border/10 bg-white/5 backdrop-blur-sm transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/20 hover:bg-white/10;
+  }
+
+  .score-input {
+    @apply w-14 h-14 text-center text-2xl font-black bg-white/5 rounded-xl border border-border/20 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/40 transition-all placeholder:text-muted-foreground/20 selection:bg-primary/20 cursor-default;
+  }
+}
+
+/* Custom Scrollbar for premium feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/20 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground/40;
+}

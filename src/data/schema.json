@@ -1,0 +1,50 @@
+{
+  "users": [
+    {
+      "id": "u_001",
+      "name": "Yoyo",
+      "email": "yoyo@example.com",
+      "role": "player",
+      "createdAt": "2026-04-03T12:00:00Z"
+    }
+  ],
+  "matches": [
+    {
+      "id": "m_101",
+      "stage": "group",
+      "groupId": "A",
+      "homeTeam": "ARG",
+      "homeFlag": "🇦🇷",
+      "awayTeam": "CAN",
+      "awayFlag": "🇨🇦",
+      "date": "2026-06-11T20:00:00Z",
+      "status": "pending",
+      "officialHomeScore": null,
+      "officialAwayScore": null
+    }
+  ],
+  "predictions": [
+    {
+      "id": "p_u001_m101",
+      "userId": "u_001",
+      "matchId": "m_101",
+      "homeScore": 2,
+      "awayScore": 0,
+      "updatedAt": "2026-04-03T12:05:00Z"
+    }
+  ],
+  "standings": [
+    {
+      "groupId": "A",
+      "team": "ARG",
+      "played": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "goalsFor": 0,
+      "goalsAgainst": 0,
+      "goalDifference": 0,
+      "points": 0
+    }
+  ]
+}

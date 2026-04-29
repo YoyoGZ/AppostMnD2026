@@ -1,0 +1,987 @@
+{
+  "torneo": "Copa Mundial de la FIFA 2026",
+  "configuracion": {
+    "paises_anfitriones": [
+      "Estados Unidos",
+      "México",
+      "Canadá"
+    ],
+    "total_equipos": 48,
+    "grupos": 12,
+    "reglas_clasificacion": "Top 2 de cada grupo + 8 mejores terceros"
+  },
+  "sedes": [
+    {
+      "id": "azteca",
+      "nombre": "Estadio Azteca",
+      "ciudad": "Ciudad de México",
+      "pais": "México",
+      "capacidad": 87523,
+      "timezone": "America/Mexico_City"
+    },
+    {
+      "id": "metlife",
+      "nombre": "MetLife Stadium",
+      "ciudad": "East Rutherford",
+      "estado": "NJ",
+      "pais": "USA",
+      "capacidad": 82500,
+      "timezone": "America/New_York",
+      "nota": "Sede de la Final"
+    },
+    {
+      "id": "bc_place",
+      "nombre": "BC Place",
+      "ciudad": "Vancouver",
+      "pais": "Canadá",
+      "capacidad": 54500,
+      "timezone": "America/Vancouver"
+    }
+  ],
+  "equipos": [
+    {
+      "id": "MEX",
+      "nombre": "México",
+      "grupo": "A",
+      "bunker": "Ciudad de México, MEX"
+    },
+    {
+      "id": "RSA",
+      "nombre": "Sudáfrica",
+      "grupo": "A",
+      "bunker": "Houston, Texas"
+    },
+    {
+      "id": "KOR",
+      "nombre": "Corea del Sur",
+      "grupo": "A",
+      "bunker": "Dallas, Texas"
+    },
+    {
+      "id": "CZE",
+      "nombre": "República Checa",
+      "grupo": "A",
+      "bunker": "Austin, Texas"
+    },
+    {
+      "id": "CAN",
+      "nombre": "Canadá",
+      "grupo": "B",
+      "bunker": "Toronto, Ontario"
+    },
+    {
+      "id": "SUI",
+      "nombre": "Suiza",
+      "grupo": "B",
+      "bunker": "Vancouver, BC"
+    },
+    {
+      "id": "QAT",
+      "nombre": "Qatar",
+      "grupo": "B",
+      "bunker": "Seattle, Washington"
+    },
+    {
+      "id": "BIH",
+      "nombre": "Bosnia y Herz.",
+      "grupo": "B",
+      "bunker": "Portland, Oregon"
+    },
+    {
+      "id": "BRA",
+      "nombre": "Brasil",
+      "grupo": "C",
+      "bunker": "Orlando, Florida"
+    },
+    {
+      "id": "MAR",
+      "nombre": "Marruecos",
+      "grupo": "C",
+      "bunker": "Miami, Florida"
+    },
+    {
+      "id": "SCO",
+      "nombre": "Escocia",
+      "grupo": "C",
+      "bunker": "Atlanta, Georgia"
+    },
+    {
+      "id": "HAI",
+      "nombre": "Haití",
+      "grupo": "C",
+      "bunker": "Charlotte, NC"
+    },
+    {
+      "id": "USA",
+      "nombre": "Estados Unidos",
+      "grupo": "D",
+      "bunker": "Carson, California"
+    },
+    {
+      "id": "PAR",
+      "nombre": "Paraguay",
+      "grupo": "D",
+      "bunker": "San Jose, California"
+    },
+    {
+      "id": "AUS",
+      "nombre": "Australia",
+      "grupo": "D",
+      "bunker": "San Diego, California"
+    },
+    {
+      "id": "EUR",
+      "nombre": "Clasif. Europeo",
+      "grupo": "D",
+      "bunker": "Minneapolis, MN"
+    },
+    {
+      "id": "GER",
+      "nombre": "Alemania",
+      "grupo": "E",
+      "bunker": "Chicago, Illinois"
+    },
+    {
+      "id": "ECU",
+      "nombre": "Ecuador",
+      "grupo": "E",
+      "bunker": "Kansas City, MO"
+    },
+    {
+      "id": "CIV",
+      "nombre": "Costa de Marfil",
+      "grupo": "E",
+      "bunker": "Cincinnati, OH"
+    },
+    {
+      "id": "CUW",
+      "nombre": "Curazao",
+      "grupo": "E",
+      "bunker": "Columbus, OH"
+    },
+    {
+      "id": "NED",
+      "nombre": "Países Bajos",
+      "grupo": "F",
+      "bunker": "New Jersey, NJ"
+    },
+    {
+      "id": "JPN",
+      "nombre": "Japón",
+      "grupo": "F",
+      "bunker": "Philadelphia, PA"
+    },
+    {
+      "id": "TUN",
+      "nombre": "Túnez",
+      "grupo": "F",
+      "bunker": "Baltimore, MD"
+    },
+    {
+      "id": "SWE",
+      "nombre": "Suecia",
+      "grupo": "F",
+      "bunker": "Boston, MA"
+    },
+    {
+      "id": "BEL",
+      "nombre": "Bélgica",
+      "grupo": "G",
+      "bunker": "Washington, D.C."
+    },
+    {
+      "id": "EGY",
+      "nombre": "Egipto",
+      "grupo": "G",
+      "bunker": "Detroit, MI"
+    },
+    {
+      "id": "IRN",
+      "nombre": "Irán",
+      "grupo": "G",
+      "bunker": "Cleveland, OH"
+    },
+    {
+      "id": "NZL",
+      "nombre": "Nueva Zelanda",
+      "grupo": "G",
+      "bunker": "Nashville, TN"
+    },
+    {
+      "id": "ESP",
+      "nombre": "España",
+      "grupo": "H",
+      "bunker": "Monterrey, MEX"
+    },
+    {
+      "id": "URU",
+      "nombre": "Uruguay",
+      "grupo": "H",
+      "bunker": "Guadalajara, MEX"
+    },
+    {
+      "id": "KSA",
+      "nombre": "Arabia Saudita",
+      "grupo": "H",
+      "bunker": "Phoenix, AZ"
+    },
+    {
+      "id": "CPV",
+      "nombre": "Cabo Verde",
+      "grupo": "H",
+      "bunker": "Las Vegas, NV"
+    },
+    {
+      "id": "FRA",
+      "nombre": "Francia",
+      "grupo": "I",
+      "bunker": "Los Angeles, CA"
+    },
+    {
+      "id": "SEN",
+      "nombre": "Senegal",
+      "grupo": "I",
+      "bunker": "San Francisco, CA"
+    },
+    {
+      "id": "NOR",
+      "nombre": "Noruega",
+      "grupo": "I",
+      "bunker": "Seattle, WA"
+    },
+    {
+      "id": "IRQ",
+      "nombre": "Irak",
+      "grupo": "I",
+      "bunker": "Salt Lake City, UT"
+    },
+    {
+      "id": "ARG",
+      "nombre": "Argentina",
+      "grupo": "J",
+      "bunker": "Atlanta, GA"
+    },
+    {
+      "id": "ALG",
+      "nombre": "Argelia",
+      "grupo": "J",
+      "bunker": "Birmingham, AL"
+    },
+    {
+      "id": "AUT",
+      "nombre": "Austria",
+      "grupo": "J",
+      "bunker": "Charlotte, NC"
+    },
+    {
+      "id": "JOR",
+      "nombre": "Jordania",
+      "grupo": "J",
+      "bunker": "Jacksonville, FL"
+    },
+    {
+      "id": "POR",
+      "nombre": "Portugal",
+      "grupo": "K",
+      "bunker": "Jersey City, NJ"
+    },
+    {
+      "id": "COL",
+      "nombre": "Colombia",
+      "grupo": "K",
+      "bunker": "New York, NY"
+    },
+    {
+      "id": "UZB",
+      "nombre": "Uzbekistán",
+      "grupo": "K",
+      "bunker": "Providence, RI"
+    },
+    {
+      "id": "COD",
+      "nombre": "RD Congo",
+      "grupo": "K",
+      "bunker": "Hartford, CT"
+    },
+    {
+      "id": "ENG",
+      "nombre": "Inglaterra",
+      "grupo": "L",
+      "bunker": "Foxborough, MA"
+    },
+    {
+      "id": "CRO",
+      "nombre": "Croacia",
+      "grupo": "L",
+      "bunker": "Albany, NY"
+    },
+    {
+      "id": "GHA",
+      "nombre": "Ghana",
+      "grupo": "L",
+      "bunker": "Buffalo, NY"
+    },
+    {
+      "id": "PAN",
+      "nombre": "Panamá",
+      "grupo": "L",
+      "bunker": "Pittsburgh, PA"
+    }
+  ],
+  "partidos": [
+    {
+      "id": 1,
+      "fecha": "2026-06-11T18:00:00Z",
+      "estadio": "azteca",
+      "local": "MEX",
+      "visitante": "RSA",
+      "fase": "Grupos - J1",
+      "grupo": "A",
+      "estado": "finalizado",
+      "goles_local": 2,
+      "goles_visitante": 1
+    },
+    {
+      "id": 13,
+      "fecha": "2026-06-11T20:00:00Z",
+      "estadio": "sofi",
+      "local": "KOR",
+      "visitante": "CZE",
+      "fase": "Grupos - J1",
+      "grupo": "A",
+      "estado": "finalizado",
+      "goles_local": 4,
+      "goles_visitante": 2
+    },
+    {
+      "id": 2,
+      "fecha": "2026-06-11T21:00:00Z",
+      "estadio": "bc_place",
+      "local": "CAN",
+      "visitante": "SUI",
+      "fase": "Grupos - J1",
+      "grupo": "B"
+    },
+    {
+      "id": 14,
+      "fecha": "2026-06-11T23:00:00Z",
+      "estadio": "seattle",
+      "local": "QAT",
+      "visitante": "BIH",
+      "fase": "Grupos - J1",
+      "grupo": "B"
+    },
+    {
+      "id": 4,
+      "fecha": "2026-06-12T18:00:00Z",
+      "estadio": "sofi",
+      "local": "BRA",
+      "visitante": "MAR",
+      "fase": "Grupos - J1",
+      "grupo": "C"
+    },
+    {
+      "id": 15,
+      "fecha": "2026-06-12T20:00:00Z",
+      "estadio": "miami",
+      "local": "SCO",
+      "visitante": "HAI",
+      "fase": "Grupos - J1",
+      "grupo": "C"
+    },
+    {
+      "id": 3,
+      "fecha": "2026-06-12T15:00:00Z",
+      "estadio": "metlife",
+      "local": "USA",
+      "visitante": "PAR",
+      "fase": "Grupos - J1",
+      "grupo": "D"
+    },
+    {
+      "id": 16,
+      "fecha": "2026-06-12T17:00:00Z",
+      "estadio": "dallas",
+      "local": "AUS",
+      "visitante": "EUR",
+      "fase": "Grupos - J1",
+      "grupo": "D"
+    },
+    {
+      "id": 5,
+      "fecha": "2026-06-13T12:00:00Z",
+      "estadio": "kansas",
+      "local": "GER",
+      "visitante": "ECU",
+      "fase": "Grupos - J1",
+      "grupo": "E"
+    },
+    {
+      "id": 17,
+      "fecha": "2026-06-13T14:00:00Z",
+      "estadio": "houston",
+      "local": "CIV",
+      "visitante": "CUW",
+      "fase": "Grupos - J1",
+      "grupo": "E"
+    },
+    {
+      "id": 6,
+      "fecha": "2026-06-13T15:00:00Z",
+      "estadio": "phila",
+      "local": "NED",
+      "visitante": "JPN",
+      "fase": "Grupos - J1",
+      "grupo": "F"
+    },
+    {
+      "id": 18,
+      "fecha": "2026-06-13T17:00:00Z",
+      "estadio": "boston",
+      "local": "TUN",
+      "visitante": "SWE",
+      "fase": "Grupos - J1",
+      "grupo": "F"
+    },
+    {
+      "id": 7,
+      "fecha": "2026-06-14T12:00:00Z",
+      "estadio": "atlanta",
+      "local": "BEL",
+      "visitante": "EGY",
+      "fase": "Grupos - J1",
+      "grupo": "G"
+    },
+    {
+      "id": 19,
+      "fecha": "2026-06-14T14:00:00Z",
+      "estadio": "nashville",
+      "local": "IRN",
+      "visitante": "NZL",
+      "fase": "Grupos - J1",
+      "grupo": "G"
+    },
+    {
+      "id": 8,
+      "fecha": "2026-06-14T15:00:00Z",
+      "estadio": "monterrey",
+      "local": "ESP",
+      "visitante": "URU",
+      "fase": "Grupos - J1",
+      "grupo": "H"
+    },
+    {
+      "id": 20,
+      "fecha": "2026-06-14T17:00:00Z",
+      "estadio": "guadalajara",
+      "local": "KSA",
+      "visitante": "CPV",
+      "fase": "Grupos - J1",
+      "grupo": "H"
+    },
+    {
+      "id": 9,
+      "fecha": "2026-06-15T12:00:00Z",
+      "estadio": "sf",
+      "local": "FRA",
+      "visitante": "SEN",
+      "fase": "Grupos - J1",
+      "grupo": "I"
+    },
+    {
+      "id": 21,
+      "fecha": "2026-06-15T14:00:00Z",
+      "estadio": "seattle",
+      "local": "NOR",
+      "visitante": "IRQ",
+      "fase": "Grupos - J1",
+      "grupo": "I"
+    },
+    {
+      "id": 10,
+      "fecha": "2026-06-15T15:00:00Z",
+      "estadio": "miami",
+      "local": "ARG",
+      "visitante": "ALG",
+      "fase": "Grupos - J1",
+      "grupo": "J"
+    },
+    {
+      "id": 22,
+      "fecha": "2026-06-15T17:00:00Z",
+      "estadio": "charlotte",
+      "local": "AUT",
+      "visitante": "JOR",
+      "fase": "Grupos - J1",
+      "grupo": "J"
+    },
+    {
+      "id": 11,
+      "fecha": "2026-06-16T12:00:00Z",
+      "estadio": "ny",
+      "local": "POR",
+      "visitante": "COL",
+      "fase": "Grupos - J1",
+      "grupo": "K"
+    },
+    {
+      "id": 23,
+      "fecha": "2026-06-16T14:00:00Z",
+      "estadio": "phila",
+      "local": "UZB",
+      "visitante": "COD",
+      "fase": "Grupos - J1",
+      "grupo": "K"
+    },
+    {
+      "id": 12,
+      "fecha": "2026-06-16T15:00:00Z",
+      "estadio": "boston",
+      "local": "ENG",
+      "visitante": "CRO",
+      "fase": "Grupos - J1",
+      "grupo": "L"
+    },
+    {
+      "id": 24,
+      "fecha": "2026-06-16T17:00:00Z",
+      "estadio": "ny",
+      "local": "GHA",
+      "visitante": "PAN",
+      "fase": "Grupos - J1",
+      "grupo": "L"
+    },
+    {
+      "id": 25,
+      "fecha": "2026-06-17T12:00:00.000Z",
+      "estadio": "metlife",
+      "local": "MEX",
+      "visitante": "KOR",
+      "fase": "Grupos - J2",
+      "grupo": "A"
+    },
+    {
+      "id": 26,
+      "fecha": "2026-06-17T15:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "CZE",
+      "visitante": "RSA",
+      "fase": "Grupos - J2",
+      "grupo": "A"
+    },
+    {
+      "id": 27,
+      "fecha": "2026-06-23T12:00:00.000Z",
+      "estadio": "metlife",
+      "local": "CZE",
+      "visitante": "MEX",
+      "fase": "Grupos - J3",
+      "grupo": "A"
+    },
+    {
+      "id": 28,
+      "fecha": "2026-06-23T12:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "RSA",
+      "visitante": "KOR",
+      "fase": "Grupos - J3",
+      "grupo": "A"
+    },
+    {
+      "id": 29,
+      "fecha": "2026-06-17T12:00:00.000Z",
+      "estadio": "azteca",
+      "local": "CAN",
+      "visitante": "QAT",
+      "fase": "Grupos - J2",
+      "grupo": "B"
+    },
+    {
+      "id": 30,
+      "fecha": "2026-06-17T15:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "BIH",
+      "visitante": "SUI",
+      "fase": "Grupos - J2",
+      "grupo": "B"
+    },
+    {
+      "id": 31,
+      "fecha": "2026-06-23T12:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "BIH",
+      "visitante": "CAN",
+      "fase": "Grupos - J3",
+      "grupo": "B"
+    },
+    {
+      "id": 32,
+      "fecha": "2026-06-23T12:00:00.000Z",
+      "estadio": "metlife",
+      "local": "SUI",
+      "visitante": "QAT",
+      "fase": "Grupos - J3",
+      "grupo": "B"
+    },
+    {
+      "id": 33,
+      "fecha": "2026-06-18T12:00:00.000Z",
+      "estadio": "azteca",
+      "local": "BRA",
+      "visitante": "SCO",
+      "fase": "Grupos - J2",
+      "grupo": "C"
+    },
+    {
+      "id": 34,
+      "fecha": "2026-06-18T15:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "HAI",
+      "visitante": "MAR",
+      "fase": "Grupos - J2",
+      "grupo": "C"
+    },
+    {
+      "id": 35,
+      "fecha": "2026-06-24T12:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "HAI",
+      "visitante": "BRA",
+      "fase": "Grupos - J3",
+      "grupo": "C"
+    },
+    {
+      "id": 36,
+      "fecha": "2026-06-24T12:00:00.000Z",
+      "estadio": "azteca",
+      "local": "MAR",
+      "visitante": "SCO",
+      "fase": "Grupos - J3",
+      "grupo": "C"
+    },
+    {
+      "id": 37,
+      "fecha": "2026-06-18T12:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "USA",
+      "visitante": "AUS",
+      "fase": "Grupos - J2",
+      "grupo": "D"
+    },
+    {
+      "id": 38,
+      "fecha": "2026-06-18T15:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "EUR",
+      "visitante": "PAR",
+      "fase": "Grupos - J2",
+      "grupo": "D"
+    },
+    {
+      "id": 39,
+      "fecha": "2026-06-24T12:00:00.000Z",
+      "estadio": "azteca",
+      "local": "EUR",
+      "visitante": "USA",
+      "fase": "Grupos - J3",
+      "grupo": "D"
+    },
+    {
+      "id": 40,
+      "fecha": "2026-06-24T12:00:00.000Z",
+      "estadio": "metlife",
+      "local": "PAR",
+      "visitante": "AUS",
+      "fase": "Grupos - J3",
+      "grupo": "D"
+    },
+    {
+      "id": 41,
+      "fecha": "2026-06-19T12:00:00.000Z",
+      "estadio": "metlife",
+      "local": "GER",
+      "visitante": "CIV",
+      "fase": "Grupos - J2",
+      "grupo": "E"
+    },
+    {
+      "id": 42,
+      "fecha": "2026-06-19T15:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "CUW",
+      "visitante": "ECU",
+      "fase": "Grupos - J2",
+      "grupo": "E"
+    },
+    {
+      "id": 43,
+      "fecha": "2026-06-25T12:00:00.000Z",
+      "estadio": "azteca",
+      "local": "CUW",
+      "visitante": "GER",
+      "fase": "Grupos - J3",
+      "grupo": "E"
+    },
+    {
+      "id": 44,
+      "fecha": "2026-06-25T12:00:00.000Z",
+      "estadio": "azteca",
+      "local": "ECU",
+      "visitante": "CIV",
+      "fase": "Grupos - J3",
+      "grupo": "E"
+    },
+    {
+      "id": 45,
+      "fecha": "2026-06-19T12:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "NED",
+      "visitante": "TUN",
+      "fase": "Grupos - J2",
+      "grupo": "F"
+    },
+    {
+      "id": 46,
+      "fecha": "2026-06-19T15:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "SWE",
+      "visitante": "JPN",
+      "fase": "Grupos - J2",
+      "grupo": "F"
+    },
+    {
+      "id": 47,
+      "fecha": "2026-06-25T12:00:00.000Z",
+      "estadio": "azteca",
+      "local": "SWE",
+      "visitante": "NED",
+      "fase": "Grupos - J3",
+      "grupo": "F"
+    },
+    {
+      "id": 48,
+      "fecha": "2026-06-25T12:00:00.000Z",
+      "estadio": "azteca",
+      "local": "JPN",
+      "visitante": "TUN",
+      "fase": "Grupos - J3",
+      "grupo": "F"
+    },
+    {
+      "id": 49,
+      "fecha": "2026-06-20T12:00:00.000Z",
+      "estadio": "metlife",
+      "local": "BEL",
+      "visitante": "IRN",
+      "fase": "Grupos - J2",
+      "grupo": "G"
+    },
+    {
+      "id": 50,
+      "fecha": "2026-06-20T15:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "NZL",
+      "visitante": "EGY",
+      "fase": "Grupos - J2",
+      "grupo": "G"
+    },
+    {
+      "id": 51,
+      "fecha": "2026-06-26T12:00:00.000Z",
+      "estadio": "metlife",
+      "local": "NZL",
+      "visitante": "BEL",
+      "fase": "Grupos - J3",
+      "grupo": "G"
+    },
+    {
+      "id": 52,
+      "fecha": "2026-06-26T12:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "EGY",
+      "visitante": "IRN",
+      "fase": "Grupos - J3",
+      "grupo": "G"
+    },
+    {
+      "id": 53,
+      "fecha": "2026-06-20T12:00:00.000Z",
+      "estadio": "azteca",
+      "local": "ESP",
+      "visitante": "KSA",
+      "fase": "Grupos - J2",
+      "grupo": "H"
+    },
+    {
+      "id": 54,
+      "fecha": "2026-06-20T15:00:00.000Z",
+      "estadio": "azteca",
+      "local": "CPV",
+      "visitante": "URU",
+      "fase": "Grupos - J2",
+      "grupo": "H"
+    },
+    {
+      "id": 55,
+      "fecha": "2026-06-26T12:00:00.000Z",
+      "estadio": "metlife",
+      "local": "CPV",
+      "visitante": "ESP",
+      "fase": "Grupos - J3",
+      "grupo": "H"
+    },
+    {
+      "id": 56,
+      "fecha": "2026-06-26T12:00:00.000Z",
+      "estadio": "metlife",
+      "local": "URU",
+      "visitante": "KSA",
+      "fase": "Grupos - J3",
+      "grupo": "H"
+    },
+    {
+      "id": 57,
+      "fecha": "2026-06-21T12:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "FRA",
+      "visitante": "NOR",
+      "fase": "Grupos - J2",
+      "grupo": "I"
+    },
+    {
+      "id": 58,
+      "fecha": "2026-06-21T15:00:00.000Z",
+      "estadio": "azteca",
+      "local": "IRQ",
+      "visitante": "SEN",
+      "fase": "Grupos - J2",
+      "grupo": "I"
+    },
+    {
+      "id": 59,
+      "fecha": "2026-06-27T12:00:00.000Z",
+      "estadio": "azteca",
+      "local": "IRQ",
+      "visitante": "FRA",
+      "fase": "Grupos - J3",
+      "grupo": "I"
+    },
+    {
+      "id": 60,
+      "fecha": "2026-06-27T12:00:00.000Z",
+      "estadio": "azteca",
+      "local": "SEN",
+      "visitante": "NOR",
+      "fase": "Grupos - J3",
+      "grupo": "I"
+    },
+    {
+      "id": 61,
+      "fecha": "2026-06-21T12:00:00.000Z",
+      "estadio": "azteca",
+      "local": "ARG",
+      "visitante": "AUT",
+      "fase": "Grupos - J2",
+      "grupo": "J"
+    },
+    {
+      "id": 62,
+      "fecha": "2026-06-21T15:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "JOR",
+      "visitante": "ALG",
+      "fase": "Grupos - J2",
+      "grupo": "J"
+    },
+    {
+      "id": 63,
+      "fecha": "2026-06-27T12:00:00.000Z",
+      "estadio": "metlife",
+      "local": "JOR",
+      "visitante": "ARG",
+      "fase": "Grupos - J3",
+      "grupo": "J"
+    },
+    {
+      "id": 64,
+      "fecha": "2026-06-27T12:00:00.000Z",
+      "estadio": "metlife",
+      "local": "ALG",
+      "visitante": "AUT",
+      "fase": "Grupos - J3",
+      "grupo": "J"
+    },
+    {
+      "id": 65,
+      "fecha": "2026-06-22T12:00:00.000Z",
+      "estadio": "azteca",
+      "local": "POR",
+      "visitante": "UZB",
+      "fase": "Grupos - J2",
+      "grupo": "K"
+    },
+    {
+      "id": 66,
+      "fecha": "2026-06-22T15:00:00.000Z",
+      "estadio": "metlife",
+      "local": "COD",
+      "visitante": "COL",
+      "fase": "Grupos - J2",
+      "grupo": "K"
+    },
+    {
+      "id": 67,
+      "fecha": "2026-06-28T12:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "COD",
+      "visitante": "POR",
+      "fase": "Grupos - J3",
+      "grupo": "K"
+    },
+    {
+      "id": 68,
+      "fecha": "2026-06-28T12:00:00.000Z",
+      "estadio": "azteca",
+      "local": "COL",
+      "visitante": "UZB",
+      "fase": "Grupos - J3",
+      "grupo": "K"
+    },
+    {
+      "id": 69,
+      "fecha": "2026-06-22T12:00:00.000Z",
+      "estadio": "metlife",
+      "local": "ENG",
+      "visitante": "GHA",
+      "fase": "Grupos - J2",
+      "grupo": "L"
+    },
+    {
+      "id": 70,
+      "fecha": "2026-06-22T15:00:00.000Z",
+      "estadio": "azteca",
+      "local": "PAN",
+      "visitante": "CRO",
+      "fase": "Grupos - J2",
+      "grupo": "L"
+    },
+    {
+      "id": 71,
+      "fecha": "2026-06-28T12:00:00.000Z",
+      "estadio": "metlife",
+      "local": "PAN",
+      "visitante": "ENG",
+      "fase": "Grupos - J3",
+      "grupo": "L"
+    },
+    {
+      "id": 72,
+      "fecha": "2026-06-28T12:00:00.000Z",
+      "estadio": "bc_place",
+      "local": "CRO",
+      "visitante": "GHA",
+      "fase": "Grupos - J3",
+      "grupo": "L"
+    }
+  ]
+}
