@@ -2,7 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  allowedDevOrigins: ["192.168.100.54"],
+  experimental: {
+    serverActions: {
+      allowedOrigins: ["appost-mn-d2026.vercel.app", "localhost:3000"],
+    },
+  },
 };
 
 export default nextConfig;
