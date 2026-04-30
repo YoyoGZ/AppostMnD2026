@@ -20,19 +20,14 @@ export default async function DashboardLayout({
     redirect("/");
   }
 
-  // Interceptor: ¿Pertenece a alguna liga?
+  // Interceptor: ¿Pertenece a alguna liga? (Solo para obtener el nombre de la liga)
   const { data: membership } = await supabase
     .from('league_members')
     .select('id, leagues(name)')
     .eq('user_id', user.id)
     .single();
 
-  if (!membership) {
-    // Lobo Solitario -> Funda tu Arena
-    redirect("/onboarding");
-  }
-  
-  const leagueData: any = membership.leagues;
+  const leagueData: any = membership?.leagues;
   const leagueName = Array.isArray(leagueData) ? leagueData[0]?.name : leagueData?.name;
 
   return (

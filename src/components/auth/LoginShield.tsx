@@ -84,7 +84,9 @@ export const LoginShield = ({ inviteCode, leagueInfo }: LoginShieldProps) => {
         }
       }
       
-      router.push("/dashboard");
+      // Si llegamos aquí sin redirección de joinLeagueAction, vamos al dashboard preservando el inviteCode
+      const targetPath = inviteCode ? `/dashboard?invite=${inviteCode}` : "/dashboard";
+      router.push(targetPath);
       router.refresh();
       
     } catch (err: unknown) {

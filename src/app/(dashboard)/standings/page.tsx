@@ -26,10 +26,6 @@ export default async function StandingsPage() {
     .eq('user_id', user.id)
     .single();
 
-  if (!userMembership) {
-    redirect("/onboarding");
-  }
-
   // 2. Traer el Leaderboard fresco SOLO de esta liga
   const { data, error } = await supabase
     .from('league_members')
@@ -47,7 +43,7 @@ export default async function StandingsPage() {
 
   const leagueData: any = data[0].leagues;
   const actualLeague = Array.isArray(leagueData) ? leagueData[0] : leagueData;
-  
+
   const leagueInfo = actualLeague ? {
     name: actualLeague.name,
     inviteCode: actualLeague.invite_code,

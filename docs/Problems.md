@@ -37,3 +37,18 @@ Este documento centraliza los problemas técnicos y bugs encontrados durante el 
 - **Auditoría de CORS en Navegador**: Abrir herramientas de desarrollador (F12) en la web de Vercel y verificar si el error es de "Preflight (CORS)" o de "Network Timeout".
 - **Revisión de Middleware**: Analizar si el `middleware.ts` está bloqueando peticiones internas debido a la redirección de protocolo en los proxies de Vercel.
 - **Supabase API Settings**: Localizar la configuración oculta de "Allowed Origins" en la sección API para permitir explícitamente el dominio `.vercel.app`.
+
+## 4. El "Efecto Olvido" del Magic Link (Pérdida de Parámetros de Invitación)
+
+### Síntomas Encontrados (2026-04-30)
+- **Persistencia del Onboarding de Capitán**: A pesar de usar un link de invitación válido (`/?invite=XXXX`), los invitados siguen viendo la pantalla de "Funda tu Arena" en lugar de la tarjeta de bienvenida.
+- **Vercel Auth (Resuelto)**: Se identificó que la protección de despliegue de Vercel bloqueaba el acceso a invitados externos. El usuario la desactivó manualmente.
+
+### Hallazgos de Investigación (The Root Cause)
+1. **Pérdida de Query Params en Redirecciones**: Se sospecha que el Middleware o el Layout del Dashboard están redirigiendo al usuario de `/` a `/dashboard` y luego a `/onboarding` **sin propagar** el parámetro `?invite=`.
+2. **Resultado**: Al llegar a `/onboarding` sin el código en la URL, el componente no puede identificar la invitación y cae por defecto en el flujo de creación de liga (Capitán).
+
+### Trayectoria de Investigación para la Próxima Sesión
+- **Preservación de URL**: Modificar el Middleware (`proxy.ts`) y los `redirect()` para asegurar que cualquier parámetro `invite` se mantenga durante todo el salto de rutas.
+- **Pruebas de Incógnito**: Validar el flujo desde un navegador limpio para descartar sesiones persistentes que confundan al Middleware.
+

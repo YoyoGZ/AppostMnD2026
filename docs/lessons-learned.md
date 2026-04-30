@@ -23,13 +23,27 @@ El sistema de puntuación ("El Oráculo") procesaba la lógica matemática corre
 Error crítico "Failed to Fetch" al intentar registrar alias o crear ligas en el despliegue de Vercel. Funciona perfectamente en Localhost pero falla en la nube.
 
 ### Diagnóstico
-1. **Middleware Inválido**: El archivo de middleware estaba nombrado como `src/proxy.ts`. Next.js requiere estrictamente `src/middleware.ts`. Esto causaba que la sesión no se refrescara correctamente y que las cookies de autenticación fueran inconsistentes.
+1. **Convención de Proxy (Next.js 16)**: El archivo de middleware debe llamarse estrictamente `src/proxy.ts` y exportar una función `proxy`. La convención antigua `middleware.ts` ha sido deprecada en esta versión y su uso provoca fallos en el ciclo de vida de la aplicación. Esto causaba que la sesión no se refrescara correctamente y que las cookies de autenticación fueran inconsistentes.
 2. **CORS de Server Actions**: Next.js 14+ requiere que los dominios de producción estén explícitamente en `serverActions.allowedOrigins`. Faltaba el protocolo `https://` en algunos casos, lo que provocaba rechazos de seguridad del navegador.
 3. **Visibilidad de Fallos de Fetch**: La falta de logs en el lado del servidor (`server.ts`) ocultaba si las variables de entorno de Supabase estaban llegando correctamente al runtime de Vercel.
 
 ### Resolución (The House Way)
-1. **Normalización de Middleware**: Renombrado de `proxy.ts` a `middleware.ts` y export de la función con el nombre correcto.
+1. **Estandarización a Proxy**: Asegurar que la lógica de sesión resida en `src/proxy.ts` con el export `proxy`. Cualquier intento de 'normalización' a `middleware.ts` debe ser evitado para no romper el build.
 2. **Robustez en next.config.ts**: Inclusión de variaciones del dominio (con y sin protocolo) en `allowedOrigins`.
 3. **Circuit Breaker de Configuración**: Implementación de validaciones explícitas de `process.env` con logs de error visibles en la consola del servidor (Vercel Logs).
 4. **Acción Manual Requerida**: Se debe verificar en el Dashboard de Supabase que el dominio de Vercel esté en la lista blanca de CORS (API Settings).
 
+
+## 2026-04-30: El Error de Prerender y el Muro de Vercel (Deployment Protection)
+
+### Sntoma
+1. El build de Vercel fall con un error crptico: Error occurred prerendering page /onboarding.
+2. Invitados externos vean una pantalla de Sign in to Vercel antes de llegar a la aplicacin.
+
+### Diagnstico
+1. Suspense para useSearchParams: Next.js 15+ requiere que cualquier componente que use useSearchParams() en una ruta esttica est envuelto en un lmite de <Suspense>. Sin esto, el motor de construccin intenta renderizar la pgina como esttica y falla porque los parmetros de bsqueda son dinmicos.
+2. Vercel Authentication: Por defecto, los despliegues de Preview (y a veces produccin en planes Pro) activan la Vercel Authentication. Esto bloquea a cualquier persona que no est logueada en Vercel, impidiendo el uso de Magic Links por usuarios externos.
+
+### Resolucin (The House Way)
+1. Estructura de Componente Dinmico: Se refactorizaron las pginas de Onboarding y Login para mover la lgica de parmetros a sub-componentes envueltos en Suspense.
+2. Gestin de Plataforma: Desactivar Deployment Protection -> Vercel Authentication en los settings del proyecto en Vercel para permitir acceso pblico a invitados.

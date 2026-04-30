@@ -95,7 +95,7 @@ export async function joinLeagueAction(inviteCode: string) {
     return { error: "Error al unirse a la arena." };
   }
 
-  redirect("/standings");
+  redirect(`/standings?invite=${inviteCode}`);
 }
 
 export async function getLeagueByInvite(inviteCode: string) {

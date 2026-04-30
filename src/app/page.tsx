@@ -16,7 +16,7 @@ type PageProps = {
 export default async function Home(props: PageProps) {
   const searchParams = await props.searchParams;
   const inviteCode = typeof searchParams?.invite === 'string' ? searchParams.invite : undefined;
-  
+
   let leagueInfo = null;
   if (inviteCode) {
     leagueInfo = await getLeagueByInvite(inviteCode);
