@@ -19,7 +19,10 @@ export default async function Home(props: PageProps) {
 
   let leagueInfo = null;
   if (inviteCode) {
-    leagueInfo = await getLeagueByInvite(inviteCode);
+    const res = await getLeagueByInvite(inviteCode);
+    if (res && !('error' in res)) {
+      leagueInfo = res;
+    }
   }
 
   return (
