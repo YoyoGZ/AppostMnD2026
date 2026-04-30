@@ -10,6 +10,7 @@ function OnboardingContent() {
   const [leagueInfo, setLeagueInfo] = useState<any>(null);
   const searchParams = useSearchParams();
   const inviteCode = searchParams.get("invite");
+  console.log(`📡 [ONBOARDING] Código detectado en URL: ${inviteCode || 'NULL'}`);
 
   useEffect(() => {
     if (inviteCode) {

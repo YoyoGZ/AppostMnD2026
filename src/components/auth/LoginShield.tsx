@@ -37,6 +37,7 @@ export const LoginShield = ({ inviteCode, leagueInfo }: LoginShieldProps) => {
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(`🔑 [LOGINSHIELD] Iniciando Auth. InviteCode: ${inviteCode || 'NONE'}`);
     setError(null);
     setIsLoading(true);
 
@@ -86,6 +87,7 @@ export const LoginShield = ({ inviteCode, leagueInfo }: LoginShieldProps) => {
       
       // Si llegamos aquí sin redirección de joinLeagueAction, vamos al dashboard preservando el inviteCode
       const targetPath = inviteCode ? `/dashboard?invite=${inviteCode}` : "/dashboard";
+      console.log(`🚀 [LOGINSHIELD] Redirigiendo a: ${targetPath}`);
       router.push(targetPath);
       router.refresh();
       
