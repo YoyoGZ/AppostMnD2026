@@ -101,6 +101,8 @@ export async function joinLeagueAction(inviteCode: string) {
 export async function getLeagueByInvite(inviteCode: string) {
   const supabase = await createClient();
   
+  console.log(`🔍 [SERVER] Consultando liga con código: ${inviteCode.toUpperCase()}`);
+  
   // 1. Obtener la liga básica
   const { data: leagueBasic, error: leagueError } = await supabase
     .from('leagues')
@@ -108,7 +110,12 @@ export async function getLeagueByInvite(inviteCode: string) {
     .eq('invite_code', inviteCode.toUpperCase())
     .single();
 
-  if (leagueError || !leagueBasic) return null;
+  if (leagueError || !leagueBasic) {
+    console.log(`❌ [SERVER] Error en getLeagueByInvite:`, leagueError?.message || "Liga no encontrada");
+    return null;
+  }
+  
+  console.log(`✅ [SERVER] Liga encontrada: ${leagueBasic.name}`);
 
   // 2. Obtener el alias del capitán
   const { data: captainMember } = await supabase
