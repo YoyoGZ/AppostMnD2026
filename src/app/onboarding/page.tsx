@@ -14,7 +14,14 @@ function OnboardingContent() {
 
   useEffect(() => {
     if (inviteCode) {
-      getLeagueByInvite(inviteCode).then(setLeagueInfo);
+      getLeagueByInvite(inviteCode).then(res => {
+        console.log("📥 [ONBOARDING] Resultado de getLeagueByInvite:", res);
+        if (res && !('error' in res)) {
+          setLeagueInfo(res);
+        } else {
+          console.error("❌ [ONBOARDING] Error obteniendo liga:", res?.error);
+        }
+      });
     }
   }, [inviteCode]);
 

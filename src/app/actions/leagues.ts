@@ -111,12 +111,9 @@ export async function getLeagueByInvite(inviteCode: string) {
     .single();
 
   if (leagueError || !leagueBasic) {
-    console.log(`❌ [SERVER] Error en getLeagueByInvite:`, leagueError?.message || "Liga no encontrada");
-    return null;
+    return { error: leagueError?.message || "Liga no encontrada" };
   }
   
-  console.log(`✅ [SERVER] Liga encontrada: ${leagueBasic.name}`);
-
   // 2. Obtener el alias del capitán
   const { data: captainMember } = await supabase
     .from('league_members')
@@ -126,6 +123,7 @@ export async function getLeagueByInvite(inviteCode: string) {
     .single();
 
   return {
+    id: leagueBasic.id,
     name: leagueBasic.name,
     captainAlias: captainMember?.alias || "Capitán"
   };
