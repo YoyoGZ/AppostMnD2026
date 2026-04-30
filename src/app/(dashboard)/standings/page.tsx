@@ -26,6 +26,11 @@ export default async function StandingsPage() {
     .eq('user_id', user.id)
     .single();
 
+  if (!userMembership) {
+    console.log("❌ [STANDINGS] No se encontró membresía para el usuario.");
+    return <div className="p-8 text-white/50 uppercase font-black text-xs tracking-widest text-center">Iniciando Arena...</div>;
+  }
+
   // 2. Traer el Leaderboard fresco SOLO de esta liga
   const { data, error } = await supabase
     .from('league_members')
