@@ -45,8 +45,9 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Con sesión + en login → redirigir al dashboard
-  if (user && request.nextUrl.pathname === '/') {
+  // Con sesión + en login → redirigir al dashboard (A MENOS que traiga una invitación)
+  const hasInvite = request.nextUrl.searchParams.has('invite')
+  if (user && request.nextUrl.pathname === '/' && !hasInvite) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
