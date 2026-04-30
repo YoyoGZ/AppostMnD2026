@@ -2,6 +2,7 @@ import React from "react";
 import { LoginShield } from "@/components/auth/LoginShield";
 import { DynamicQR } from "@/components/auth/DynamicQR";
 import { Shield } from "lucide-react";
+import { getLeagueByInvite } from "@/app/actions/leagues";
 
 /**
  * Página de Login (Landing).
@@ -15,6 +16,11 @@ type PageProps = {
 export default async function Home(props: PageProps) {
   const searchParams = await props.searchParams;
   const inviteCode = typeof searchParams?.invite === 'string' ? searchParams.invite : undefined;
+  
+  let leagueInfo = null;
+  if (inviteCode) {
+    leagueInfo = await getLeagueByInvite(inviteCode);
+  }
 
   return (
     <div className="relative min-h-[100dvh] w-full flex flex-col items-center justify-center bg-background overflow-y-auto">
@@ -38,7 +44,7 @@ export default async function Home(props: PageProps) {
 
         {/* Auth UI */}
         <main className="w-full relative z-10 flex flex-col items-center">
-          <LoginShield inviteCode={inviteCode} />
+          <LoginShield inviteCode={inviteCode} leagueInfo={leagueInfo} />
           <DynamicQR />
         </main>
       </div>

@@ -95,5 +95,32 @@ export async function joinLeagueAction(inviteCode: string) {
     return { error: "Error al unirse a la arena." };
   }
 
-  redirect("/dashboard");
+  redirect("/standings");
 }
+
+export async function getLeagueByInvite(inviteCode: string) {
+  const supabase = await createClient();
+  
+  // 1. Obtener la liga básica
+  const { data: leagueBasic, error: leagueError } = await supabase
+    .from('leagues')
+    .select('id, name, created_by')
+    .eq('invite_code', inviteCode.toUpperCase())
+    .single();
+
+  if (leagueError || !leagueBasic) return null;
+
+  // 2. Obtener el alias del capitán
+  const { data: captainMember } = await supabase
+    .from('league_members')
+    .select('alias')
+    .eq('league_id', leagueBasic.id)
+    .eq('user_id', leagueBasic.created_by)
+    .single();
+
+  return {
+    name: leagueBasic.name,
+    captainAlias: captainMember?.alias || "Capitán"
+  };
+}
+

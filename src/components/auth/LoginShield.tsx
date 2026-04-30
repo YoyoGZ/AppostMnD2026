@@ -6,8 +6,16 @@ import { Lock, User, ArrowRight, ShieldAlert, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { joinLeagueAction } from "@/app/actions/leagues";
 
-export const LoginShield = ({ inviteCode }: { inviteCode?: string }) => {
-  const [isNewUser, setIsNewUser] = useState(false);
+type LoginShieldProps = {
+  inviteCode?: string;
+  leagueInfo?: {
+    name: string;
+    captainAlias: string;
+  } | null;
+};
+
+export const LoginShield = ({ inviteCode, leagueInfo }: LoginShieldProps) => {
+  const [isNewUser, setIsNewUser] = useState(!!inviteCode);
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -105,8 +113,21 @@ export const LoginShield = ({ inviteCode }: { inviteCode?: string }) => {
         
         <div className="p-8 pb-10">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-black text-white tracking-tighter drop-shadow-md">IDENTITY<span className="text-primary">SHIELD</span></h1>
-            <p className="text-white/50 text-sm mt-2 font-medium">Acceso reservado a los participantes de la liga</p>
+            {leagueInfo ? (
+              <>
+                <h1 className="text-2xl font-black text-white tracking-tighter drop-shadow-md uppercase">
+                  Bienvenido a <span className="text-primary">{leagueInfo.name}</span>
+                </h1>
+                <p className="text-white/50 text-[10px] mt-2 font-bold uppercase tracking-widest">
+                  Arena fundada por <span className="text-primary/80">{leagueInfo.captainAlias}</span>
+                </p>
+              </>
+            ) : (
+              <>
+                <h1 className="text-3xl font-black text-white tracking-tighter drop-shadow-md">IDENTITY<span className="text-primary">SHIELD</span></h1>
+                <p className="text-white/50 text-sm mt-2 font-medium">Acceso reservado a los participantes de la liga</p>
+              </>
+            )}
           </div>
 
           <form onSubmit={handleAuth} className="flex flex-col gap-4">
@@ -190,7 +211,9 @@ export const LoginShield = ({ inviteCode }: { inviteCode?: string }) => {
               disabled={isLoading}
               className="mt-4 w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-black py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(251,191,36,0.3)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 disabled:shadow-none"
             >
-              {isLoading ? "VERIFICANDO ENLACE..." : "INGRESAR AL FIXTURE MUNDIAL 2026"}
+              {isLoading ? "VERIFICANDO ENLACE..." : (
+                inviteCode ? "UNIRME A LA ARENA" : "INGRESAR AL FIXTURE MUNDIAL 2026"
+              )}
               {!isLoading && <ArrowRight className="w-5 h-5" />}
             </button>
           </form>
