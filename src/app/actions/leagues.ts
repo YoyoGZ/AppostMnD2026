@@ -14,13 +14,24 @@ export async function createLeagueAction(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "No autenticado" };
 
+  // Regla de negocio: un usuario solo puede fundar UNA liga (ser Capitán)
+  const { data: existingLeague } = await supabase
+    .from('leagues')
+    .select('id')
+    .eq('created_by', user.id)
+    .maybeSingle();
+
+  if (existingLeague) {
+    return { error: "Ya eres Capitán de una Arena. Solo puedes fundar una liga por torneo." };
+  }
+
   let name = formData.get("name")?.toString();
   if (!name || name.trim() === "") {
     name = randomNames[Math.floor(Math.random() * randomNames.length)];
   }
 
   const invite_code = generateInviteCode();
-  const leagueId = crypto.randomUUID(); // Necesita ser compatible con UUID en Postgres
+  const leagueId = crypto.randomUUID();
 
   const { error: leagueError } = await supabase.from('leagues').insert({
     id: leagueId,
@@ -34,16 +45,22 @@ export async function createLeagueAction(formData: FormData) {
     return { error: "Error al crear la arena." };
   }
 
+  const alias = user.user_metadata?.display_name || user.email?.split('@')[0] || "Fundador";
   const { error: memberError } = await supabase.from('league_members').insert({
     league_id: leagueId,
     user_id: user.id,
-    alias: user.email?.split('@')[0] || "Fundador"
+    alias
   });
 
   if (memberError) {
     console.error("Error uniendo admin:", memberError);
     return { error: "Arena creada pero falló el ingreso." };
   }
+
+  // Establecer como liga activa en los metadatos del usuario
+  await supabase.auth.updateUser({
+    data: { active_league_id: leagueId }
+  });
 
   redirect("/dashboard");
 }
@@ -53,7 +70,7 @@ export async function joinLeagueAction(inviteCode: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "No autenticado" };
 
-  // 1. Buscar por código (Case Insensitive)
+  // 1. Buscar liga por código (Case Insensitive)
   const { data: leagueByCode } = await supabase
     .from('leagues')
     .select('id, name')
@@ -62,7 +79,7 @@ export async function joinLeagueAction(inviteCode: string) {
 
   let league = leagueByCode;
 
-  // 2. Si no hay por código, buscar por nombre
+  // 2. Fallback: buscar por nombre
   if (!league) {
     const { data: leagueByName } = await supabase
       .from('leagues')
@@ -77,7 +94,7 @@ export async function joinLeagueAction(inviteCode: string) {
   }
 
   // Verificar cupos (Máximo 10)
-  const { count, error: countError } = await supabase
+  const { count } = await supabase
     .from('league_members')
     .select('*', { count: 'exact', head: true })
     .eq('league_id', league.id);
@@ -86,29 +103,37 @@ export async function joinLeagueAction(inviteCode: string) {
     return { error: "Esta Arena ya alcanzó el límite de 10 gladiadores." };
   }
 
-  // Check if already in
-  const { data: alreadyIn } = await supabase
+  // Multi-liga: verificar si ya está en ESTA liga específica (no en cualquier liga)
+  const { data: alreadyInThisLeague } = await supabase
     .from('league_members')
     .select('id')
     .eq('user_id', user.id)
-    .single();
+    .eq('league_id', league.id)
+    .maybeSingle();
 
-  if (alreadyIn) {
-    // Si ya está en una liga, en un MVP tal vez lo redirigimos directo o le damos error
+  if (alreadyInThisLeague) {
+    // Ya es miembro de esta arena → ir directo al dashboard
     redirect("/dashboard");
   }
 
+  const alias = user.user_metadata?.display_name || user.email?.split('@')[0] || "Gladiador";
   const { error: joinError } = await supabase.from('league_members').insert({
     league_id: league.id,
     user_id: user.id,
-    alias: user.email?.split('@')[0] || "Gladiador"
+    alias
   });
 
   if (joinError) {
+    console.error("Error al unirse:", joinError);
     return { error: "Error al unirse a la arena." };
   }
 
-  redirect(`/standings?invite=${inviteCode}`);
+  // Al unirse, la marcamos como activa automáticamente
+  await supabase.auth.updateUser({
+    data: { active_league_id: league.id }
+  });
+
+  redirect("/dashboard");
 }
 
 export async function getLeagueByInvite(inviteCode: string) {
@@ -155,5 +180,53 @@ export async function getLeagueByInvite(inviteCode: string) {
     name: leagueBasic.name,
     captainAlias: captainMember?.alias || "Capitán"
   };
+}
+
+/**
+ * Obtiene todas las ligas a las que pertenece el usuario actual.
+ */
+export async function getMyLeagues() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from('league_members')
+    .select(`
+      league_id,
+      leagues (
+        id,
+        name,
+        created_by
+      )
+    `)
+    .eq('user_id', user.id);
+
+  if (error) {
+    console.error("Error obteniendo mis ligas:", error);
+    return [];
+  }
+
+  return data.map(m => ({
+    id: m.leagues.id,
+    name: m.leagues.name,
+    isCaptain: m.leagues.created_by === user.id
+  }));
+}
+
+/**
+ * Cambia la liga activa en los metadatos del usuario.
+ */
+export async function setActiveLeagueAction(leagueId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "No autenticado" };
+
+  const { error } = await supabase.auth.updateUser({
+    data: { active_league_id: leagueId }
+  });
+
+  if (error) return { error: error.message };
+  return { success: true };
 }
 

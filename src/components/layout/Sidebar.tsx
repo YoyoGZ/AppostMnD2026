@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { 
@@ -10,14 +11,25 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
-  LogOut
+  LogOut,
+  Crown
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/context/SidebarContext";
 
-export function Sidebar({ leagueName }: { leagueName?: string }) {
+import { setActiveLeagueAction } from "@/app/actions/leagues";
+
+export function Sidebar({ 
+  activeLeague, 
+  allLeagues = [] 
+}: { 
+  activeLeague?: { id: string, name: string, isCaptain: boolean },
+  allLeagues?: { id: string, name: string, isCaptain: boolean }[]
+}) {
   const { isCollapsed, setIsCollapsed } = useSidebar();
+  const [isChangingLeague, setIsChangingLeague] = useState(false);
+  const [showSelector, setShowSelector] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -26,6 +38,21 @@ export function Sidebar({ leagueName }: { leagueName?: string }) {
     await supabase.auth.signOut();
     router.push("/");
     router.refresh();
+  };
+
+  const handleSwitchLeague = async (id: string) => {
+    if (id === activeLeague?.id) {
+      setShowSelector(false);
+      return;
+    }
+    
+    setIsChangingLeague(true);
+    const res = await setActiveLeagueAction(id);
+    if (res.success) {
+      router.refresh();
+    }
+    setIsChangingLeague(false);
+    setShowSelector(false);
   };
 
   const navItems = [
@@ -39,13 +66,26 @@ export function Sidebar({ leagueName }: { leagueName?: string }) {
 
   return (
     <>
-      {/* Mobile Top Header (Muestra la Liga) */}
+      {/* Mobile Top Header (Muestra la Liga + Selector) */}
       <header className="md:hidden fixed top-0 left-0 w-full bg-black/60 backdrop-blur-xl border-b border-white/5 z-50 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Trophy className="w-5 h-5 text-primary" />
           <div className="flex flex-col">
             <span className="text-[9px] font-black uppercase tracking-widest text-white/40">Tu Arena</span>
-            <span className="text-sm font-bold text-white leading-tight">{leagueName || "Copa Mundial 2026"}</span>
+            <div className="flex items-center gap-1">
+              <span className="text-sm font-bold text-white leading-tight">{activeLeague?.name || "Copa Mundial 2026"}</span>
+              {allLeagues.length > 1 && (
+                <select 
+                  className="bg-transparent text-primary text-[10px] font-bold uppercase focus:outline-none"
+                  onChange={(e) => handleSwitchLeague(e.target.value)}
+                  value={activeLeague?.id}
+                >
+                  {allLeagues.map(l => (
+                    <option key={l.id} value={l.id} className="bg-black text-white">{l.name}</option>
+                  ))}
+                </select>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -98,18 +138,47 @@ export function Sidebar({ leagueName }: { leagueName?: string }) {
         </button>
 
         <div className={cn(
-          "flex items-center h-20 border-b border-border/20 px-6 transition-all",
-          isCollapsed && "px-4 justify-center"
+          "flex flex-col border-b border-border/20 px-6 py-4 transition-all relative",
+          isCollapsed && "px-4 items-center"
         )}>
-          <div className="bg-primary/10 p-2 rounded-xl shrink-0">
-            <Trophy className="w-7 h-7 text-primary" />
+          <div className="flex items-center w-full">
+            <div className="bg-primary/10 p-2 rounded-xl shrink-0">
+              <Trophy className="w-7 h-7 text-primary" />
+            </div>
+            {!isCollapsed && (
+              <div className="flex flex-col ml-3 overflow-hidden flex-1">
+                <span className="text-[9px] font-black uppercase tracking-widest text-primary/70">Tu Arena</span>
+                <div className="flex items-center justify-between gap-1 group/league cursor-pointer" onClick={() => allLeagues.length > 1 && setShowSelector(!showSelector)}>
+                  <h1 className="text-base font-black tracking-tight text-white truncate">
+                    {activeLeague?.name || "Copa Mundial 2026"}
+                  </h1>
+                  {allLeagues.length > 1 && (
+                    <ChevronRight className={cn("w-4 h-4 text-white/30 transition-transform", showSelector && "rotate-90")} />
+                  )}
+                </div>
+              </div>
+            )}
           </div>
-          {!isCollapsed && (
-            <div className="flex flex-col ml-3 overflow-hidden">
-              <span className="text-[9px] font-black uppercase tracking-widest text-primary/70">Tu Arena</span>
-              <h1 className="text-base font-black tracking-tight text-white truncate">
-                {leagueName || "Copa Mundial 2026"}
-              </h1>
+
+          {/* Selector de Ligas (Desktop Dropdown) */}
+          {!isCollapsed && showSelector && allLeagues.length > 1 && (
+            <div className="absolute top-full left-0 w-full px-4 py-2 z-50">
+              <div className="bg-black/80 backdrop-blur-2xl border border-white/10 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
+                {allLeagues.map((league) => (
+                  <button
+                    key={league.id}
+                    onClick={() => handleSwitchLeague(league.id)}
+                    disabled={isChangingLeague}
+                    className={cn(
+                      "w-full px-4 py-3 text-left text-xs font-bold transition-all hover:bg-primary/10 flex items-center justify-between",
+                      league.id === activeLeague?.id ? "text-primary" : "text-white/60 hover:text-white"
+                    )}
+                  >
+                    <span className="truncate">{league.name}</span>
+                    {league.isCaptain && <Crown className="w-3 h-3 text-yellow-500" />}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>

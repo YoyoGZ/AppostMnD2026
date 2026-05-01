@@ -16,26 +16,33 @@ export default async function StandingsPage() {
   }
 
   // 1. Ejecutar el Oráculo (Auditoría de Puntos)
-  // Al ser un Server Component, esto se ejecuta SIEMPRE antes de enviar la página al cliente.
   await processFinishedMatches();
 
-  // 1.5 Obtener la liga a la que pertenece el usuario
-  const { data: userMembership } = await supabase
-    .from('league_members')
-    .select('league_id')
-    .eq('user_id', user.id)
-    .single();
+  // 1.5 Obtener la liga activa de los metadatos del usuario
+  let activeLeagueId = user.user_metadata?.active_league_id;
 
-  if (!userMembership) {
-    console.log("❌ [STANDINGS] No se encontró membresía para el usuario.");
-    return <div className="p-8 text-white/50 uppercase font-black text-xs tracking-widest text-center">Iniciando Arena...</div>;
+  // Si no hay liga activa en metadatos, buscamos la primera disponible
+  if (!activeLeagueId) {
+    const { data: firstMembership } = await supabase
+      .from('league_members')
+      .select('league_id')
+      .eq('user_id', user.id)
+      .limit(1)
+      .maybeSingle();
+    
+    activeLeagueId = firstMembership?.league_id;
+  }
+
+  if (!activeLeagueId) {
+    console.log("❌ [STANDINGS] No se encontró liga activa para el usuario.");
+    redirect("/onboarding");
   }
 
   // 2. Traer el Leaderboard fresco SOLO de esta liga
   const { data, error } = await supabase
     .from('league_members')
     .select('*, leagues ( id, name, invite_code, created_by )')
-    .eq('league_id', userMembership.league_id)
+    .eq('league_id', activeLeagueId)
     .order('total_pts', { ascending: false });
 
   if (error) {

@@ -42,7 +42,7 @@ export default function StandingsClient({
     if (!leagueInfo?.inviteCode) return;
     // Usamos origin dinámico para que funcione en cualquier dominio (local o prod)
     const baseUrl = window.location.origin;
-    const link = `${baseUrl}/onboarding?invite=${leagueInfo.inviteCode}`;
+    const link = `${baseUrl}/join/${leagueInfo.inviteCode}`;
     navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

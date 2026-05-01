@@ -4,13 +4,21 @@ import { useSidebar } from "@/context/SidebarContext";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { cn } from "@/lib/utils";
 
-export function Shell({ children, leagueName }: { children: React.ReactNode, leagueName?: string }) {
+export function Shell({ 
+  children, 
+  activeLeague, 
+  allLeagues 
+}: { 
+  children: React.ReactNode, 
+  activeLeague?: { id: string, name: string, isCaptain: boolean },
+  allLeagues?: { id: string, name: string, isCaptain: boolean }[]
+}) {
   const { isCollapsed } = useSidebar();
 
   return (
     <div className="flex min-h-screen">
       <div className="bg-stadium" />
-      <Sidebar leagueName={leagueName} />
+      <Sidebar activeLeague={activeLeague} allLeagues={allLeagues} />
       <main 
         className={cn(
           "flex-1 flex flex-col min-h-screen transition-all duration-500 ease-in-out scroll-smooth pt-14 md:pt-0",
