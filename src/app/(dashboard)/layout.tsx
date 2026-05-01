@@ -2,17 +2,12 @@ import { SidebarProvider } from "@/context/SidebarContext";
 import { Shell } from "@/components/layout/Shell";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { getMyLeagues } from "@/app/actions/leagues";
 
 /**
  * Layout exclusivo para rutas protegidas del dashboard.
  * Envuelve el contenido en SidebarProvider + Shell (Sidebar + bg-stadium).
- * Si el usuario no tiene liga, es interceptado y enviado a Onboarding.
  */
-import { SidebarProvider } from "@/context/SidebarContext";
-import { Shell } from "@/components/layout/Shell";
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
-import { getMyLeagues } from "@/app/actions/leagues";
 
 export default async function DashboardLayout({
   children,
