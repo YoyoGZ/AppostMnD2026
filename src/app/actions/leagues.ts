@@ -53,14 +53,27 @@ export async function joinLeagueAction(inviteCode: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "No autenticado" };
 
-  const { data: league, error: findError } = await supabase
+  // 1. Buscar por código exacto
+  const { data: leagueByCode } = await supabase
     .from('leagues')
     .select('id, name')
-    .or(`name.ilike."${inviteCode}",invite_code.eq."${inviteCode.toUpperCase()}"`)
+    .eq('invite_code', inviteCode.toUpperCase())
     .maybeSingle();
 
-  if (findError || !league) {
-    return { error: "Código de invitación inválido o caducado." };
+  let league = leagueByCode;
+
+  // 2. Si no hay por código, buscar por nombre
+  if (!league) {
+    const { data: leagueByName } = await supabase
+      .from('leagues')
+      .select('id, name')
+      .ilike('name', inviteCode)
+      .maybeSingle();
+    league = leagueByName;
+  }
+
+  if (!league) {
+    return { error: "Arena no encontrada. Verifica el enlace de invitación." };
   }
 
   // Verificar cupos (Máximo 10)
@@ -103,15 +116,27 @@ export async function getLeagueByInvite(inviteCode: string) {
   
   console.log(`🔍 [SERVER] Consultando liga con identificador: ${inviteCode}`);
   
-  // 1. Obtener la liga buscando por NOMBRE o por CÓDIGO
-  const { data: leagueBasic, error: leagueError } = await supabase
+  // 1. Intentar por código de invitación
+  const { data: leagueByCode } = await supabase
     .from('leagues')
     .select('id, name, created_by')
-    .or(`name.ilike."${inviteCode}",invite_code.eq."${inviteCode.toUpperCase()}"`)
+    .eq('invite_code', inviteCode.toUpperCase())
     .maybeSingle();
 
-  if (leagueError || !leagueBasic) {
-    return { error: leagueError?.message || "Liga no encontrada" };
+  let leagueBasic = leagueByCode;
+
+  // 2. Si no hay éxito, intentar por nombre de la arena
+  if (!leagueBasic) {
+    const { data: leagueByName } = await supabase
+      .from('leagues')
+      .select('id, name, created_by')
+      .ilike('name', inviteCode)
+      .maybeSingle();
+    leagueBasic = leagueByName;
+  }
+
+  if (!leagueBasic) {
+    return { error: "No existe esa Arena en nuestros registros." };
   }
   
   // 2. Obtener el alias del capitán
