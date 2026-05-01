@@ -53,11 +53,11 @@ export async function joinLeagueAction(inviteCode: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "No autenticado" };
 
-  // 1. Buscar por código exacto
+  // 1. Buscar por código (Case Insensitive)
   const { data: leagueByCode } = await supabase
     .from('leagues')
     .select('id, name')
-    .eq('invite_code', inviteCode.toUpperCase())
+    .ilike('invite_code', inviteCode)
     .maybeSingle();
 
   let league = leagueByCode;
@@ -116,27 +116,30 @@ export async function getLeagueByInvite(inviteCode: string) {
   
   console.log(`🔍 [SERVER] Consultando liga con identificador: ${inviteCode}`);
   
-  // 1. Intentar por código de invitación
-  const { data: leagueByCode } = await supabase
+  // 1. Intentar por código de invitación (Case Insensitive)
+  const { data: leagueByCode, error: errorByCode } = await supabase
     .from('leagues')
     .select('id, name, created_by')
-    .eq('invite_code', inviteCode.toUpperCase())
+    .ilike('invite_code', inviteCode)
     .maybeSingle();
 
   let leagueBasic = leagueByCode;
 
   // 2. Si no hay éxito, intentar por nombre de la arena
   if (!leagueBasic) {
-    const { data: leagueByName } = await supabase
+    const { data: leagueByName, error: errorByName } = await supabase
       .from('leagues')
       .select('id, name, created_by')
       .ilike('name', inviteCode)
       .maybeSingle();
+    
+    if (errorByName) console.error("❌ [SERVER] Error buscando por nombre:", errorByName);
     leagueBasic = leagueByName;
   }
 
   if (!leagueBasic) {
-    return { error: "No existe esa Arena en nuestros registros." };
+    const finalError = errorByCode?.message || "No se encontró la Arena (¿RLS?)";
+    return { error: finalError };
   }
   
   // 2. Obtener el alias del capitán
