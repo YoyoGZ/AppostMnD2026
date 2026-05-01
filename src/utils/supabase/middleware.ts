@@ -28,59 +28,43 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // Refrescar sesión (CRÍTICO: no usar getSession(), usar getUser() para seguridad real)
+  // Refrescar sesión (getUser es seguro)
   const { data: { user } } = await supabase.auth.getUser()
 
-  // --- LÓGICA DE PRIORIDAD: INVITACIONES ---
-  const inviteCode = request.nextUrl.searchParams.get('invite')
-
-  // 1. Si hay invitación y el usuario ya está logueado, pero NO está en la landing
-  if (inviteCode && user && request.nextUrl.pathname !== '/') {
-    console.log(`🎯 [MIDDLEWARE] Redirigiendo a Landing por INVITACIÓN activa: ${inviteCode}`);
-    const url = request.nextUrl.clone()
-    url.pathname = '/'
-    url.searchParams.set('invite', inviteCode)
-    return NextResponse.redirect(url)
-  }
-
-  // 2. Rutas protegidas...
+  // --- PROTECCIÓN DE RUTAS ---
   const isProtectedRoute =
     request.nextUrl.pathname.startsWith('/dashboard') ||
     request.nextUrl.pathname.startsWith('/matches') ||
     request.nextUrl.pathname.startsWith('/standings') ||
     request.nextUrl.pathname.startsWith('/profile') ||
-    request.nextUrl.pathname.startsWith('/settings')
+    request.nextUrl.pathname.startsWith('/settings') ||
+    request.nextUrl.pathname.startsWith('/onboarding')
 
-  // Sin sesión + ruta protegida → expulsar al login (preservando invitación)
+  // 1. Sin sesión + ruta protegida → a la Home (Login)
   if (!user && isProtectedRoute) {
-    console.log(`🚫 [MIDDLEWARE] Sin sesión en ruta protegida. Redirigiendo a Login.`);
     const url = request.nextUrl.clone()
     url.pathname = '/'
-    if (inviteCode) url.searchParams.set('invite', inviteCode)
     return NextResponse.redirect(url)
   }
 
-  // Con sesión + en login → redirigir al dashboard (A MENOS que traiga una invitación)
-  if (user && request.nextUrl.pathname === '/' && !inviteCode) {
-    console.log(`✅ [MIDDLEWARE] Usuario logueado sin invitación. Redirigiendo a Dashboard.`);
+  // 2. Con sesión + en Home → al Dashboard
+  if (user && request.nextUrl.pathname === '/') {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
 
-  // 3. Interceptor de Membresía: ¿Tiene liga?
-  if (user && isProtectedRoute && request.nextUrl.pathname !== '/onboarding') {
+  // 3. Verificación de membresía básica (solo para el Dashboard principal)
+  if (user && request.nextUrl.pathname.startsWith('/dashboard') && request.nextUrl.pathname !== '/onboarding') {
     const { data: membership } = await supabase
       .from('league_members')
       .select('id')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
     if (!membership) {
-      console.log(`⚠️ [MIDDLEWARE] Usuario sin liga detectado. Redirigiendo a Onboarding. Invite: ${inviteCode || 'NINGUNO'}`);
       const url = request.nextUrl.clone()
       url.pathname = '/onboarding'
-      if (inviteCode) url.searchParams.set('invite', inviteCode)
       return NextResponse.redirect(url)
     }
   }

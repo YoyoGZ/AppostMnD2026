@@ -81,18 +81,16 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
       
       // Victoria: Autenticado correctamente
       if (inviteCode) {
-        const res = await joinLeagueAction(inviteCode);
-        if (res?.error) {
-          setError(res.error);
-          setIsLoading(false);
-          return;
-        }
+        // Redirigir a la nueva página de unión dedicada
+        const targetPath = `/join/${inviteCode}`;
+        console.log(`🚀 [LOGINSHIELD] Redirigiendo a página de unión: ${targetPath}`);
+        router.push(targetPath);
+      } else {
+        // Flujo normal sin invitación
+        console.log(`🚀 [LOGINSHIELD] Redirigiendo a Dashboard`);
+        router.push("/dashboard");
       }
       
-      // Si llegamos aquí sin redirección de joinLeagueAction, vamos al dashboard preservando el inviteCode
-      const targetPath = inviteCode ? `/dashboard?invite=${inviteCode}` : "/dashboard";
-      console.log(`🚀 [LOGINSHIELD] Redirigiendo a: ${targetPath}`);
-      router.push(targetPath);
       router.refresh();
       
     } catch (err: unknown) {
@@ -155,19 +153,13 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                 </p>
               </div>
               <button
-                onClick={async () => {
-                  setIsLoading(true);
-                  const res = await joinLeagueAction(inviteCode);
-                  if (res?.error) {
-                    setError(res.error);
-                    setIsLoading(false);
-                  }
+                onClick={() => {
+                  router.push(`/join/${inviteCode}`);
                 }}
                 disabled={isLoading}
                 className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-black py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(251,191,36,0.3)] hover:scale-[1.02] active:scale-[0.98]"
               >
-                {isLoading ? "PROCESANDO INGRESO..." : "¡SÍ, UNIRME AHORA!"}
-                {!isLoading && <ArrowRight className="w-5 h-5" />}
+                ¡SÍ, UNIRME AHORA! <ArrowRight className="w-5 h-5" />
               </button>
               <button 
                 onClick={() => supabase.auth.signOut().then(() => window.location.reload())}
