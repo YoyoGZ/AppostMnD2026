@@ -233,9 +233,9 @@ export default function StandingsClient({
         <div className="mt-8 text-center flex flex-col items-center">
           <p className="text-[10px] text-white/30 uppercase tracking-[0.1em] mb-2 font-medium">Leyenda de Efectividad</p>
           <div className="flex items-center gap-4 text-[10px] font-bold text-white/50 bg-white/5 px-4 py-2 rounded-full border border-white/10">
-            <span className="flex items-center gap-1"><span className="text-green-400">#</span> Aciertos Tendencia</span>
+            <span className="flex items-center gap-1"><span className="text-green-400">#</span> Aciertos de Resultados</span>
             <span className="text-white/20">|</span>
-            <span className="flex items-center gap-1"><span className="text-yellow-500">#</span> Plenos Exactos</span>
+            <span className="flex items-center gap-1"><span className="text-yellow-500">#</span> Resultados Exactos</span>
           </div>
         </div>
 

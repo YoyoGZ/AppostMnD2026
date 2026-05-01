@@ -11,9 +11,9 @@
 - [ ] Fase 5: Motor de Pronósticos Eliminatorios (Llaves Knockout y Alargue/Penales)
 
 ## Current Trajectory
-**Paso Activo**: **Optimización de Guest Experience** — Personalizando el flujo de entrada de invitados vía Magic Link y redirección directa a Clasificación.
+**Paso Activo**: **Sincronización y Blindaje (Fase 3)** — Implementación de protocolos de seguridad para bloquear apuestas post-inicio y automatización del Oráculo para resultados reales.
 
-## Último Audit (2026-04-29)
+## Último Audit (2026-05-01) - **Multi-League Milestone**
 
 | Categoría | Score | Target |
 |-----------|-------|--------|
@@ -25,8 +25,7 @@
 
 | Agent | Task | Status |
 |-------|------|--------|
-| Antigravity | Hotfix Producción (Middleware + CORS) | ✅ Done |
-| Design Lead | Aislar Login + Loading States + Toasts + Kinetic Typography | 🔜 Next |
-| Builder | Middleware Auth + Error Boundaries + Rutas Placeholder + Optimistic UI | 🔄 In Progress |
-| Data Tournament Architect | Lógica de puntos y Oracle debug | ⏸️ Pausado |
-| Shield & Integrity Specialist | Ciberseguridad de Apuestas (Time-locks) | 📋 Pipeline |
+| Antigravity | Arquitectura Multi-Liga + Invite Flow (/join) | ✅ Done |
+| Shield & Integrity Specialist | Time-locks (Blindaje de apuestas post-inicio) | 🔄 In Progress |
+| Builder | Automatización del Oráculo (Sync con API/JSON) | 🔄 In Progress |
+| Design Lead | Pulido de Kinetic Typography en Dashboard | 🔜 Next |

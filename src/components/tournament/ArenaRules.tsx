@@ -16,12 +16,15 @@ const ArenaRules = () => {
         </div>
         
         <div className="space-y-4">
+          <p className="text-sm font-black text-primary/80 mb-2 uppercase tracking-wide">
+            SOLO tienes a otros 9 contrincantes !! (10 por cada Liga en la App)
+          </p>
           <div className="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/5">
-            <span className="text-gray-400">Tendencia (Ganador/Empate)</span>
+            <span className="text-gray-400">Pronostico (Ganador o Empate)</span>
             <span className="text-2xl font-black text-yellow-500">+2</span>
           </div>
           <div className="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/5">
-            <span className="text-gray-400">Marcador Exacto</span>
+            <span className="text-gray-400">Resultado Exacto</span>
             <span className="text-2xl font-black text-yellow-400">+3</span>
           </div>
           <p className="text-sm text-yellow-500/60 font-medium italic">
@@ -39,12 +42,12 @@ const ArenaRules = () => {
           <h3 className="text-xl font-bold text-white uppercase tracking-wider">Sello de Apuesta</h3>
         </div>
         <p className="text-gray-300 leading-relaxed mb-4">
-          Una vez que confirmas tu pronóstico, el boleto queda <span className="text-blue-400 font-bold uppercase">Sellado</span>. 
-          No podrás editarlo incluso si el partido no ha comenzado.
+          Una vez confirmado tu pronóstico, la apuesta queda <span className="text-blue-400 font-bold uppercase">SELLADA</span>. 
+          NO podras editarlo o cambiarlo de ningún modo.
         </p>
         <div className="flex items-center gap-2 text-blue-300 text-sm bg-blue-500/10 p-2 rounded-lg border border-blue-500/20">
           <AlertCircle size={16} />
-          <span>¡Piensa bien antes de sellar!</span>
+          <span>Piensa bien ANTES de cerrar la apuesta !!</span>
         </div>
       </div>
 
@@ -57,7 +60,7 @@ const ArenaRules = () => {
           <h3 className="text-xl font-bold text-white uppercase tracking-wider">Cierre de Arena</h3>
         </div>
         <p className="text-gray-300 leading-relaxed">
-          Las apuestas se cierran automáticamente <span className="text-red-400 font-bold">5 minutos antes</span> del pitido inicial oficial.
+          Las apuestas se cierran automáticamente <span className="text-red-400 font-bold">5 minutos antes</span> del inicio del horario del partido.
         </p>
       </div>
 

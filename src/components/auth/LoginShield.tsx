@@ -120,7 +120,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto p-4 min-h-[60vh]">
+    <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto p-4">
       <div className="w-full bento-card bg-card-body/40 backdrop-blur-xl border-white/10 shadow-2xl overflow-hidden relative rounded-2xl">
         {/* Adorno superior (Bento Grid Style) */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/50 via-primary to-primary/50"></div>

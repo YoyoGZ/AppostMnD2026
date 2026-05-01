@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mundial 2026 | Dashboard Oficial de Resultados",
+  title: "Mundial 2026 | Dashboard de Resultados y Pronosticos",
   description: "Plataforma premium para el seguimiento interactivo de la Copa del Mundo 2026. Análisis de grupos, calendarios y estadísticas en tiempo real.",
 };
 
@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`dark ${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
-      <body className="antialiased overflow-x-hidden">
+      <body className="antialiased overflow-x-hidden" suppressHydrationWarning>
         {children}
       </body>
     </html>

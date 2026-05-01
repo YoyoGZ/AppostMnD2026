@@ -24,31 +24,26 @@ Este documento centraliza los problemas técnicos y bugs encontrados durante el 
 2. **Reingeniería de Arquitectura (Server Components)**: Se migró la página de Standings de Client Component con `useEffect` a Server Component Puro con paso de datos pre-hidratados al cliente (`StandingsClient.tsx`). Se eliminaron las carreras de datos, el caché envenenado de Next.js, y se garantizó la sincronización perfecta del Oráculo antes del renderizado.
 3. **Inmunidad de Tipos**: Se forzó la coerción a `.toString()` al cruzar IDs de partidos entre el JSON y Postgres para evitar descarte de operaciones por Type Mismatches.
 
-## 3. El Muro de Producción: Error 'Failed to Fetch' en el Despliegue (Vercel)
+## CORREGIDO ## 
+### 3. El Muro de Producción: Error 'Failed to Fetch' en el Despliegue (Vercel)
 
-### Síntomas Encontrados (2026-04-29)
-- **Bloqueo en Onboarding**: Tras el despliegue exitoso en Vercel, cualquier intento de registro de alias o creación de liga desde el dominio oficial resulta en una alerta roja de "Failed to Fetch". El sistema funciona perfectamente en local pero se rompe en la nube.
+### Historial de Resolución Efectiva (Solución Aplicada)
+1. **Configuración de Dominios**: Se incluyó el dominio de Vercel con y sin protocolo en `serverActions.allowedOrigins`.
+2. **Normalización de Middleware**: Se estandarizó el uso de `src/proxy.ts` (Next.js 16/Antigravity standard) asegurando que el build de Vercel no fallara por inconsistencias de sesión.
 
-### Acciones de Mitigación Realizadas (Sin éxito aún)
-1. **Configuración de Seguridad en Supabase**: Se actualizaron el `Site URL` y las `Redirect URLs` en el panel de Auth para incluir el dominio de Vercel (`https://appost-mn-d2026.vercel.app`).
-2. **Refactorización de Orígenes en Next.js**: Se modificó `next.config.ts` para incluir explícitamente el dominio de producción en `serverActions.allowedOrigins` (bloque experimental).
-
-### Trayectoria de Investigación para la Próxima Sesión
-- **Auditoría de CORS en Navegador**: Abrir herramientas de desarrollador (F12) en la web de Vercel y verificar si el error es de "Preflight (CORS)" o de "Network Timeout".
-- **Revisión de Middleware**: Analizar si el `middleware.ts` está bloqueando peticiones internas debido a la redirección de protocolo en los proxies de Vercel.
-- **Supabase API Settings**: Localizar la configuración oculta de "Allowed Origins" en la sección API para permitir explícitamente el dominio `.vercel.app`.
-
-## 4. El "Efecto Olvido" del Magic Link (Pérdida de Parámetros de Invitación)
+## CORREGIDO ## 
+### 4. El "Efecto Olvido" del Magic Link (Pérdida de Parámetros de Invitación)
 
 ### Síntomas Encontrados (2026-04-30)
-- **Persistencia del Onboarding de Capitán**: A pesar de usar un link de invitación válido (`/?invite=XXXX`), los invitados siguen viendo la pantalla de "Funda tu Arena" en lugar de la tarjeta de bienvenida.
-- **Vercel Auth (Resuelto)**: Se identificó que la protección de despliegue de Vercel bloqueaba el acceso a invitados externos. El usuario la desactivó manualmente.
+- **Persistencia del Onboarding de Capitán**: Invitados veían "Funda tu Arena" por error.
+- **Pérdida de Query Params**: Redirecciones del Middleware borraban el `?invite=`.
 
-### Hallazgos de Investigación (The Root Cause)
-1. **Pérdida de Query Params en Redirecciones**: Se sospecha que el Middleware o el Layout del Dashboard están redirigiendo al usuario de `/` a `/dashboard` y luego a `/onboarding` **sin propagar** el parámetro `?invite=`.
-2. **Resultado**: Al llegar a `/onboarding` sin el código en la URL, el componente no puede identificar la invitación y cae por defecto en el flujo de creación de liga (Capitán).
+### Historial de Resolución Efectiva (Solución Aplicada)
+1. **Arquitectura de Rutas Dedicadas**: Se abandonó el uso de parámetros URL (`?invite=`) para el flujo crítico. Se implementó la ruta estática `/join/[code]`, que es indestructible y resistente a redirecciones de sesión.
+2. **Unificación de Flujo**: Se creó `JoinClient.tsx` que maneja tanto a invitados anónimos (registro + unión en un paso) como a usuarios logueados (unión directa), eliminando el "limbo" de redirección.
+3. **Purga de Middleware**: Se eliminó toda la lógica de invitaciones de `src/utils/supabase/middleware.ts`, delegando la responsabilidad a la ruta dedicada.
 
-### Trayectoria de Investigación para la Próxima Sesión
-- **Preservación de URL**: Modificar el Middleware (`proxy.ts`) y los `redirect()` para asegurar que cualquier parámetro `invite` se mantenga durante todo el salto de rutas.
-- **Pruebas de Incógnito**: Validar el flujo desde un navegador limpio para descartar sesiones persistentes que confundan al Middleware.
-
+---
+## 🚀 PRÓXIMOS DESAFÍOS (Fase 3: Gamificación & Seguridad)
+- **Sincronización de Resultados Reales**: Conectar el Oráculo con una API de deportes o un JSON maestro actualizado.
+- **Seguridad de Pronósticos**: Implementar el Shield Protocol para evitar cambios de apuestas post-inicio de partido.

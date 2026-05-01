@@ -58,7 +58,7 @@ export function Sidebar({
   const navItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard" },
     { icon: CalendarDays, label: "Partidos", href: "/matches" },
-    { icon: Trophy, label: "Clasificación", href: "/standings" },
+    { icon: Trophy, label: "Posic. LIGA", href: "/standings" },
     { icon: User, label: "Perfil", href: "/profile" },
   ];
 
