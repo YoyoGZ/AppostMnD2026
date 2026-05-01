@@ -207,11 +207,17 @@ export async function getMyLeagues() {
     return [];
   }
 
-  return data.map(m => ({
-    id: m.leagues.id,
-    name: m.leagues.name,
-    isCaptain: m.leagues.created_by === user.id
-  }));
+  return (data || []).map(m => {
+    const leagueData: any = m.leagues;
+    // Supabase puede devolver un objeto o un array de un solo elemento
+    const l = Array.isArray(leagueData) ? leagueData[0] : leagueData;
+    
+    return {
+      id: l?.id,
+      name: l?.name,
+      isCaptain: l?.created_by === user.id
+    };
+  });
 }
 
 /**
