@@ -56,8 +56,8 @@ export async function joinLeagueAction(inviteCode: string) {
   const { data: league, error: findError } = await supabase
     .from('leagues')
     .select('id, name')
-    .eq('invite_code', inviteCode.toUpperCase())
-    .single();
+    .or(`name.ilike."${inviteCode}",invite_code.eq."${inviteCode.toUpperCase()}"`)
+    .maybeSingle();
 
   if (findError || !league) {
     return { error: "Código de invitación inválido o caducado." };
@@ -101,14 +101,14 @@ export async function joinLeagueAction(inviteCode: string) {
 export async function getLeagueByInvite(inviteCode: string) {
   const supabase = await createClient();
   
-  console.log(`🔍 [SERVER] Consultando liga con código: ${inviteCode.toUpperCase()}`);
+  console.log(`🔍 [SERVER] Consultando liga con identificador: ${inviteCode}`);
   
-  // 1. Obtener la liga básica
+  // 1. Obtener la liga buscando por NOMBRE o por CÓDIGO
   const { data: leagueBasic, error: leagueError } = await supabase
     .from('leagues')
     .select('id, name, created_by')
-    .eq('invite_code', inviteCode.toUpperCase())
-    .single();
+    .or(`name.ilike."${inviteCode}",invite_code.eq."${inviteCode.toUpperCase()}"`)
+    .maybeSingle();
 
   if (leagueError || !leagueBasic) {
     return { error: leagueError?.message || "Liga no encontrada" };

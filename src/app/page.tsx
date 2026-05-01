@@ -47,7 +47,9 @@ export default async function Home(props: PageProps) {
 
         {/* Auth UI */}
         <main className="w-full relative z-10 flex flex-col items-center">
-          <LoginShield inviteCode={inviteCode} leagueInfo={leagueInfo} />
+          <React.Suspense fallback={<div className="h-20 flex items-center justify-center"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div></div>}>
+            <LoginShield inviteCode={inviteCode} leagueInfo={leagueInfo} />
+          </React.Suspense>
           <DynamicQR />
         </main>
       </div>

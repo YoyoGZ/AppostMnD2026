@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { Lock, User, ArrowRight, ShieldAlert, Eye, EyeOff } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { joinLeagueAction } from "@/app/actions/leagues";
 
 type LoginShieldProps = {
@@ -14,7 +14,11 @@ type LoginShieldProps = {
   } | null;
 };
 
-export const LoginShield = ({ inviteCode, leagueInfo }: LoginShieldProps) => {
+export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShieldProps) => {
+  const searchParams = useSearchParams();
+  const urlInviteCode = searchParams.get("invite");
+  const inviteCode = propInviteCode || urlInviteCode; // Fallback dinámico
+
   const [isNewUser, setIsNewUser] = useState(!!inviteCode);
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
