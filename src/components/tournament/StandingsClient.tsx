@@ -163,7 +163,7 @@ export default function StandingsClient({
         <div className="hidden md:flex items-center px-6 py-3 text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">
           <div className="w-12 text-center">Pos</div>
           <div className="flex-1 pl-4">Gladiador</div>
-          <div className="w-20 text-center">Duelos</div>
+          <div className="w-24 text-center">Duelos Ganados</div>
           <div className="w-24 text-center">Racha</div>
           <div className="w-28 text-center">Efectividad</div>
           <div className="w-20 text-right pr-2">PTS</div>

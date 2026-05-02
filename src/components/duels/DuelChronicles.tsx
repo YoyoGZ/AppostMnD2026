@@ -12,12 +12,13 @@ type DuelParticipant = {
 type Duel = {
   id: string;
   matchId: string;
+  matchName?: string; // Ahora llega el nombre del partido
   status: string;
   createdAt: string;
   participants: DuelParticipant[];
 };
 
-export function DuelChronicles({ duels }: { duels: Duel[] }) {
+export function DuelChronicles({ duels, totalWins = 0 }: { duels: Duel[], totalWins?: number }) {
   if (duels.length === 0) {
     return (
       <div className="bg-white/5 border border-white/5 rounded-2xl p-8 text-center">
@@ -29,14 +30,19 @@ export function DuelChronicles({ duels }: { duels: Duel[] }) {
     );
   }
 
+  // Lógica de Taunts por Rango (Gamificación)
   const getTaunt = (duel: Duel) => {
-    const winners = duel.participants.filter(p => p.isWinner);
     if (duel.status === 'active') return "¡La batalla está rugiendo! ⚔️";
     
-    if (winners.length > 0) {
-      return "¡Aplaudan al Capo de los Duelos, che! 🏆";
+    const winners = duel.participants.filter(p => p.isWinner);
+    if (winners.length === 0) {
+      return "Cheee... miren más fútbol !! 🤡";
     }
-    return "¡Miralo al que no sabe de fútbol! 🤡";
+
+    if (totalWins === 0) return "Cheee... miren más fútbol !! 🤡";
+    if (totalWins < 3) return "Vamos Titán, vos podés !! 💪";
+    if (totalWins >= 3 && totalWins < 10) return "Vamos Master !!! 🔥";
+    return "¡Aplaudan al Capo que sabe, che! 👑";
   };
 
   return (
@@ -61,12 +67,12 @@ export function DuelChronicles({ duels }: { duels: Duel[] }) {
                   <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">
                     {new Date(duel.createdAt).toLocaleDateString()}
                   </p>
-                  <p className="text-sm font-bold text-white/90">
-                    Duelo ID: {duel.id.substring(0, 8)}
+                  <p className="text-sm font-black text-white italic">
+                    {duel.matchName || `Partido #${duel.matchId}`}
                   </p>
                 </div>
                 <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                  duel.status === 'active' ? 'bg-yellow-500 text-black' : 'bg-white/10 text-white/50'
+                  duel.status === 'active' ? 'bg-yellow-500 text-black shadow-[0_0_10px_rgba(234,179,8,0.3)]' : 'bg-white/10 text-white/50'
                 }`}>
                   {duel.status === 'active' ? 'En Batalla' : 'Finalizado'}
                 </div>
@@ -94,13 +100,17 @@ export function DuelChronicles({ duels }: { duels: Duel[] }) {
                 <div className="w-8 h-8 rounded-lg bg-black/40 flex items-center justify-center shrink-0">
                   <Swords className={`w-4 h-4 ${duel.status === 'active' ? 'text-yellow-500 animate-pulse' : 'text-white/20'}`} />
                 </div>
-                <p className={`text-xs font-bold italic ${duel.status === 'active' ? 'text-yellow-500/80' : 'text-primary/70'}`}>
-                  "{getTaunt(duel)}"
-                </p>
+                <div className="flex flex-col">
+                   <p className={`text-[11px] font-bold italic leading-tight ${duel.status === 'active' ? 'text-yellow-500/80' : 'text-primary/70'}`}>
+                    "{getTaunt(duel)}"
+                  </p>
+                  {duel.status === 'resolved' && duel.participants.filter(p => p.isWinner).length === 0 && (
+                    <p className="text-[9px] font-black text-red-400/60 uppercase mt-1">No hubo vencedor acá</p>
+                  )}
+                </div>
               </div>
             </div>
             
-            {/* Glossy Effect */}
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
           </div>
         ))}

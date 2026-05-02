@@ -2,31 +2,18 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import worldCupData from "@/data/world-cup-2026.json";
 
 /**
- * Crea un nuevo duelo en la base de datos. Solo el Capitán puede invocarlo.
+ * Crea un duelo en una liga específica.
  */
 export async function createDuelAction(leagueId: string, matchId: string, participantIds: string[]) {
   const supabase = await createClient();
+
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "No autenticado" };
 
-  if (participantIds.length < 2) {
-    return { error: "Un duelo requiere al menos 2 gladiadores." };
-  }
-
-  // 1. Validar que el usuario sea el Capitán (creador) de la liga
-  const { data: league, error: leagueError } = await supabase
-    .from('leagues')
-    .select('created_by')
-    .eq('id', leagueId)
-    .single();
-
-  if (leagueError || !league || league.created_by !== user.id) {
-    return { error: "Solo el Capitán fundador puede organizar duelos en el Coliseo." };
-  }
-
-  // 2. Crear el duelo en estado 'active'
+  // 1. Crear el duelo base
   const { data: duel, error: createError } = await supabase
     .from('league_duels')
     .insert({
@@ -38,12 +25,9 @@ export async function createDuelAction(leagueId: string, matchId: string, partic
     .select('id')
     .single();
 
-  if (createError || !duel) {
-    console.error("Error creando duelo:", createError);
-    return { error: "No se pudo preparar el Ring de duelo." };
-  }
+  if (createError) return { error: "No se pudo forjar el duelo." };
 
-  // 3. Insertar a los participantes
+  // 2. Insertar participantes
   const participantsData = participantIds.map(uid => ({
     duel_id: duel.id,
     user_id: uid,
@@ -54,25 +38,19 @@ export async function createDuelAction(leagueId: string, matchId: string, partic
     .from('duel_participants')
     .insert(participantsData);
 
-  if (partsError) {
-    console.error("Error insertando duelistas:", partsError);
-    return { error: "Duelo creado pero falló el ingreso de los gladiadores al ring." };
-  }
+  if (partsError) return { error: "No se pudieron inscribir los gladiadores." };
 
-  // Refrescar el Dashboard para que todos vean el nuevo duelo
   revalidatePath('/dashboard');
-  return { success: true, duelId: duel.id };
+  return { success: true };
 }
 
 /**
- * Obtiene todos los duelos activos e históricos de una liga, incluyendo los alias de los participantes.
+ * Obtiene los duelos de una liga con sus participantes y nombres de gladiadores.
  */
 export async function getLeagueDuelsAction(leagueId: string) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "No autenticado" };
 
-  // 1. Obtener duelos y la lista de sus participantes
+  // 1. Traer duelos con sus participantes
   const { data: duels, error: duelsError } = await supabase
     .from('league_duels')
     .select(`
@@ -88,35 +66,30 @@ export async function getLeagueDuelsAction(leagueId: string) {
     .eq('league_id', leagueId)
     .order('created_at', { ascending: false });
 
-  if (duelsError) {
-    console.error("Error obteniendo duelos:", duelsError);
-    return { error: "Error de lectura del Coliseo." };
-  }
+  if (duelsError) return { error: duelsError.message };
 
-  // 2. Obtener alias de TODOS los miembros de esta liga
-  const { data: members, error: membersError } = await supabase
+  // 2. Mapear nombres de gladiadores (alias) y Nombres de Partidos
+  const userIds = Array.from(new Set(duels.flatMap(d => d.duel_participants.map((p: any) => p.user_id))));
+  const { data: profiles } = await supabase
     .from('league_members')
     .select('user_id, alias')
-    .eq('league_id', leagueId);
+    .in('user_id', userIds);
 
-  if (membersError) {
-    console.error("Error obteniendo miembros:", membersError);
-    return { error: "Error identificando gladiadores." };
-  }
+  const aliasMap = new Map(profiles?.map(p => [p.user_id, p.alias]));
+  
+  // Mapa de nombres de partidos desde el JSON
+  const matchMap = new Map(worldCupData.partidos.map((m: any) => [m.id.toString(), `${m.equipo_local} vs ${m.equipo_visitante}`]));
 
-  // 3. Crear mapa de alias para lookup O(1)
-  const aliasMap = new Map(members?.map(m => [m.user_id, m.alias]));
-
-  // 4. Mapear y combinar los datos para que el Frontend los consuma fácilmente
-  const formattedDuels = duels.map(d => ({
+  const formattedDuels = (duels || []).map(d => ({
     id: d.id,
     matchId: d.match_id,
+    matchName: matchMap.get(d.match_id.toString()) || `Partido #${d.match_id}`,
     status: d.status,
     createdAt: d.created_at,
     participants: d.duel_participants.map((p: any) => ({
       userId: p.user_id,
       isWinner: p.is_winner,
-      alias: aliasMap.get(p.user_id) || "Gladiador Misterioso"
+      alias: aliasMap.get(p.user_id) || "Gladiador"
     }))
   }));
 
@@ -131,7 +104,6 @@ export async function archiveDuelsAction(leagueId: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "No autenticado" };
 
-  // 1. Validar admin
   const { data: league } = await supabase
     .from('leagues')
     .select('created_by')
@@ -142,7 +114,6 @@ export async function archiveDuelsAction(leagueId: string) {
     return { error: "Solo el Capitán puede limpiar la arena." };
   }
 
-  // 2. Pasar de 'resolved' a 'archived'
   const { error } = await supabase
     .from('league_duels')
     .update({ status: 'archived' })

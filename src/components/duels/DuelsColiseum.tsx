@@ -108,6 +108,15 @@ export function DuelsColiseum({ duels }: { duels: Duel[] }) {
                     )}
                   </div>
                 ))}
+
+                {/* Mensaje de empate/sin ganador */}
+                {duel.status === 'resolved' && duel.participants.every(p => !p.isWinner) && (
+                  <div className="mt-2 pt-2 border-t border-white/5 text-center">
+                    <p className="text-[10px] font-black text-red-400/60 uppercase italic tracking-widest">
+                      No hubo vencedor acá
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           );
