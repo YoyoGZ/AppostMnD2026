@@ -88,7 +88,7 @@ export async function processFinishedMatches() {
     // 5. Resolver Duelos Activos
     const { data: allActiveDuels } = await supabase
       .from('league_duels')
-      .select('id, match_id, league_id') // Añadimos league_id
+      .select('id, match_id, league_id')
       .eq('status', 'active');
 
     const activeDuels = (allActiveDuels || []).filter(duel => 
@@ -122,6 +122,7 @@ export async function processFinishedMatches() {
         });
       }
 
+      // Solo hay ganadores si sumaron más de 0 puntos
       const winners = userIds.filter(uid => userPoints[uid] === maxPoints && maxPoints > 0);
       
       if (winners.length > 0) {
@@ -134,13 +135,18 @@ export async function processFinishedMatches() {
             .eq('user_id', winnerId);
           
           // Incrementar contador global de victorias (Gamificación)
-          await supabase.rpc('increment_duels_won', { 
+          const { error: rpcError } = await supabase.rpc('increment_duels_won', { 
             user_id_param: winnerId, 
             league_id_param: duel.league_id 
           });
+          
+          if (rpcError) {
+            console.error(`[Error de Medalla] Usuario ${winnerId}:`, rpcError.message);
+          }
         }
       }
       
+      // Marcar duelo como resuelto
       await supabase
         .from('league_duels')
         .update({ status: 'resolved' })
@@ -150,7 +156,7 @@ export async function processFinishedMatches() {
     return { success: true, message: "Sincronización completada con éxito." };
 
   } catch (error: any) {
-    console.error("[Oráculo] Error:", error);
+    console.error("[Oráculo] Error fatal:", error);
     return { success: false, message: error.message };
   }
 }

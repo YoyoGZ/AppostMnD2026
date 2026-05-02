@@ -9,11 +9,9 @@ import worldCupData from "@/data/world-cup-2026.json";
  */
 export async function createDuelAction(leagueId: string, matchId: string, participantIds: string[]) {
   const supabase = await createClient();
-
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "No autenticado" };
 
-  // 1. Crear el duelo base
   const { data: duel, error: createError } = await supabase
     .from('league_duels')
     .insert({
@@ -27,7 +25,6 @@ export async function createDuelAction(leagueId: string, matchId: string, partic
 
   if (createError) return { error: "No se pudo forjar el duelo." };
 
-  // 2. Insertar participantes
   const participantsData = participantIds.map(uid => ({
     duel_id: duel.id,
     user_id: uid,
@@ -50,7 +47,6 @@ export async function createDuelAction(leagueId: string, matchId: string, partic
 export async function getLeagueDuelsAction(leagueId: string) {
   const supabase = await createClient();
 
-  // 1. Traer duelos con sus participantes
   const { data: duels, error: duelsError } = await supabase
     .from('league_duels')
     .select(`
@@ -68,7 +64,16 @@ export async function getLeagueDuelsAction(leagueId: string) {
 
   if (duelsError) return { error: duelsError.message };
 
-  // 2. Mapear nombres de gladiadores (alias) y Nombres de Partidos
+  // 1. Mapeo de Equipos (ID -> Nombre)
+  const teamMap = new Map(worldCupData.equipos.map((t: any) => [t.id, t.nombre]));
+  
+  // 2. Mapeo de Partidos (ID -> "Local vs Visitante")
+  const matchMap = new Map(worldCupData.partidos.map((m: any) => {
+    const localName = teamMap.get(m.local) || m.local;
+    const visitorName = teamMap.get(m.visitante) || m.visitante;
+    return [m.id.toString(), `${localName} vs ${visitorName}`];
+  }));
+
   const userIds = Array.from(new Set(duels.flatMap(d => d.duel_participants.map((p: any) => p.user_id))));
   const { data: profiles } = await supabase
     .from('league_members')
@@ -76,9 +81,6 @@ export async function getLeagueDuelsAction(leagueId: string) {
     .in('user_id', userIds);
 
   const aliasMap = new Map(profiles?.map(p => [p.user_id, p.alias]));
-  
-  // Mapa de nombres de partidos desde el JSON
-  const matchMap = new Map(worldCupData.partidos.map((m: any) => [m.id.toString(), `${m.equipo_local} vs ${m.equipo_visitante}`]));
 
   const formattedDuels = (duels || []).map(d => ({
     id: d.id,
