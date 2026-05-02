@@ -16,11 +16,11 @@ type LeaderboardUser = {
   form: string;
 };
 
-export default function StandingsClient({ 
+export default function StandingsClient({
   leaderboard,
   leagueInfo,
   initialDuels = []
-}: { 
+}: {
   leaderboard: LeaderboardUser[],
   leagueInfo?: { id: string, name: string, inviteCode: string, isAdmin: boolean },
   initialDuels?: Duel[]
@@ -34,16 +34,11 @@ export default function StandingsClient({
     setIsSyncing(true);
     try {
       const result = await processFinishedMatches();
-      // Mostramos el informe detallado en un alert para debug
-      alert(result.message);
-      
       if (result.success) {
-        // Solo recargamos si el usuario cierra el alert
         window.location.reload();
       }
     } catch (error) {
       console.error("Error sincronizando:", error);
-      alert("Error fatal en la sincronización. Revisa la consola.");
     } finally {
       setIsSyncing(false);
     }
@@ -51,7 +46,6 @@ export default function StandingsClient({
 
   const handleCopyLink = () => {
     if (!leagueInfo?.inviteCode) return;
-    // Usamos origin dinámico para que funcione en cualquier dominio (local o prod)
     const baseUrl = window.location.origin;
     const link = `${baseUrl}/join/${leagueInfo.inviteCode}`;
     navigator.clipboard.writeText(link);
@@ -59,7 +53,6 @@ export default function StandingsClient({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Gamification helpers
   const getPositionStyle = (index: number) => {
     if (index === 0) return "bg-gradient-to-r from-yellow-500/20 to-amber-600/5 border-yellow-500/50 shadow-[0_0_20px_rgba(234,179,8,0.15)] ring-1 ring-yellow-500/30 scale-[1.02] z-10 relative";
     if (index === 1) return "bg-gradient-to-r from-slate-300/10 to-transparent border-slate-300/30";
@@ -81,13 +74,12 @@ export default function StandingsClient({
         {form === "ice" && <span className="text-[10px] mr-1 hidden md:block">🥶</span>}
         <div className="flex gap-1">
           {racha.map((res, idx) => (
-            <div 
-              key={idx} 
-              className={`w-2 h-3.5 rounded-[2px] ${
-                res === "W" 
-                  ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" 
+            <div
+              key={idx}
+              className={`w-2 h-3.5 rounded-[2px] ${res === "W"
+                  ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"
                   : "bg-red-500/40"
-              }`} 
+                }`}
             />
           ))}
         </div>
@@ -97,7 +89,6 @@ export default function StandingsClient({
 
   return (
     <div className="relative pb-24">
-      {/* Ambience Background */}
       <div className="fixed inset-0 w-full h-full bg-gradient-to-b from-primary/5 via-black to-black -z-10 pointer-events-none" />
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[150px] -z-10 pointer-events-none"></div>
 
@@ -114,7 +105,7 @@ export default function StandingsClient({
 
         {leagueInfo?.isAdmin && (
           <div className="flex flex-col md:flex-row gap-3">
-            <button 
+            <button
               onClick={() => setIsDuelModalOpen(true)}
               className="flex items-center justify-center gap-2 bg-yellow-500/20 border border-yellow-500/50 px-4 py-2.5 rounded-full hover:bg-yellow-500/30 transition-all active:scale-95 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
             >
@@ -123,7 +114,7 @@ export default function StandingsClient({
                 Forjar Duelo
               </span>
             </button>
-            <button 
+            <button
               onClick={handleCopyLink}
               className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-full hover:bg-white/10 transition-all active:scale-95"
             >
@@ -137,7 +128,7 @@ export default function StandingsClient({
               </span>
             </button>
 
-            <button 
+            <button
               onClick={handleSync}
               disabled={isSyncing}
               className="flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-2.5 rounded-full hover:bg-primary/20 transition-all active:scale-95 disabled:opacity-50"
@@ -156,8 +147,6 @@ export default function StandingsClient({
       </section>
 
       <section className="max-w-3xl mx-auto px-2 relative z-10">
-        
-        {/* Table Header (Desktop only) */}
         <div className="hidden md:flex items-center px-6 py-3 text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">
           <div className="w-12 text-center">Pos</div>
           <div className="flex-1 pl-4">Gladiador</div>
@@ -166,66 +155,46 @@ export default function StandingsClient({
           <div className="w-20 text-right pr-2">PTS</div>
         </div>
 
-        {/* List of Gladiators */}
         {leaderboard.length === 0 ? (
           <div className="text-center py-20 text-white/50 text-sm font-bold uppercase tracking-widest border border-white/5 bg-black/40 rounded-2xl">Aún no hay gladiadores en tu Arena</div>
         ) : (
           <div className="flex flex-col gap-3">
             {leaderboard.map((user, index) => (
-              <div 
+              <div
                 key={user.id}
                 onClick={() => setSelectedUser(selectedUser === user.id ? null : user.id)}
                 className={`flex flex-col rounded-2xl border backdrop-blur-md transition-all duration-300 cursor-pointer overflow-hidden ${getPositionStyle(index)}`}
               >
-                {/* Main Row */}
                 <div className="flex items-center h-16 md:h-18 px-4 md:px-6">
-                  
-                  {/* Pos */}
                   <div className="w-8 md:w-12 flex justify-center items-center shrink-0">
                     {getPositionIcon(index)}
                   </div>
-
-                  {/* Avatar & Alias */}
                   <div className="flex-1 flex items-center gap-3 md:gap-4 pl-2 md:pl-4 overflow-hidden">
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black uppercase shrink-0 ${
-                      index === 0 ? "bg-yellow-500 text-black shadow-lg shadow-yellow-500/30" : "bg-white/10 text-white"
-                    }`}>
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black uppercase shrink-0 ${index === 0 ? "bg-yellow-500 text-black shadow-lg shadow-yellow-500/30" : "bg-white/10 text-white"}`}>
                       {user.alias.substring(0, 2)}
                     </div>
                     <span className={`font-bold truncate text-sm md:text-base ${index === 0 ? "text-yellow-400 drop-shadow-[0_0_2px_rgba(250,204,21,0.5)]" : "text-white/90"}`}>
                       {user.alias}
                     </span>
                   </div>
-
-                  {/* Racha (Hidden on very small screens, visible on md) */}
                   <div className="w-20 md:w-24 hidden sm:flex justify-center shrink-0">
                     {renderRacha(user.racha, user.form)}
                   </div>
-
-                  {/* Efectividad (Mobile condensed, Desktop full) */}
                   <div className="w-24 md:w-28 flex flex-col items-center justify-center shrink-0 border-l border-white/5 pl-2 md:pl-0">
                     <span className="text-[10px] md:text-xs font-bold text-white/50 uppercase tracking-wider mb-0.5">Efect</span>
                     <div className="flex items-center gap-1.5 text-xs font-black text-white/80">
-                      <span className="text-green-400">{user.simples}</span> 
-                      <span className="text-white/20">/</span> 
+                      <span className="text-green-400">{user.simples}</span>
+                      <span className="text-white/20">/</span>
                       <span className="text-yellow-500">{user.plenos}</span>
                     </div>
                   </div>
-
-                  {/* PTS */}
                   <div className="w-16 md:w-20 flex justify-end shrink-0 pl-4 border-l border-white/5">
                     <span className={`text-xl md:text-2xl font-black ${index === 0 ? "text-yellow-400" : "text-white"}`}>
                       {user.pts}
                     </span>
                   </div>
                 </div>
-
-                {/* Popover Expandible (Mobile/Desktop Details) */}
-                <div 
-                  className={`transition-all duration-300 ease-in-out bg-black/40 border-t border-white/5 overflow-hidden ${
-                    selectedUser === user.id ? "max-h-32 opacity-100 py-3 px-6" : "max-h-0 opacity-0 py-0 px-6"
-                  }`}
-                >
+                <div className={`transition-all duration-300 ease-in-out bg-black/40 border-t border-white/5 overflow-hidden ${selectedUser === user.id ? "max-h-32 opacity-100 py-3 px-6" : "max-h-0 opacity-0 py-0 px-6"}`}>
                   <div className="flex justify-between items-center text-xs">
                     <div className="flex gap-6">
                       <div>
@@ -236,24 +205,16 @@ export default function StandingsClient({
                         <p className="text-white/40 uppercase tracking-wider text-[9px] mb-1">Plenos (5 pts)</p>
                         <p className="font-bold text-yellow-500">{user.plenos}</p>
                       </div>
-                      <div className="sm:hidden">
-                        <p className="text-white/40 uppercase tracking-wider text-[9px] mb-1">Racha</p>
-                        {renderRacha(user.racha, user.form)}
-                      </div>
                     </div>
-                    
                     <button className="flex items-center text-[10px] text-primary hover:text-white uppercase font-black tracking-widest transition-colors">
                       Ver Historial <ChevronRight className="w-3 h-3 ml-1" />
                     </button>
                   </div>
                 </div>
-
               </div>
             ))}
           </div>
         )}
-        
-        {/* Helper Footer */}
         <div className="mt-8 text-center flex flex-col items-center">
           <p className="text-[10px] text-white/30 uppercase tracking-[0.1em] mb-2 font-medium">Leyenda de Efectividad</p>
           <div className="flex items-center gap-4 text-[10px] font-bold text-white/50 bg-white/5 px-4 py-2 rounded-full border border-white/10">
@@ -262,7 +223,6 @@ export default function StandingsClient({
             <span className="flex items-center gap-1"><span className="text-yellow-500">#</span> Resultados Exactos</span>
           </div>
         </div>
-
       </section>
 
       {leagueInfo && leagueInfo.isAdmin && (

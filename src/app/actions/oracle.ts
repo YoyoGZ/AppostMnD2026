@@ -28,15 +28,11 @@ export async function processFinishedMatches() {
       .in('match_id', finishedMatchIds);
 
     if (error) throw error;
+    
     if (pendingPredictions && pendingPredictions.length > 0) {
-      console.log(`[Oráculo] Procesando ${pendingPredictions.length} boletos pendientes...`);
       for (const pred of pendingPredictions) {
         const match = finishedMatches.find((m: any) => m.id.toString() === pred.match_id.toString());
-        if (!match) continue;
-
-        if (typeof match.goles_local !== 'number' || typeof match.goles_visitante !== 'number') {
-          continue;
-        }
+        if (!match || typeof match.goles_local !== 'number') continue;
 
         const { puntos } = calculatePoints(
           pred.equipo_a_goles,
@@ -45,7 +41,6 @@ export async function processFinishedMatches() {
           match.goles_visitante
         );
 
-        // Actualizar la predicción
         await supabase
           .from('predictions')
           .update({ points_earned: puntos })
@@ -54,19 +49,16 @@ export async function processFinishedMatches() {
     }
 
     // 4. Recalcular tabla de posiciones TOTAL
-    const { data: members, error: membersError } = await supabase
+    const { data: members } = await supabase
       .from('league_members')
       .select('user_id');
 
-    if (membersError) throw membersError;
-
     if (members) {
       for (const member of members) {
-        const userId = member.user_id;
         const { data: userPreds } = await supabase
           .from('predictions')
           .select('points_earned')
-          .eq('user_id', userId)
+          .eq('user_id', member.user_id)
           .not('points_earned', 'is', null);
 
         if (userPreds) {
@@ -88,43 +80,28 @@ export async function processFinishedMatches() {
               aciertos_simples: aciertos,
               plenos_exactos: plenos
             })
-            .eq('user_id', userId);
+            .eq('user_id', member.user_id);
         }
       }
     }
 
     // 5. Resolver Duelos Activos
-    let duelLog = `Partidos: [${finishedMatchIds.join(',')}]... `;
-    
-    const { data: allActiveDuels, error: duelsError } = await supabase
+    const { data: allActiveDuels } = await supabase
       .from('league_duels')
       .select('id, match_id')
       .eq('status', 'active');
-
-    if (duelsError) {
-      duelLog += `Error DB: ${duelsError.message}. `;
-    } else {
-      duelLog += `Duelos activos: ${allActiveDuels?.length || 0}. `;
-    }
 
     const activeDuels = (allActiveDuels || []).filter(duel => 
       finishedMatchIds.includes(duel.match_id?.toString())
     );
 
-    duelLog += `Match: ${activeDuels.length}. `;
-
     for (const duel of activeDuels) {
-      duelLog += `[Duelo ${duel.id.substring(0,4)}: `;
-      
-      const { data: participants, error: pError } = await supabase
+      const { data: participants } = await supabase
         .from('duel_participants')
         .select('user_id')
         .eq('duel_id', duel.id);
         
-      if (pError || !participants || participants.length === 0) {
-        duelLog += `Sin participantes]. `;
-        continue;
-      }
+      if (!participants || participants.length === 0) continue;
 
       const userIds = participants.map(p => p.user_id);
       const { data: preds } = await supabase
@@ -155,25 +132,18 @@ export async function processFinishedMatches() {
             .eq('duel_id', duel.id)
             .eq('user_id', winnerId);
         }
-        duelLog += `${winners.length} ganadores]. `;
-      } else {
-        duelLog += `Empate/Cero]. `;
       }
       
-      // Marcar duelo como resuelto
       await supabase
         .from('league_duels')
         .update({ status: 'resolved' })
         .eq('id', duel.id);
     }
 
-    return { 
-      success: true, 
-      message: `INFORME: ${duelLog}` 
-    };
+    return { success: true, message: "Sincronización completada con éxito." };
 
   } catch (error: any) {
-    console.error("[Oráculo] Error fatal:", error);
-    return { success: false, message: `Error: ${error.message}` };
+    console.error("[Oráculo] Error:", error);
+    return { success: false, message: error.message };
   }
 }
