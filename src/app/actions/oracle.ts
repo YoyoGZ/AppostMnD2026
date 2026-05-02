@@ -88,7 +88,7 @@ export async function processFinishedMatches() {
     // 5. Resolver Duelos Activos
     const { data: allActiveDuels } = await supabase
       .from('league_duels')
-      .select('id, match_id')
+      .select('id, match_id, league_id') // Añadimos league_id
       .eq('status', 'active');
 
     const activeDuels = (allActiveDuels || []).filter(duel => 
@@ -126,11 +126,18 @@ export async function processFinishedMatches() {
       
       if (winners.length > 0) {
         for (const winnerId of winners) {
+          // Marcar ganador en el duelo
           await supabase
             .from('duel_participants')
             .update({ is_winner: true })
             .eq('duel_id', duel.id)
             .eq('user_id', winnerId);
+          
+          // Incrementar contador global de victorias (Gamificación)
+          await supabase.rpc('increment_duels_won', { 
+            user_id_param: winnerId, 
+            league_id_param: duel.league_id 
+          });
         }
       }
       

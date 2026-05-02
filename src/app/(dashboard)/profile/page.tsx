@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { User, Shield, Trophy, Calendar, Swords, Loader2 } from "lucide-react";
+import { User, Shield, Trophy, Swords, Loader2 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { useState, useEffect } from "react";
 import { getLeagueDuelsAction } from "@/app/actions/duels";
@@ -10,6 +10,7 @@ import { DuelChronicles } from "@/components/duels/DuelChronicles";
 export default function ProfilePage() {
   const [alias, setAlias] = useState<string>("Cargando...");
   const [email, setEmail] = useState<string>("");
+  const [leagueName, setLeagueName] = useState<string>("La Arena");
   const [duels, setDuels] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
@@ -23,12 +24,23 @@ export default function ProfilePage() {
           setAlias(user.user_metadata?.display_name || user.email?.split("@")[0] || "Gladiador");
           setEmail(user.email || "");
 
-          // Obtener liga activa
           const activeLeagueId = user.user_metadata?.active_league_id;
           if (activeLeagueId) {
+            // 1. Obtener Duelos
             const result = await getLeagueDuelsAction(activeLeagueId);
             if (result.success && result.duels) {
               setDuels(result.duels);
+            }
+            
+            // 2. Obtener Nombre de la Liga
+            const { data: league } = await supabase
+              .from('leagues')
+              .select('name')
+              .eq('id', activeLeagueId)
+              .single();
+            
+            if (league) {
+              setLeagueName(league.name);
             }
           }
         }
@@ -57,7 +69,6 @@ export default function ProfilePage() {
 
       <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
         
-        {/* Columna Izquierda: Info Personal */}
         <aside className="space-y-4">
           <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 ml-2">Identidad</h3>
           <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
@@ -79,11 +90,10 @@ export default function ProfilePage() {
           
           <div className="bg-gradient-to-br from-primary/20 to-transparent border border-primary/20 rounded-2xl p-5">
             <p className="text-[10px] text-primary font-black uppercase tracking-widest mb-2">Arena Activa</p>
-            <p className="text-lg font-black text-white leading-tight">Mundial 2026 - Oficial</p>
+            <p className="text-lg font-black text-white leading-tight">{leagueName}</p>
           </div>
         </aside>
 
-        {/* Columna Derecha: Historial de Duelos (Crónicas) */}
         <main className="md:col-span-2">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-20 text-white/20">
@@ -94,7 +104,6 @@ export default function ProfilePage() {
             <DuelChronicles duels={duels} />
           )}
         </main>
-
       </div>
     </div>
   );

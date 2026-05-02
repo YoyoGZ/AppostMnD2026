@@ -70,6 +70,7 @@ export default async function StandingsPage() {
     pts: d.total_pts || 0,
     plenos: d.plenos_exactos || 0,
     simples: d.aciertos_simples || 0,
+    duelosGanados: d.duelos_ganados || 0,
     racha: d.racha || [],
     form: (d.racha || []).includes("W") ? "hot" : "ice"
   }));

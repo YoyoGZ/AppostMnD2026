@@ -13,6 +13,7 @@ type LeaderboardUser = {
   pts: number;
   plenos: number;
   simples: number;
+  duelosGanados: number;
   racha: string[];
   form: string;
 };
@@ -47,7 +48,7 @@ export default function StandingsClient({
 
   const handleArchive = async () => {
     if (!leagueInfo?.id) return;
-    if (!confirm("¿Quieres limpiar los duelos terminados de la Arena? Se guardarán en las Crónicas históricas.")) return;
+    if (!confirm("¿Quieres limpiar los duelos antiguos de la Arena? Solo quedarán los 3 más recientes. Todos se guardarán en las Crónicas históricas.")) return;
     
     setIsSyncing(true);
     try {
@@ -71,8 +72,15 @@ export default function StandingsClient({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Filtrar para mostrar solo los duelos que no están archivados en el Coliseo principal
-  const activeArenaDuels = initialDuels.filter(d => d.status !== 'archived');
+  // LÓGICA DE FILTRADO: Todos los Activos + Los 3 últimos Resueltos
+  const activeArenaDuels = React.useMemo(() => {
+    const active = initialDuels.filter(d => d.status === 'active');
+    const resolved = initialDuels
+      .filter(d => d.status === 'resolved')
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 3);
+    return [...active, ...resolved];
+  }, [initialDuels]);
 
   const getPositionStyle = (index: number) => {
     if (index === 0) return "bg-gradient-to-r from-yellow-500/20 to-amber-600/5 border-yellow-500/50 shadow-[0_0_20px_rgba(234,179,8,0.15)] ring-1 ring-yellow-500/30 scale-[1.02] z-10 relative";
@@ -91,16 +99,13 @@ export default function StandingsClient({
   const renderRacha = (racha: string[], form: string) => {
     return (
       <div className="flex items-center gap-1.5">
-        {form === "hot" && <Flame className="w-4 h-4 text-orange-500 animate-pulse drop-shadow-[0_0_5px_rgba(249,115,22,0.8)] mr-1 hidden md:block" />}
+        {form === "hot" && <Flame className="w-4 h-4 text-orange-500 animate-pulse mr-1 hidden md:block" />}
         {form === "ice" && <span className="text-[10px] mr-1 hidden md:block">🥶</span>}
         <div className="flex gap-1">
           {racha.map((res, idx) => (
             <div
               key={idx}
-              className={`w-2 h-3.5 rounded-[2px] ${res === "W"
-                  ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"
-                  : "bg-red-500/40"
-                }`}
+              className={`w-2 h-3.5 rounded-[2px] ${res === "W" ? "bg-green-500" : "bg-red-500/40"}`}
             />
           ))}
         </div>
@@ -114,147 +119,102 @@ export default function StandingsClient({
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[150px] -z-10 pointer-events-none"></div>
 
       <header className="mb-8 pt-4 md:pt-0 relative z-10 flex flex-col items-center text-center">
-        <div className="w-14 h-14 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(251,191,36,0.1)]">
+        <div className="w-14 h-14 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center mb-4">
           <Trophy className="w-7 h-7 text-primary" />
         </div>
-        <h2 className="text-3xl font-black tracking-tight mb-2 text-white drop-shadow-md uppercase">
+        <h2 className="text-3xl font-black tracking-tight mb-2 text-white uppercase">
           {leagueInfo?.name || "La Arena"}
         </h2>
-        <p className="text-primary/80 text-xs font-bold tracking-[0.2em] uppercase mb-4">
-          Torneo Privado
-        </p>
-
+        
         {leagueInfo?.isAdmin && (
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-wrap justify-center gap-3 mt-4">
             <button
               onClick={() => setIsDuelModalOpen(true)}
-              className="flex items-center justify-center gap-2 bg-yellow-500/20 border border-yellow-500/50 px-4 py-2.5 rounded-full hover:bg-yellow-500/30 transition-all active:scale-95 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
+              className="flex items-center gap-2 bg-yellow-500/20 border border-yellow-500/50 px-4 py-2 rounded-full hover:bg-yellow-500/30 transition-all text-[10px] font-black uppercase text-yellow-400"
             >
-              <Swords className="w-4 h-4 text-yellow-400" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-yellow-400">
-                Forjar Duelo
-              </span>
+              <Swords className="w-4 h-4" /> Forjar Duelo
             </button>
             
             <button
               onClick={handleArchive}
               disabled={isSyncing}
-              className="flex items-center justify-center gap-2 bg-red-500/10 border border-red-500/30 px-4 py-2.5 rounded-full hover:bg-red-500/20 transition-all active:scale-95 disabled:opacity-50"
+              className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 px-4 py-2 rounded-full hover:bg-red-500/20 transition-all text-[10px] font-black uppercase text-red-400 disabled:opacity-30"
             >
-              <Trash2 className="w-4 h-4 text-red-400" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-red-400">
-                Limpiar Arena
-              </span>
-            </button>
-
-            <button
-              onClick={handleCopyLink}
-              className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-full hover:bg-white/10 transition-all active:scale-95"
-            >
-              {copied ? (
-                <CheckCircle2 className="w-4 h-4 text-green-400" />
-              ) : (
-                <Copy className="w-4 h-4 text-primary" />
-              )}
-              <span className="text-[10px] font-black uppercase tracking-widest text-white/80">
-                {copied ? "¡Copiado!" : "Invitar"}
-              </span>
+              <Trash2 className="w-4 h-4" /> Limpiar Arena
             </button>
 
             <button
               onClick={handleSync}
               disabled={isSyncing}
-              className="flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-2.5 rounded-full hover:bg-primary/20 transition-all active:scale-95 disabled:opacity-50"
+              className="flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-2 rounded-full hover:bg-primary/20 transition-all text-[10px] font-black uppercase text-primary"
             >
-              <RefreshCw className={`w-4 h-4 text-primary ${isSyncing ? "animate-spin" : ""}`} />
-              <span className="text-[10px] font-black uppercase tracking-widest text-primary">
-                {isSyncing ? "..." : "Auditar"}
-              </span>
+              <RefreshCw className={`w-4 h-4 ${isSyncing ? "animate-spin" : ""}`} /> Auditar
             </button>
           </div>
         )}
       </header>
 
-      <section className="max-w-4xl mx-auto w-full relative z-10 px-2 md:px-0">
+      <section className="max-w-4xl mx-auto w-full relative z-10 px-2 md:px-0 mb-12">
         <DuelsColiseum duels={activeArenaDuels} />
       </section>
 
-      <section className="max-w-3xl mx-auto px-2 relative z-10">
+      <section className="max-w-4xl mx-auto px-2 relative z-10">
+        {/* Table Header */}
         <div className="hidden md:flex items-center px-6 py-3 text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">
           <div className="w-12 text-center">Pos</div>
           <div className="flex-1 pl-4">Gladiador</div>
+          <div className="w-20 text-center">Duelos</div>
           <div className="w-24 text-center">Racha</div>
           <div className="w-28 text-center">Efectividad</div>
           <div className="w-20 text-right pr-2">PTS</div>
         </div>
 
-        {leaderboard.length === 0 ? (
-          <div className="text-center py-20 text-white/50 text-sm font-bold uppercase tracking-widest border border-white/5 bg-black/40 rounded-2xl">Aún no hay gladiadores en tu Arena</div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {leaderboard.map((user, index) => (
-              <div
-                key={user.id}
-                onClick={() => setSelectedUser(selectedUser === user.id ? null : user.id)}
-                className={`flex flex-col rounded-2xl border backdrop-blur-md transition-all duration-300 cursor-pointer overflow-hidden ${getPositionStyle(index)}`}
-              >
-                <div className="flex items-center h-16 md:h-18 px-4 md:px-6">
-                  <div className="w-8 md:w-12 flex justify-center items-center shrink-0">
-                    {getPositionIcon(index)}
+        <div className="flex flex-col gap-3">
+          {leaderboard.map((user, index) => (
+            <div
+              key={user.id}
+              onClick={() => setSelectedUser(selectedUser === user.id ? null : user.id)}
+              className={`flex flex-col rounded-2xl border backdrop-blur-md transition-all duration-300 cursor-pointer overflow-hidden ${getPositionStyle(index)}`}
+            >
+              <div className="flex items-center h-16 md:h-18 px-4 md:px-6">
+                <div className="w-8 md:w-12 flex justify-center items-center shrink-0">
+                  {getPositionIcon(index)}
+                </div>
+                <div className="flex-1 flex items-center gap-3 md:gap-4 pl-2 md:pl-4 overflow-hidden">
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black uppercase shrink-0 ${index === 0 ? "bg-yellow-500 text-black shadow-lg shadow-yellow-500/30" : "bg-white/10 text-white"}`}>
+                    {user.alias.substring(0, 2)}
                   </div>
-                  <div className="flex-1 flex items-center gap-3 md:gap-4 pl-2 md:pl-4 overflow-hidden">
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black uppercase shrink-0 ${index === 0 ? "bg-yellow-500 text-black shadow-lg shadow-yellow-500/30" : "bg-white/10 text-white"}`}>
-                      {user.alias.substring(0, 2)}
-                    </div>
-                    <span className={`font-bold truncate text-sm md:text-base ${index === 0 ? "text-yellow-400 drop-shadow-[0_0_2px_rgba(250,204,21,0.5)]" : "text-white/90"}`}>
-                      {user.alias}
-                    </span>
-                  </div>
-                  <div className="w-20 md:w-24 hidden sm:flex justify-center shrink-0">
-                    {renderRacha(user.racha, user.form)}
-                  </div>
-                  <div className="w-24 md:w-28 flex flex-col items-center justify-center shrink-0 border-l border-white/5 pl-2 md:pl-0">
-                    <span className="text-[10px] md:text-xs font-bold text-white/50 uppercase tracking-wider mb-0.5">Efect</span>
-                    <div className="flex items-center gap-1.5 text-xs font-black text-white/80">
-                      <span className="text-green-400">{user.simples}</span>
-                      <span className="text-white/20">/</span>
-                      <span className="text-yellow-500">{user.plenos}</span>
-                    </div>
-                  </div>
-                  <div className="w-16 md:w-20 flex justify-end shrink-0 pl-4 border-l border-white/5">
-                    <span className={`text-xl md:text-2xl font-black ${index === 0 ? "text-yellow-400" : "text-white"}`}>
-                      {user.pts}
-                    </span>
+                  <span className={`font-bold truncate text-sm md:text-base ${index === 0 ? "text-yellow-400" : "text-white/90"}`}>
+                    {user.alias}
+                  </span>
+                </div>
+
+                {/* Duelos Ganados */}
+                <div className="w-16 md:w-20 flex flex-col items-center justify-center shrink-0 border-l border-white/5 md:border-none">
+                  <div className="flex items-center gap-1.5 bg-yellow-500/10 px-2.5 py-1 rounded-md border border-yellow-500/20">
+                    <span className="text-xs font-black text-yellow-500">{user.duelosGanados}</span>
+                    <Swords className="w-3.5 h-3.5 text-yellow-500" />
                   </div>
                 </div>
-                <div className={`transition-all duration-300 ease-in-out bg-black/40 border-t border-white/5 overflow-hidden ${selectedUser === user.id ? "max-h-32 opacity-100 py-3 px-6" : "max-h-0 opacity-0 py-0 px-6"}`}>
-                  <div className="flex justify-between items-center text-xs">
-                    <div className="flex gap-6">
-                      <div>
-                        <p className="text-white/40 uppercase tracking-wider text-[9px] mb-1">Aciertos (2 pts)</p>
-                        <p className="font-bold text-green-400">{user.simples}</p>
-                      </div>
-                      <div>
-                        <p className="text-white/40 uppercase tracking-wider text-[9px] mb-1">Plenos (5 pts)</p>
-                        <p className="font-bold text-yellow-500">{user.plenos}</p>
-                      </div>
-                    </div>
-                    <button className="flex items-center text-[10px] text-primary hover:text-white uppercase font-black tracking-widest transition-colors">
-                      Ver Historial <ChevronRight className="w-3 h-3 ml-1" />
-                    </button>
+
+                <div className="w-20 md:w-24 hidden sm:flex justify-center shrink-0">
+                  {renderRacha(user.racha, user.form)}
+                </div>
+                <div className="w-24 md:w-28 flex flex-col items-center justify-center shrink-0 border-l border-white/5 pl-2 md:pl-0">
+                  <div className="flex items-center gap-1.5 text-xs font-black text-white/80">
+                    <span className="text-green-400">{user.simples}</span>
+                    <span className="text-white/20">/</span>
+                    <span className="text-yellow-500">{user.plenos}</span>
                   </div>
+                </div>
+                <div className="w-16 md:w-20 flex justify-end shrink-0 pl-4 border-l border-white/5">
+                  <span className={`text-xl md:text-2xl font-black ${index === 0 ? "text-yellow-400" : "text-white"}`}>
+                    {user.pts}
+                  </span>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-        <div className="mt-8 text-center flex flex-col items-center">
-          <p className="text-[10px] text-white/30 uppercase tracking-[0.1em] mb-2 font-medium">Leyenda de Efectividad</p>
-          <div className="flex items-center gap-4 text-[10px] font-bold text-white/50 bg-white/5 px-4 py-2 rounded-full border border-white/10">
-            <span className="flex items-center gap-1"><span className="text-green-400">#</span> Aciertos Tendencia</span>
-            <span className="text-white/20">|</span>
-            <span className="flex items-center gap-1"><span className="text-yellow-500">#</span> Plenos Exactos</span>
-          </div>
+            </div>
+          ))}
         </div>
       </section>
 
