@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { Trophy, Crown, Flame, Medal, ChevronRight, Copy, CheckCircle2, RefreshCw } from "lucide-react";
+import { Trophy, Crown, Flame, Medal, ChevronRight, Copy, CheckCircle2, RefreshCw, Swords } from "lucide-react";
 import { processFinishedMatches } from "@/app/actions/oracle";
+import { CreateDuelModal } from "@/components/duels/CreateDuelModal";
+import { DuelsColiseum, Duel } from "@/components/duels/DuelsColiseum";
 
 type LeaderboardUser = {
   id: string;
@@ -16,11 +18,14 @@ type LeaderboardUser = {
 
 export default function StandingsClient({ 
   leaderboard,
-  leagueInfo 
+  leagueInfo,
+  initialDuels = []
 }: { 
   leaderboard: LeaderboardUser[],
-  leagueInfo?: { name: string, inviteCode: string, isAdmin: boolean }
+  leagueInfo?: { id: string, name: string, inviteCode: string, isAdmin: boolean },
+  initialDuels?: Duel[]
 }) {
+  const [isDuelModalOpen, setIsDuelModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -104,6 +109,15 @@ export default function StandingsClient({
         {leagueInfo?.isAdmin && (
           <div className="flex flex-col md:flex-row gap-3">
             <button 
+              onClick={() => setIsDuelModalOpen(true)}
+              className="flex items-center justify-center gap-2 bg-yellow-500/20 border border-yellow-500/50 px-4 py-2.5 rounded-full hover:bg-yellow-500/30 transition-all active:scale-95 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
+            >
+              <Swords className="w-4 h-4 text-yellow-400" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-yellow-400">
+                Forjar Duelo
+              </span>
+            </button>
+            <button 
               onClick={handleCopyLink}
               className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-full hover:bg-white/10 transition-all active:scale-95"
             >
@@ -130,6 +144,10 @@ export default function StandingsClient({
           </div>
         )}
       </header>
+
+      <section className="max-w-4xl mx-auto w-full relative z-10 px-2 md:px-0">
+        <DuelsColiseum duels={initialDuels} />
+      </section>
 
       <section className="max-w-3xl mx-auto px-2 relative z-10">
         
@@ -240,6 +258,15 @@ export default function StandingsClient({
         </div>
 
       </section>
+
+      {leagueInfo && leagueInfo.isAdmin && (
+        <CreateDuelModal
+          isOpen={isDuelModalOpen}
+          onClose={() => setIsDuelModalOpen(false)}
+          leagueId={leagueInfo.id}
+          members={leaderboard.map(u => ({ userId: u.id, alias: u.alias }))}
+        />
+      )}
     </div>
   );
 }

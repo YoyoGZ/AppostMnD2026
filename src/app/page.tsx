@@ -1,6 +1,5 @@
 import React from "react";
 import { LoginShield } from "@/components/auth/LoginShield";
-import { DynamicQR } from "@/components/auth/DynamicQR";
 import { Shield } from "lucide-react";
 import { getLeagueByInvite } from "@/app/actions/leagues";
 
@@ -50,14 +49,16 @@ export default async function Home(props: PageProps) {
           <React.Suspense fallback={<div className="h-20 flex items-center justify-center"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div></div>}>
             <LoginShield inviteCode={inviteCode} leagueInfo={leagueInfo} />
           </React.Suspense>
-          <DynamicQR />
         </main>
       </div>
 
-      {/* Footer minimalista: anclado al fondo */}
-      <footer className="w-full text-center py-4 opacity-40 hover:opacity-100 transition-opacity shrink-0">
-        <p className="text-[10px] uppercase font-bold tracking-widest">
-          Copa del Mundo FIFA 2026
+      {/* Footer Inmersivo */}
+      <footer className="w-full text-center py-5 mt-auto bg-black/40 border-t border-white/5 backdrop-blur-md z-10">
+        <p className="text-[10px] text-white/50 uppercase font-black tracking-[0.3em]">
+          Powered by <span className="text-primary">Antigravity Engine</span>
+        </p>
+        <p className="text-[9px] text-white/30 uppercase font-bold tracking-widest mt-1">
+          Copa del Mundo FIFA 2026 — Acceso Restringido
         </p>
       </footer>
     </div>

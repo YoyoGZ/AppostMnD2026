@@ -87,7 +87,7 @@ export default function TicketClient({ token }: { token: string }) {
             </div>
             
             <p className="text-white/40 text-xs font-medium mb-8 px-4 leading-relaxed">
-              Este documento certifica tu derecho a fundar una Arena Privada en el Fixture 2026.
+              Este documento te permite crear una liga privada en la App
             </p>
 
             <button 

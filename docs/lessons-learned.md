@@ -45,5 +45,25 @@ Error crítico "Failed to Fetch" al intentar registrar alias o crear ligas en el
 2. Vercel Authentication: Por defecto, los despliegues de Preview (y a veces produccin en planes Pro) activan la Vercel Authentication. Esto bloquea a cualquier persona que no est logueada en Vercel, impidiendo el uso de Magic Links por usuarios externos.
 
 ### Resolucin (The House Way)
-1. Estructura de Componente Dinmico: Se refactorizaron las pginas de Onboarding y Login para mover la lgica de parmetros a sub-componentes envueltos en Suspense.
+1. Estructura de Componente Dinámico: Se refactorizaron las pginas de Onboarding y Login para mover la lgica de parmetros a sub-componentes envueltos en Suspense.
 2. Gestin de Plataforma: Desactivar Deployment Protection -> Vercel Authentication en los settings del proyecto en Vercel para permitir acceso pblico a invitados.
+
+## 2026-05-01: El Bloqueo del Candado (SSR Lock Collision) y el Muro RLS en Transacciones Atómicas
+
+### Síntoma 1: Lock "sb-...-auth-token" was released because another request stole it
+Al entrar a la pantalla de Partidos (`/matches`), la App crasheaba con este error de Supabase proveniente de la librería de autenticación.
+
+### Diagnóstico 1
+Las tarjetas de predicción de partidos se renderizaban iterando sobre un Array (ej. 6 tarjetas por grupo). En su `useEffect` interno, cada una llamaba a `supabase.auth.getUser()` al montarse. Al intentar 6 componentes leer y validar la sesión local en el mismo exacto milisegundo, peleaban por el "Lock" del localStorage del navegador, causando que Supabase entrara en pánico.
+
+### Resolución 1 (The House Way)
+**"Single Source of Truth" para SSR Auth**. Los componentes renderizados en lista (iteraciones) **nunca** deben pedir sesiones independientemente. Se debe elevar el `getUser()` al componente Padre (ej. `MatchesPage.tsx`), almacenar el `userId` y pasarlo como Prop a las tarjetas hijas.
+
+### Síntoma 2: No autorizado para "quemar" el token
+El sistema de Monetización requería que un usuario se registrara usando un Golden Pass (URL). Tras el éxito del `signUp`, el código intentaba hacer un `UPDATE` en la tabla `access_tokens` para poner `is_used = true`. La base de datos denegaba el acceso (aunque el código estuviera bien).
+
+### Diagnóstico 2
+El Server Action corría usando las credenciales recién creadas del usuario (`auth.uid()`), y no con el rol de `super_admin`. La política RLS impedía a un usuario mortal hacer un UPDATE sobre la tabla de tokens maestros.
+
+### Resolución 2 (The House Way)
+Se construyó una política RLS quirúrgica: `UPDATE USING (is_used = false) WITH CHECK (is_used = true AND used_by = auth.uid())`. Esto permite al usuario modificar el token **solo** en el momento de consumirlo para quemarlo y atarlo a su cuenta, sin comprometer el resto de la base de datos. Se logró transaccionalidad atómica sin necesidad de exponer la `SERVICE_ROLE_KEY`.

@@ -130,7 +130,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
 
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto p-4">
-      <div className="w-full bento-card bg-card-body/40 backdrop-blur-xl border-white/10 shadow-2xl overflow-hidden relative rounded-2xl">
+      <div className={`w-full bento-card ${isNewUser ? 'bg-primary/5 border-primary/40 shadow-[0_0_30px_rgba(251,191,36,0.15)]' : 'bg-white/5 border-white/10'} backdrop-blur-xl shadow-2xl overflow-hidden relative rounded-2xl transition-all duration-500`}>
         {/* Adorno superior (Bento Grid Style) */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/50 via-primary to-primary/50"></div>
         
@@ -153,6 +153,39 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
             )}
           </div>
           
+          {/* Tabs de Selección de Modo */}
+          {!currentUser && (
+            <div className="flex bg-black/40 rounded-xl p-1 mb-6 border border-white/5">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsNewUser(false);
+                  setError(null);
+                }}
+                className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all duration-300 ${
+                  !isNewUser
+                    ? "bg-primary text-primary-foreground shadow-[0_0_15px_rgba(251,191,36,0.2)]"
+                    : "text-white/40 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                Ingresar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsNewUser(true);
+                  setError(null);
+                }}
+                className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all duration-300 ${
+                  isNewUser
+                    ? "bg-transparent text-primary border-[2px] border-primary shadow-[0_0_15px_rgba(251,191,36,0.2)]"
+                    : "text-white/40 hover:text-white hover:bg-white/5 border-[2px] border-transparent"
+                }`}
+              >
+                Nueva Cuenta
+              </button>
+            </div>
+          )}
           {currentUser && inviteCode ? (
             <div className="flex flex-col gap-6">
               <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center">
@@ -188,10 +221,21 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                 value={alias}
                 onChange={(e) => setAlias(e.target.value)}
                 placeholder="Tu Alias / Apodo"
-                className="block w-full pl-12 pr-4 py-3.5 border border-white/10 rounded-xl bg-black/40 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+                className="block w-full pl-12 pr-4 py-3.5 border border-white/10 rounded-xl bg-black/40 text-white placeholder-white/50 font-medium focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
                 required
               />
             </div>
+
+            {isNewUser && (
+              <div className="bg-red-950/50 border border-red-500/50 rounded-xl p-3 mb-1 animate-in fade-in slide-in-from-top-2 duration-300">
+                <p className="text-red-500 text-[12px] font-black uppercase flex items-center gap-1.5 mb-1">
+                  <ShieldAlert className="w-4 h-4" /> ¡Atención: Clave Irrecuperable!
+                </p>
+                <p className="text-red-400/90 text-[11px] leading-tight font-medium">
+                  Esta clave no se puede resetear. Si la olvidas, es matemáticamente imposible recuperar tus puntos y tu cuenta.
+                </p>
+              </div>
+            )}
 
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -202,7 +246,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Clave Secreta"
-                className="block w-full pl-12 pr-12 py-3.5 border border-white/10 rounded-xl bg-black/40 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+                className="block w-full pl-12 pr-12 py-3.5 border border-white/10 rounded-xl bg-black/40 text-white placeholder-white/50 font-medium focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
                 required
               />
               <button 
@@ -229,7 +273,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Repite la Clave"
-                  className="block w-full pl-12 pr-12 py-3.5 border border-white/10 rounded-xl bg-primary/5 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+                  className="block w-full pl-12 pr-12 py-3.5 border border-white/10 rounded-xl bg-primary/5 text-white placeholder-white/50 font-medium focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
                   required={isNewUser}
                 />
                 <button 
@@ -268,35 +312,9 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
           )}
         </div>
         
-        {/* Footer Toggle (Glassmorphism dark zone) */}
-        {!currentUser && (
-          <div className="bg-black/60 px-8 py-5 flex justify-between items-center text-xs font-medium">
-            <span className="text-white/40">{isNewUser ? "¿Ya eras de la banda?" : "¿Primera vez aquí?"}</span>
-            <button 
-              type="button"
-              onClick={() => {
-                setIsNewUser(!isNewUser);
-                setError(null);
-              }}
-              className="text-primary hover:text-white transition-colors uppercase font-black tracking-widest text-[10px]"
-            >
-              {isNewUser ? "INGRESAR" : "REGISTRARME"}
-            </button>
-          </div>
-        )}
+
       </div>
-      
-      {/* Advertencia Fuera de la Tarjeta */}
-      <div className={`transition-all duration-500 ${isNewUser && !currentUser ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}>
-        <div className="mt-8 text-center max-w-[280px]">
-          <p className="text-red-500/80 text-[10px] uppercase font-black tracking-[0.2em] mb-2 flex items-center justify-center gap-1.5">
-            <Lock className="w-3 h-3" /> Llave Única
-          </p>
-          <p className="text-white/40 text-[11px] leading-relaxed font-medium">
-            Esta clave es tu identidad. Si la olvidas, es matemáticamente imposible recuperar tus puntos del campeonato.
-          </p>
-        </div>
-      </div>
+
     </div>
   );
 };

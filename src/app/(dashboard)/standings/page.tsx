@@ -2,6 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { processFinishedMatches } from "@/app/actions/oracle";
 import StandingsClient from "@/components/tournament/StandingsClient";
 import { redirect } from "next/navigation";
+import { getLeagueDuelsAction } from "@/app/actions/duels";
 
 // Forzamos que esta ruta sea dinámica para que no la cachee y siempre traiga los puntos frescos
 export const dynamic = "force-dynamic";
@@ -57,6 +58,7 @@ export default async function StandingsPage() {
   const actualLeague = Array.isArray(leagueData) ? leagueData[0] : leagueData;
 
   const leagueInfo = actualLeague ? {
+    id: actualLeague.id,
     name: actualLeague.name,
     inviteCode: actualLeague.invite_code,
     isAdmin: actualLeague.created_by === user.id
@@ -72,5 +74,9 @@ export default async function StandingsPage() {
     form: (d.racha || []).includes("W") ? "hot" : "ice"
   }));
 
-  return <StandingsClient leaderboard={mapped} leagueInfo={leagueInfo} />;
+  // 3. Traer los duelos activos de esta liga
+  const duelsResult = await getLeagueDuelsAction(activeLeagueId);
+  const duels = duelsResult.success ? duelsResult.duels : [];
+
+  return <StandingsClient leaderboard={mapped} leagueInfo={leagueInfo} initialDuels={duels} />;
 }
