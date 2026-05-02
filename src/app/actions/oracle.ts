@@ -208,7 +208,7 @@ export async function processFinishedMatches() {
 
     return { 
       success: true, 
-      message: `Auditoría finalizada. Duelos procesados: ${activeDuels?.length || 0}` 
+      message: `Audit: Busqué [${finishedMatchIds.join(',')}] y encontré (${activeDuels?.length || 0}) duelos activos.` 
     };
 
   } catch (error) {
