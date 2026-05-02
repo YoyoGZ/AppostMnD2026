@@ -65,7 +65,7 @@ export default async function StandingsPage() {
   } : undefined;
 
   const mapped = (data || []).map((d: any) => ({
-    id: d.id,
+    id: d.user_id,
     alias: d.alias,
     pts: d.total_pts || 0,
     plenos: d.plenos_exactos || 0,

@@ -129,9 +129,74 @@ export async function processFinishedMatches() {
       }
     }
 
+    // 5. Resolver Duelos Activos
+    const { data: activeDuels, error: duelsError } = await supabase
+      .from('league_duels')
+      .select('id, match_id')
+      .eq('status', 'active')
+      .in('match_id', finishedMatchIds);
+
+    if (activeDuels && activeDuels.length > 0) {
+      console.log(`[Oráculo] Resolviendo ${activeDuels.length} duelos activos...`);
+      for (const duel of activeDuels) {
+        // Obtener participantes
+        const { data: participants } = await supabase
+          .from('duel_participants')
+          .select('user_id')
+          .eq('duel_id', duel.id);
+          
+        if (participants && participants.length > 0) {
+          const userIds = participants.map(p => p.user_id);
+          
+          // Obtener puntos ganados en este partido exacto
+          const { data: preds } = await supabase
+            .from('predictions')
+            .select('user_id, points_earned')
+            .eq('match_id', duel.match_id)
+            .in('user_id', userIds);
+            
+          let maxPoints = -1;
+          const userPoints: Record<string, number> = {};
+          
+          for(const u of userIds) { userPoints[u] = 0; }
+          
+          if (preds) {
+            for (const p of preds) {
+              const pts = p.points_earned || 0;
+              userPoints[p.user_id] = pts;
+              if (pts > maxPoints) maxPoints = pts;
+            }
+          }
+          
+          // Si maxPoints === 0, todos perdieron (cero puntos). Declaramos un empate sin ganador? 
+          // Según reglas, solo hay ganador si hay puntos. O podemos declararlo empate general si nadie sumó.
+          // Por ahora, solo es ganador si maxPoints > 0.
+          const winners = userIds.filter(uid => userPoints[uid] === maxPoints && maxPoints > 0);
+          
+          if (winners.length > 0) {
+            for (const winnerId of winners) {
+              await supabase
+                .from('duel_participants')
+                .update({ is_winner: true })
+                .eq('duel_id', duel.id)
+                .eq('user_id', winnerId);
+            }
+          }
+          
+          // Cerrar el duelo
+          await supabase
+            .from('league_duels')
+            .update({ status: 'resolved' })
+            .eq('id', duel.id);
+            
+          console.log(`[Oráculo] Duelo ${duel.id} resuelto. Ganadores: ${winners.join(', ')}`);
+        }
+      }
+    }
+
     return { 
       success: true, 
-      message: `Auditoría del Oráculo finalizada. Leaderboard sincronizado.` 
+      message: `Auditoría del Oráculo finalizada. Leaderboard y Duelos sincronizados.` 
     };
 
   } catch (error) {
