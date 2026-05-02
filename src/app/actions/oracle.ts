@@ -4,31 +4,23 @@ import { createClient } from "@/utils/supabase/server";
 import worldCupData from "@/data/world-cup-2026.json";
 import { calculatePoints } from "@/lib/utils/oracle";
 
-/**
- * Función que busca partidos finalizados en el JSON, y actualiza los puntos
- * en la base de datos de Supabase para todas las predicciones de los usuarios.
- */
 export async function processFinishedMatches() {
   try {
     const supabase = await createClient();
 
-    // 1. Encontrar todos los partidos finalizados en el JSON
+    // 1. Encontrar partidos finalizados
     const finishedMatches = worldCupData.partidos.filter((m: any) => m.estado === "finalizado");
-
     if (finishedMatches.length === 0) {
       return { success: true, message: "No hay partidos finalizados." };
     }
-
     const finishedMatchIds = finishedMatches.map((m: any) => m.id.toString());
     
-    // 2. Traer todas las predicciones sin procesar (points_earned = NULL)
-    const { data: pendingPredictions, error } = await supabase
+    // 2. Procesar Predicciones (Puntos)
+    const { data: pendingPredictions } = await supabase
       .from('predictions')
       .select('*')
       .in('match_id', finishedMatchIds);
 
-    if (error) throw error;
-    
     if (pendingPredictions && pendingPredictions.length > 0) {
       for (const pred of pendingPredictions) {
         const match = finishedMatches.find((m: any) => m.id.toString() === pred.match_id.toString());
@@ -48,11 +40,8 @@ export async function processFinishedMatches() {
       }
     }
 
-    // 4. Recalcular tabla de posiciones TOTAL
-    const { data: members } = await supabase
-      .from('league_members')
-      .select('user_id');
-
+    // 3. Recalcular Leaderboard (Puntos Totales)
+    const { data: members } = await supabase.from('league_members').select('user_id, league_id');
     if (members) {
       for (const member of members) {
         const { data: userPreds } = await supabase
@@ -80,12 +69,13 @@ export async function processFinishedMatches() {
               aciertos_simples: aciertos,
               plenos_exactos: plenos
             })
-            .eq('user_id', member.user_id);
+            .eq('user_id', member.user_id)
+            .eq('league_id', member.league_id);
         }
       }
     }
 
-    // 5. Resolver Duelos Activos
+    // 4. Resolver Duelos y Autocurar Contador de Victorias
     const { data: allActiveDuels } = await supabase
       .from('league_duels')
       .select('id, match_id, league_id')
@@ -122,35 +112,42 @@ export async function processFinishedMatches() {
         });
       }
 
-      // Solo hay ganadores si sumaron más de 0 puntos
       const winners = userIds.filter(uid => userPoints[uid] === maxPoints && maxPoints > 0);
       
       if (winners.length > 0) {
         for (const winnerId of winners) {
-          // Marcar ganador en el duelo
           await supabase
             .from('duel_participants')
             .update({ is_winner: true })
             .eq('duel_id', duel.id)
             .eq('user_id', winnerId);
-          
-          // Incrementar contador global de victorias (Gamificación)
-          const { error: rpcError } = await supabase.rpc('increment_duels_won', { 
-            user_id_param: winnerId, 
-            league_id_param: duel.league_id 
-          });
-          
-          if (rpcError) {
-            console.error(`[Error de Medalla] Usuario ${winnerId}:`, rpcError.message);
-          }
         }
       }
       
-      // Marcar duelo como resuelto
       await supabase
         .from('league_duels')
         .update({ status: 'resolved' })
         .eq('id', duel.id);
+
+      // --- AUTOCURACIÓN DE VICTORIAS ---
+      // Para cada gladiador del duelo, contamos cuántos ha ganado en TOTAL en esta liga
+      for (const uid of userIds) {
+        const { count } = await supabase
+          .from('duel_participants')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', uid)
+          .eq('is_winner', true)
+          // Filtramos solo duelos de esta liga específica
+          .in('duel_id', (
+             await supabase.from('league_duels').select('id').eq('league_id', duel.league_id)
+          ).data?.map(d => d.id) || []);
+
+        await supabase
+          .from('league_members')
+          .update({ duelos_ganados: count || 0 })
+          .eq('user_id', uid)
+          .eq('league_id', duel.league_id);
+      }
     }
 
     return { success: true, message: "Sincronización completada con éxito." };
