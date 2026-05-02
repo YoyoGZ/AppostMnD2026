@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Trophy, Crown, Flame, Medal, ChevronRight, Copy, CheckCircle2, RefreshCw, Swords } from "lucide-react";
+import { Trophy, Crown, Flame, Medal, ChevronRight, Copy, CheckCircle2, RefreshCw, Swords, Trash2 } from "lucide-react";
 import { processFinishedMatches } from "@/app/actions/oracle";
+import { archiveDuelsAction } from "@/app/actions/duels";
 import { CreateDuelModal } from "@/components/duels/CreateDuelModal";
 import { DuelsColiseum, Duel } from "@/components/duels/DuelsColiseum";
 
@@ -44,6 +45,23 @@ export default function StandingsClient({
     }
   };
 
+  const handleArchive = async () => {
+    if (!leagueInfo?.id) return;
+    if (!confirm("¿Quieres limpiar los duelos terminados de la Arena? Se guardarán en las Crónicas históricas.")) return;
+    
+    setIsSyncing(true);
+    try {
+      const result = await archiveDuelsAction(leagueInfo.id);
+      if (result.success) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Error archivando:", error);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   const handleCopyLink = () => {
     if (!leagueInfo?.inviteCode) return;
     const baseUrl = window.location.origin;
@@ -52,6 +70,9 @@ export default function StandingsClient({
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  // Filtrar para mostrar solo los duelos que no están archivados en el Coliseo principal
+  const activeArenaDuels = initialDuels.filter(d => d.status !== 'archived');
 
   const getPositionStyle = (index: number) => {
     if (index === 0) return "bg-gradient-to-r from-yellow-500/20 to-amber-600/5 border-yellow-500/50 shadow-[0_0_20px_rgba(234,179,8,0.15)] ring-1 ring-yellow-500/30 scale-[1.02] z-10 relative";
@@ -104,7 +125,7 @@ export default function StandingsClient({
         </p>
 
         {leagueInfo?.isAdmin && (
-          <div className="flex flex-col md:flex-row gap-3">
+          <div className="flex flex-wrap justify-center gap-3">
             <button
               onClick={() => setIsDuelModalOpen(true)}
               className="flex items-center justify-center gap-2 bg-yellow-500/20 border border-yellow-500/50 px-4 py-2.5 rounded-full hover:bg-yellow-500/30 transition-all active:scale-95 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
@@ -114,6 +135,18 @@ export default function StandingsClient({
                 Forjar Duelo
               </span>
             </button>
+            
+            <button
+              onClick={handleArchive}
+              disabled={isSyncing}
+              className="flex items-center justify-center gap-2 bg-red-500/10 border border-red-500/30 px-4 py-2.5 rounded-full hover:bg-red-500/20 transition-all active:scale-95 disabled:opacity-50"
+            >
+              <Trash2 className="w-4 h-4 text-red-400" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-red-400">
+                Limpiar Arena
+              </span>
+            </button>
+
             <button
               onClick={handleCopyLink}
               className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-full hover:bg-white/10 transition-all active:scale-95"
@@ -124,7 +157,7 @@ export default function StandingsClient({
                 <Copy className="w-4 h-4 text-primary" />
               )}
               <span className="text-[10px] font-black uppercase tracking-widest text-white/80">
-                {copied ? "¡Enlace Copiado!" : "Copiar Magic Link"}
+                {copied ? "¡Copiado!" : "Invitar"}
               </span>
             </button>
 
@@ -135,7 +168,7 @@ export default function StandingsClient({
             >
               <RefreshCw className={`w-4 h-4 text-primary ${isSyncing ? "animate-spin" : ""}`} />
               <span className="text-[10px] font-black uppercase tracking-widest text-primary">
-                {isSyncing ? "Sincronizando..." : "Auditar Puntos"}
+                {isSyncing ? "..." : "Auditar"}
               </span>
             </button>
           </div>
@@ -143,7 +176,7 @@ export default function StandingsClient({
       </header>
 
       <section className="max-w-4xl mx-auto w-full relative z-10 px-2 md:px-0">
-        <DuelsColiseum duels={initialDuels} />
+        <DuelsColiseum duels={activeArenaDuels} />
       </section>
 
       <section className="max-w-3xl mx-auto px-2 relative z-10">
@@ -218,9 +251,9 @@ export default function StandingsClient({
         <div className="mt-8 text-center flex flex-col items-center">
           <p className="text-[10px] text-white/30 uppercase tracking-[0.1em] mb-2 font-medium">Leyenda de Efectividad</p>
           <div className="flex items-center gap-4 text-[10px] font-bold text-white/50 bg-white/5 px-4 py-2 rounded-full border border-white/10">
-            <span className="flex items-center gap-1"><span className="text-green-400">#</span> Aciertos de Resultados</span>
+            <span className="flex items-center gap-1"><span className="text-green-400">#</span> Aciertos Tendencia</span>
             <span className="text-white/20">|</span>
-            <span className="flex items-center gap-1"><span className="text-yellow-500">#</span> Resultados Exactos</span>
+            <span className="flex items-center gap-1"><span className="text-yellow-500">#</span> Plenos Exactos</span>
           </div>
         </div>
       </section>

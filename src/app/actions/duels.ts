@@ -122,3 +122,35 @@ export async function getLeagueDuelsAction(leagueId: string) {
 
   return { success: true, duels: formattedDuels };
 }
+
+/**
+ * Archiva todos los duelos terminados de una liga. Solo el Capitán puede hacerlo.
+ */
+export async function archiveDuelsAction(leagueId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "No autenticado" };
+
+  // 1. Validar admin
+  const { data: league } = await supabase
+    .from('leagues')
+    .select('created_by')
+    .eq('id', leagueId)
+    .single();
+
+  if (!league || league.created_by !== user.id) {
+    return { error: "Solo el Capitán puede limpiar la arena." };
+  }
+
+  // 2. Pasar de 'resolved' a 'archived'
+  const { error } = await supabase
+    .from('league_duels')
+    .update({ status: 'archived' })
+    .eq('league_id', leagueId)
+    .eq('status', 'resolved');
+
+  if (error) return { error: "No se pudo limpiar la arena." };
+
+  revalidatePath('/dashboard');
+  return { success: true };
+}
