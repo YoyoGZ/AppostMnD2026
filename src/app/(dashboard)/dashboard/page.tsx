@@ -1,16 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import worldCupData from "@/data/world-cup-2026.json";
 import { GroupsCarousel } from "@/components/tournament/GroupsCarousel";
 import { MatchPredictionCard } from "@/components/tournament/MatchPredictionCard";
 import Modal from "@/components/ui/Modal";
 import ArenaRules from "@/components/tournament/ArenaRules";
 import { Info } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 
 export default function Dashboard() {
   const [activeGroup, setActiveGroup] = useState("A");
   const [showRules, setShowRules] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id || null));
+  }, []);
 
   // 1. Organizar grupos en orden alfabético
   const groupedTeams = worldCupData.equipos.reduce((acc: any, team: any) => {
@@ -106,6 +113,7 @@ export default function Dashboard() {
                       home: homeTeam,
                       away: awayTeam,
                     }}
+                    userId={userId}
                   />
                 </div>
               );

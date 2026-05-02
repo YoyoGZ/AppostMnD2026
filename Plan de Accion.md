@@ -8,13 +8,13 @@
 - [x] Fase 2: **Motor de Ligas Privadas** (Onboarding Admin, Magic Invites, Aislamiento de Ligas)
 - [x] Fase 3: **Integridad de Pronósticos** (5 pts Score, Time-locks & 10min Reveal)
 - [x] Fase 4: **Oráculo y Leaderboards** (Cruce de resultados en tiempo real)
-- [ ] Fase 5: **Monetización y God Mode** (Pases Premium de Uso Único y Panel Admin)
-- [ ] Fase 6: Motor de Pronósticos Eliminatorios (Llaves Knockout y Alargue/Penales)
+- [x] Fase 5: **Monetización y God Mode** (Pases Premium de Uso Único y Panel Admin)
+- [ ] Fase 6: **Motor de Pronósticos Eliminatorios** (Llaves Knockout y Alargue/Penales)
 
 ## Current Trajectory
-**Paso Activo**: **Fase 5: Monetización y God Mode** — Implementación de Panel Super Admin, Tokens Desechables para membresía de pago y esquema anti-fraude.
+**Paso Activo**: **Fase 6: Motor de Pronósticos Eliminatorios** — Arquitectura y UI para la segunda etapa del torneo (Octavos, Cuartos, Semis y Final).
 
-## Último Audit (2026-05-01) - **Multi-League Milestone**
+## Último Audit (2026-05-01) - **Monetization & God Mode Milestone**
 
 | Categoría | Score | Target |
 |-----------|-------|--------|
@@ -26,7 +26,7 @@
 
 | Agent | Task | Status |
 |-------|------|--------|
-| Antigravity | Arquitectura Multi-Liga + Invite Flow (/join) | ✅ Done |
-| Shield & Integrity Specialist | Time-locks (Blindaje de apuestas post-inicio) | 🔄 In Progress |
-| Builder | Automatización del Oráculo (Sync con API/JSON) | 🔄 In Progress |
-| Design Lead | Pulido de Kinetic Typography en Dashboard | 🔜 Next |
+| Antigravity | God Mode (/hq) y Generador de Tokens | ✅ Done |
+| Shield & Integrity Specialist | Combustión Segura de Tokens (RLS) | ✅ Done |
+| Design Lead | Golden Ticket Visual UX (/vip) | ✅ Done |
+| Builder | Arquitectura y Bracket de Octavos de Final | 🔜 Next |
