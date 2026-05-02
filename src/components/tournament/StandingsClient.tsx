@@ -33,11 +33,17 @@ export default function StandingsClient({
   const handleSync = async () => {
     setIsSyncing(true);
     try {
-      await processFinishedMatches();
-      // Recargar página para ver nuevos puntos
-      window.location.reload();
+      const result = await processFinishedMatches();
+      // Mostramos el informe detallado en un alert para debug
+      alert(result.message);
+      
+      if (result.success) {
+        // Solo recargamos si el usuario cierra el alert
+        window.location.reload();
+      }
     } catch (error) {
       console.error("Error sincronizando:", error);
+      alert("Error fatal en la sincronización. Revisa la consola.");
     } finally {
       setIsSyncing(false);
     }

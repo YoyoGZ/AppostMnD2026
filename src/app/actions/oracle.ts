@@ -130,7 +130,7 @@ export async function processFinishedMatches() {
     }
 
     // 5. Resolver Duelos Activos (Estrategia Agresiva: Cero fallos de tipo)
-    console.log(`[Oráculo] Buscando duelos activos para procesar...`);
+    let duelLog = `Buscando duelos para IDs: [${finishedMatchIds.join(',')}]... `;
     
     const { data: allActiveDuels, error: duelsError } = await supabase
       .from('league_duels')
@@ -138,39 +138,36 @@ export async function processFinishedMatches() {
       .eq('status', 'active');
 
     if (duelsError) {
-      console.error("[Oráculo] Error al buscar duelos:", duelsError);
+      duelLog += `Error DB: ${duelsError.message}. `;
+    } else {
+      duelLog += `Encontrados ${allActiveDuels?.length || 0} duelos 'active' en total. `;
     }
 
-    // Filtramos en JS para asegurar que '1' coincida con 1 (number vs string)
+    // Filtramos en JS
     const activeDuels = (allActiveDuels || []).filter(duel => 
       finishedMatchIds.includes(duel.match_id?.toString())
     );
 
+    duelLog += `Coincidencias con partidos finalizados: ${activeDuels.length}. `;
+
     if (activeDuels.length > 0) {
-      console.log(`[Oráculo] Match! Encontrados ${activeDuels.length} duelos que coinciden.`);
-      
       for (const duel of activeDuels) {
-        console.log(`[Oráculo] Procesando Duelo ID: ${duel.id} (Partido: ${duel.match_id})`);
+        duelLog += `Procesando Duelo ${duel.id}... `;
         
-        const { data: participants, error: pError } = await supabase
+        const { data: participants } = await supabase
           .from('duel_participants')
           .select('user_id')
           .eq('duel_id', duel.id);
           
-        if (pError) console.error(`[Oráculo] Error al traer participantes del duelo ${duel.id}:`, pError);
-
         if (participants && participants.length > 0) {
           const userIds = participants.map(p => p.user_id);
           
-          // Buscamos las predicciones. Forzamos match_id a string por si acaso.
-          const { data: preds, error: prError } = await supabase
+          const { data: preds } = await supabase
             .from('predictions')
             .select('user_id, points_earned')
             .eq('match_id', duel.match_id.toString())
             .in('user_id', userIds);
             
-          if (prError) console.error(`[Oráculo] Error al traer predicciones para duelo ${duel.id}:`, prError);
-
           let maxPoints = -1;
           const userPoints: Record<string, number> = {};
           userIds.forEach(u => userPoints[u] = 0);
@@ -186,7 +183,6 @@ export async function processFinishedMatches() {
           const winners = userIds.filter(uid => userPoints[uid] === maxPoints && maxPoints > 0);
           
           if (winners.length > 0) {
-            console.log(`[Oráculo] Duelo ${duel.id}: Ganadores detectados -> ${winners.join(', ')}`);
             for (const winnerId of winners) {
               await supabase
                 .from('duel_participants')
@@ -194,25 +190,22 @@ export async function processFinishedMatches() {
                 .eq('duel_id', duel.id)
                 .eq('user_id', winnerId);
             }
-          } else {
-            console.log(`[Oráculo] Duelo ${duel.id}: No hay ganadores claros (Empate a 0 o sin apuestas).`);
           }
           
-          // Forzamos el cierre del duelo sin importar si hubo ganadores
           const { error: closeError } = await supabase
             .from('league_duels')
             .update({ status: 'resolved' })
             .eq('id', duel.id);
 
-          if (closeError) console.error(`[Oráculo] Error al cerrar duelo ${duel.id}:`, closeError);
-          else console.log(`[Oráculo] Duelo ${duel.id} marcado como RESOLVED.`);
+          if (closeError) duelLog += `Error cierre: ${closeError.message}. `;
+          else duelLog += `Duelo ${duel.id} RESUELTO con ${winners.length} ganadores. `;
         }
       }
     }
 
     return { 
       success: true, 
-      message: `Audit: Busqué [${finishedMatchIds.join(',')}] y encontré (${activeDuels?.length || 0}) duelos activos.` 
+      message: `INFORME ORÁCULO: ${duelLog}` 
     };
 
   } catch (error) {
