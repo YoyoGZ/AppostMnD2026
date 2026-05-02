@@ -147,12 +147,13 @@ export default function StandingsClient({
               <Trash2 className="w-4 h-4" /> Limpiar Arena
             </button>
 
-            <button
-              onClick={handleSync}
+            <button 
+              onClick={handleAudit}
               disabled={isSyncing}
-              className="flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-2 rounded-full hover:bg-primary/20 transition-all text-[10px] font-black uppercase text-primary"
+              className="flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-2 rounded-xl text-[10px] font-black text-primary uppercase tracking-widest hover:bg-primary/20 transition-all disabled:opacity-50"
             >
-              <RefreshCw className={`w-4 h-4 ${isSyncing ? "animate-spin" : ""}`} /> Auditar
+              <Swords className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+              {isSyncing ? 'Auditando...' : 'Auditar Arena'}
             </button>
           </div>
         )}
