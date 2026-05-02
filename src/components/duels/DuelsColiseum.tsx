@@ -19,6 +19,12 @@ export type Duel = {
 };
 
 export function DuelsColiseum({ duels }: { duels: Duel[] }) {
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   if (!duels || duels.length === 0) return null;
 
   // Mapa de equipos para obtener nombres
@@ -28,9 +34,15 @@ export function DuelsColiseum({ duels }: { duels: Duel[] }) {
   const getMatchInfo = (matchId: string) => {
     const match = tournamentData.partidos.find(m => m.id.toString() === matchId);
     if (!match) return { label: "Partido Desconocido", date: "" };
+    
+    // Solo renderizamos la fecha formateada en el cliente para evitar errores de hidratación
+    const dateLabel = mounted 
+      ? new Date(match.fecha).toLocaleString('es-AR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+      : "";
+
     return {
       label: `${teamMap.get(match.local) || match.local} vs ${teamMap.get(match.visitante) || match.visitante}`,
-      date: new Date(match.fecha).toLocaleString('es-AR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+      date: dateLabel
     };
   };
 
