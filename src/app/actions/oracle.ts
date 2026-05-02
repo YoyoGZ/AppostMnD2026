@@ -129,21 +129,25 @@ export async function processFinishedMatches() {
       }
     }
 
-    // 5. Resolver Duelos Activos
-    console.log(`[Oráculo] Buscando duelos para partidos: ${finishedMatchIds.join(', ')}`);
+    // 5. Resolver Duelos Activos (Estrategia Agresiva: Cero fallos de tipo)
+    console.log(`[Oráculo] Buscando duelos activos para procesar...`);
     
-    const { data: activeDuels, error: duelsError } = await supabase
+    const { data: allActiveDuels, error: duelsError } = await supabase
       .from('league_duels')
       .select('id, match_id')
-      .eq('status', 'active')
-      .in('match_id', finishedMatchIds);
+      .eq('status', 'active');
 
     if (duelsError) {
       console.error("[Oráculo] Error al buscar duelos:", duelsError);
     }
 
-    if (activeDuels && activeDuels.length > 0) {
-      console.log(`[Oráculo] Encontrados ${activeDuels.length} duelos para procesar.`);
+    // Filtramos en JS para asegurar que '1' coincida con 1 (number vs string)
+    const activeDuels = (allActiveDuels || []).filter(duel => 
+      finishedMatchIds.includes(duel.match_id?.toString())
+    );
+
+    if (activeDuels.length > 0) {
+      console.log(`[Oráculo] Match! Encontrados ${activeDuels.length} duelos que coinciden.`);
       
       for (const duel of activeDuels) {
         console.log(`[Oráculo] Procesando Duelo ID: ${duel.id} (Partido: ${duel.match_id})`);
