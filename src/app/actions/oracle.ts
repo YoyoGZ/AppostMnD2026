@@ -22,7 +22,6 @@ export async function processFinishedMatches() {
     const finishedMatchIds = finishedMatches.map((m: any) => m.id.toString());
     
     // 2. Traer todas las predicciones sin procesar (points_earned = NULL)
-    // que coincidan con los IDs de los partidos finalizados.
     const { data: pendingPredictions, error } = await supabase
       .from('predictions')
       .select('*')
@@ -39,59 +38,36 @@ export async function processFinishedMatches() {
           continue;
         }
 
-        const { puntos, aciertoSimple, plenoExacto } = calculatePoints(
+        const { puntos } = calculatePoints(
           pred.equipo_a_goles,
           pred.equipo_b_goles,
           match.goles_local,
           match.goles_visitante
         );
 
-        console.log(`[Oráculo] Matemática: Predijo ${pred.equipo_a_goles}-${pred.equipo_b_goles}. Real ${match.goles_local}-${match.goles_visitante}. PUNTOS: ${puntos}`);
-
         // Actualizar la predicción
-        const { data: updatedData, error: predError } = await supabase
+        await supabase
           .from('predictions')
           .update({ points_earned: puntos })
-          .eq('id', pred.id)
-          .select();
-          
-        if (predError) {
-          console.error("[Oráculo] Error al actualizar predicción:", predError);
-        } else if (!updatedData || updatedData.length === 0) {
-          console.warn(`[Oráculo WARNING] Supabase ignoró la actualización del boleto ${pred.id}. ¡Problema de Permisos RLS detectado!`);
-        } else {
-          console.log(`[Oráculo] Boleto ${pred.id} guardado en BD con éxito.`);
-        }
+          .eq('id', pred.id);
       }
-    } else {
-      console.log("[Oráculo] No hay apuestas nuevas pendientes, forzando recálculo de tabla de posiciones...");
     }
 
-    // 4. Recalcular tabla de posiciones TOTAL desde cero (Resistente a Race Conditions)
-    // Traemos a todos los miembros de la liga para recalcularles sus puntos
+    // 4. Recalcular tabla de posiciones TOTAL
     const { data: members, error: membersError } = await supabase
       .from('league_members')
       .select('user_id');
 
-    if (membersError) {
-      console.error("[Oráculo] Error al obtener miembros:", membersError);
-      return { success: false, message: "Falló la lectura de liga." };
-    }
+    if (membersError) throw membersError;
 
     if (members) {
       for (const member of members) {
         const userId = member.user_id;
-        
-        // Traer TODAS las predicciones ya procesadas de este usuario
-        const { data: userPreds, error: predsError } = await supabase
+        const { data: userPreds } = await supabase
           .from('predictions')
           .select('points_earned')
           .eq('user_id', userId)
           .not('points_earned', 'is', null);
-
-        if (predsError) {
-          console.error(`[Oráculo] Error al traer predicciones procesadas para ${userId}:`, predsError);
-        }
 
         if (userPreds) {
           let totalPts = 0;
@@ -101,17 +77,11 @@ export async function processFinishedMatches() {
           for (const p of userPreds) {
             const pts = p.points_earned || 0;
             totalPts += pts;
-            
-            if (pts === 5) {
-              plenos += 1;
-              aciertos += 1;
-            } else if (pts === 2) {
-              aciertos += 1;
-            }
+            if (pts === 5) { plenos += 1; aciertos += 1; }
+            else if (pts === 2) { aciertos += 1; }
           }
 
-          // Actualizamos usando el Total Real, no acumulando
-          const { error: memberError } = await supabase
+          await supabase
             .from('league_members')
             .update({
               total_pts: totalPts,
@@ -119,18 +89,12 @@ export async function processFinishedMatches() {
               plenos_exactos: plenos
             })
             .eq('user_id', userId);
-            
-          if (memberError) {
-            console.error(`[Oráculo] Error de Permisos RLS al actualizar league_members de ${userId}:`, memberError);
-          } else {
-            console.log(`[Oráculo] Puntos auditados para ${userId}: ${totalPts} pts`);
-          }
         }
       }
     }
 
-    // 5. Resolver Duelos Activos (Estrategia Agresiva: Cero fallos de tipo)
-    let duelLog = `Buscando duelos para IDs: [${finishedMatchIds.join(',')}]... `;
+    // 5. Resolver Duelos Activos
+    let duelLog = `Partidos: [${finishedMatchIds.join(',')}]... `;
     
     const { data: allActiveDuels, error: duelsError } = await supabase
       .from('league_duels')
@@ -140,76 +104,76 @@ export async function processFinishedMatches() {
     if (duelsError) {
       duelLog += `Error DB: ${duelsError.message}. `;
     } else {
-      duelLog += `Encontrados ${allActiveDuels?.length || 0} duelos 'active' en total. `;
+      duelLog += `Duelos activos: ${allActiveDuels?.length || 0}. `;
     }
 
-    // Filtramos en JS
     const activeDuels = (allActiveDuels || []).filter(duel => 
       finishedMatchIds.includes(duel.match_id?.toString())
     );
 
-    duelLog += `Coincidencias con partidos finalizados: ${activeDuels.length}. `;
+    duelLog += `Match: ${activeDuels.length}. `;
 
-    if (activeDuels.length > 0) {
-      for (const duel of activeDuels) {
-        duelLog += `Procesando Duelo ${duel.id}... `;
+    for (const duel of activeDuels) {
+      duelLog += `[Duelo ${duel.id.substring(0,4)}: `;
+      
+      const { data: participants, error: pError } = await supabase
+        .from('duel_participants')
+        .select('user_id')
+        .eq('duel_id', duel.id);
         
-        const { data: participants } = await supabase
-          .from('duel_participants')
-          .select('user_id')
-          .eq('duel_id', duel.id);
-          
-        if (participants && participants.length > 0) {
-          const userIds = participants.map(p => p.user_id);
-          
-          const { data: preds } = await supabase
-            .from('predictions')
-            .select('user_id, points_earned')
-            .eq('match_id', duel.match_id.toString())
-            .in('user_id', userIds);
-            
-          let maxPoints = -1;
-          const userPoints: Record<string, number> = {};
-          userIds.forEach(u => userPoints[u] = 0);
-          
-          if (preds && preds.length > 0) {
-            preds.forEach(p => {
-              const pts = p.points_earned || 0;
-              userPoints[p.user_id] = pts;
-              if (pts > maxPoints) maxPoints = pts;
-            });
-          }
-
-          const winners = userIds.filter(uid => userPoints[uid] === maxPoints && maxPoints > 0);
-          
-          if (winners.length > 0) {
-            for (const winnerId of winners) {
-              await supabase
-                .from('duel_participants')
-                .update({ is_winner: true })
-                .eq('duel_id', duel.id)
-                .eq('user_id', winnerId);
-            }
-          }
-          
-          const { error: closeError } = await supabase
-            .from('league_duels')
-            .update({ status: 'resolved' })
-            .eq('id', duel.id);
-
-          if (closeError) duelLog += `Error cierre: ${closeError.message}. `;
-          else duelLog += `Duelo ${duel.id} RESUELTO con ${winners.length} ganadores. `;
-        }
+      if (pError || !participants || participants.length === 0) {
+        duelLog += `Sin participantes]. `;
+        continue;
       }
+
+      const userIds = participants.map(p => p.user_id);
+      const { data: preds } = await supabase
+        .from('predictions')
+        .select('user_id, points_earned')
+        .eq('match_id', duel.match_id.toString())
+        .in('user_id', userIds);
+        
+      let maxPoints = -1;
+      const userPoints: Record<string, number> = {};
+      userIds.forEach(u => userPoints[u] = 0);
+      
+      if (preds) {
+        preds.forEach(p => {
+          const pts = p.points_earned || 0;
+          userPoints[p.user_id] = pts;
+          if (pts > maxPoints) maxPoints = pts;
+        });
+      }
+
+      const winners = userIds.filter(uid => userPoints[uid] === maxPoints && maxPoints > 0);
+      
+      if (winners.length > 0) {
+        for (const winnerId of winners) {
+          await supabase
+            .from('duel_participants')
+            .update({ is_winner: true })
+            .eq('duel_id', duel.id)
+            .eq('user_id', winnerId);
+        }
+        duelLog += `${winners.length} ganadores]. `;
+      } else {
+        duelLog += `Empate/Cero]. `;
+      }
+      
+      // Marcar duelo como resuelto
+      await supabase
+        .from('league_duels')
+        .update({ status: 'resolved' })
+        .eq('id', duel.id);
     }
 
     return { 
       success: true, 
-      message: `INFORME ORÁCULO: ${duelLog}` 
+      message: `INFORME: ${duelLog}` 
     };
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Oráculo] Error fatal:", error);
-    return { success: false, message: "Falló el procesamiento." };
+    return { success: false, message: `Error: ${error.message}` };
   }
 }
