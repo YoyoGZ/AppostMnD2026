@@ -130,50 +130,59 @@ export async function processFinishedMatches() {
     }
 
     // 5. Resolver Duelos Activos
+    console.log(`[Oráculo] Buscando duelos para partidos: ${finishedMatchIds.join(', ')}`);
+    
     const { data: activeDuels, error: duelsError } = await supabase
       .from('league_duels')
       .select('id, match_id')
       .eq('status', 'active')
       .in('match_id', finishedMatchIds);
 
+    if (duelsError) {
+      console.error("[Oráculo] Error al buscar duelos:", duelsError);
+    }
+
     if (activeDuels && activeDuels.length > 0) {
-      console.log(`[Oráculo] Resolviendo ${activeDuels.length} duelos activos...`);
+      console.log(`[Oráculo] Encontrados ${activeDuels.length} duelos para procesar.`);
+      
       for (const duel of activeDuels) {
-        // Obtener participantes
-        const { data: participants } = await supabase
+        console.log(`[Oráculo] Procesando Duelo ID: ${duel.id} (Partido: ${duel.match_id})`);
+        
+        const { data: participants, error: pError } = await supabase
           .from('duel_participants')
           .select('user_id')
           .eq('duel_id', duel.id);
           
+        if (pError) console.error(`[Oráculo] Error al traer participantes del duelo ${duel.id}:`, pError);
+
         if (participants && participants.length > 0) {
           const userIds = participants.map(p => p.user_id);
           
-          // Obtener puntos ganados en este partido exacto
-          const { data: preds } = await supabase
+          // Buscamos las predicciones. Forzamos match_id a string por si acaso.
+          const { data: preds, error: prError } = await supabase
             .from('predictions')
             .select('user_id, points_earned')
-            .eq('match_id', duel.match_id)
+            .eq('match_id', duel.match_id.toString())
             .in('user_id', userIds);
             
+          if (prError) console.error(`[Oráculo] Error al traer predicciones para duelo ${duel.id}:`, prError);
+
           let maxPoints = -1;
           const userPoints: Record<string, number> = {};
+          userIds.forEach(u => userPoints[u] = 0);
           
-          for(const u of userIds) { userPoints[u] = 0; }
-          
-          if (preds) {
-            for (const p of preds) {
+          if (preds && preds.length > 0) {
+            preds.forEach(p => {
               const pts = p.points_earned || 0;
               userPoints[p.user_id] = pts;
               if (pts > maxPoints) maxPoints = pts;
-            }
+            });
           }
-          
-          // Si maxPoints === 0, todos perdieron (cero puntos). Declaramos un empate sin ganador? 
-          // Según reglas, solo hay ganador si hay puntos. O podemos declararlo empate general si nadie sumó.
-          // Por ahora, solo es ganador si maxPoints > 0.
+
           const winners = userIds.filter(uid => userPoints[uid] === maxPoints && maxPoints > 0);
           
           if (winners.length > 0) {
+            console.log(`[Oráculo] Duelo ${duel.id}: Ganadores detectados -> ${winners.join(', ')}`);
             for (const winnerId of winners) {
               await supabase
                 .from('duel_participants')
@@ -181,22 +190,25 @@ export async function processFinishedMatches() {
                 .eq('duel_id', duel.id)
                 .eq('user_id', winnerId);
             }
+          } else {
+            console.log(`[Oráculo] Duelo ${duel.id}: No hay ganadores claros (Empate a 0 o sin apuestas).`);
           }
           
-          // Cerrar el duelo
-          await supabase
+          // Forzamos el cierre del duelo sin importar si hubo ganadores
+          const { error: closeError } = await supabase
             .from('league_duels')
             .update({ status: 'resolved' })
             .eq('id', duel.id);
-            
-          console.log(`[Oráculo] Duelo ${duel.id} resuelto. Ganadores: ${winners.join(', ')}`);
+
+          if (closeError) console.error(`[Oráculo] Error al cerrar duelo ${duel.id}:`, closeError);
+          else console.log(`[Oráculo] Duelo ${duel.id} marcado como RESOLVED.`);
         }
       }
     }
 
     return { 
       success: true, 
-      message: `Auditoría del Oráculo finalizada. Leaderboard y Duelos sincronizados.` 
+      message: `Auditoría finalizada. Duelos procesados: ${activeDuels?.length || 0}` 
     };
 
   } catch (error) {
