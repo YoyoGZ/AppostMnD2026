@@ -62,8 +62,9 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
     const pseudoEmail = `${sanitizedAlias}@fixture2026.app`;
 
     try {
+      let authUser = null;
       if (isNewUser) {
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { data, error: signUpError } = await supabase.auth.signUp({
           email: pseudoEmail,
           password: password,
           options: {
@@ -71,20 +72,28 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
           }
         });
         if (signUpError) throw signUpError;
+        authUser = data.user;
       } else {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({
           email: pseudoEmail,
           password: password,
         });
         if (signInError) throw signInError;
+        authUser = data.user;
       }
       
       // Victoria: Autenticado correctamente
+      const role = authUser?.user_metadata?.role;
+
       if (inviteCode) {
         // Redirigir a la nueva página de unión dedicada
         const targetPath = `/join/${inviteCode}`;
         console.log(`🚀 [LOGINSHIELD] Redirigiendo a página de unión: ${targetPath}`);
         router.push(targetPath);
+      } else if (role === 'super_admin') {
+        // Si es el Fundador Supremo, va directo al HQ
+        console.log(`🚀 [LOGINSHIELD] Redirigiendo al Cuartel General (God Mode)`);
+        router.push("/hq");
       } else {
         // Flujo normal sin invitación
         console.log(`🚀 [LOGINSHIELD] Redirigiendo a Dashboard`);

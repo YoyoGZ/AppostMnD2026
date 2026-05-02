@@ -38,7 +38,8 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/standings') ||
     request.nextUrl.pathname.startsWith('/profile') ||
     request.nextUrl.pathname.startsWith('/settings') ||
-    request.nextUrl.pathname.startsWith('/onboarding')
+    request.nextUrl.pathname.startsWith('/onboarding') ||
+    request.nextUrl.pathname.startsWith('/hq')
 
   // 1. Sin sesión + ruta protegida → a la Home (Login)
   if (!user && isProtectedRoute) {
@@ -47,10 +48,11 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // 2. Con sesión + en Home → al Dashboard
+  // 2. Con sesión + en Home → al Dashboard o HQ
   if (user && request.nextUrl.pathname === '/') {
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    const role = user.user_metadata?.role;
+    url.pathname = role === 'super_admin' ? '/hq' : '/dashboard'
     return NextResponse.redirect(url)
   }
 
@@ -66,6 +68,17 @@ export async function updateSession(request: NextRequest) {
       const url = request.nextUrl.clone()
       url.pathname = '/onboarding'
       return NextResponse.redirect(url)
+    }
+  }
+
+  // 4. Protección del "God Mode" (/hq)
+  if (user && request.nextUrl.pathname.startsWith('/hq')) {
+    const role = user.user_metadata?.role;
+    if (role !== 'super_admin') {
+      console.warn(`🛑 [SECURITY] Acceso denegado a /hq para el usuario: ${user.id}`);
+      const url = request.nextUrl.clone();
+      url.pathname = '/dashboard';
+      return NextResponse.redirect(url);
     }
   }
 

@@ -8,10 +8,11 @@
 - [x] Fase 2: **Motor de Ligas Privadas** (Onboarding Admin, Magic Invites, Aislamiento de Ligas)
 - [x] Fase 3: **Integridad de Pronósticos** (5 pts Score, Time-locks & 10min Reveal)
 - [x] Fase 4: **Oráculo y Leaderboards** (Cruce de resultados en tiempo real)
-- [ ] Fase 5: Motor de Pronósticos Eliminatorios (Llaves Knockout y Alargue/Penales)
+- [ ] Fase 5: **Monetización y God Mode** (Pases Premium de Uso Único y Panel Admin)
+- [ ] Fase 6: Motor de Pronósticos Eliminatorios (Llaves Knockout y Alargue/Penales)
 
 ## Current Trajectory
-**Paso Activo**: **Sincronización y Blindaje (Fase 3)** — Implementación de protocolos de seguridad para bloquear apuestas post-inicio y automatización del Oráculo para resultados reales.
+**Paso Activo**: **Fase 5: Monetización y God Mode** — Implementación de Panel Super Admin, Tokens Desechables para membresía de pago y esquema anti-fraude.
 
 ## Último Audit (2026-05-01) - **Multi-League Milestone**
 

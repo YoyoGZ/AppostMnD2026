@@ -6,7 +6,7 @@ import { Clock, Lock, Check, Loader2 } from "lucide-react";
 import { getLocalMatchTimeText } from "@/lib/utils/date";
 import { createClient } from "@/utils/supabase/client";
 
-export const MatchPredictionCard = ({ matchInfo }: { matchInfo: MatchInfo }) => {
+export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInfo, userId: string | null }) => {
   const [localTimeText, setLocalTimeText] = useState<string>("");
   const [homeScore, setHomeScore] = useState<string>("");
   const [awayScore, setAwayScore] = useState<string>("");
@@ -17,16 +17,15 @@ export const MatchPredictionCard = ({ matchInfo }: { matchInfo: MatchInfo }) => 
   const [showConfirmMode, setShowConfirmMode] = useState<boolean>(false);
   const supabase = createClient();
 
-  // 1. Cargar apuesta existente al montar el componente
+  // 1. Cargar apuesta existente al montar el componente o cuando cambie el userId
   useEffect(() => {
     const fetchPrediction = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!userId) return;
       
       const { data } = await supabase
         .from('predictions')
         .select('equipo_a_goles, equipo_b_goles, is_sealed')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .eq('match_id', matchInfo.id)
         .maybeSingle();
         
@@ -38,7 +37,7 @@ export const MatchPredictionCard = ({ matchInfo }: { matchInfo: MatchInfo }) => 
       setIsLoading(false);
     };
     fetchPrediction();
-  }, [matchInfo.id, supabase]);
+  }, [matchInfo.id, supabase, userId]);
 
   // 2. Motor de Tiempo: Bloqueo 5 min antes
   useEffect(() => {
@@ -80,13 +79,12 @@ export const MatchPredictionCard = ({ matchInfo }: { matchInfo: MatchInfo }) => 
     setIsSaving(true);
     
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Usuario no autenticado");
+      if (!userId) throw new Error("Usuario no autenticado");
       
       const { error } = await supabase
         .from('predictions')
         .upsert({
-          user_id: user.id,
+          user_id: userId,
           match_id: matchInfo.id,
           equipo_a_goles: parseInt(homeScore),
           equipo_b_goles: parseInt(awayScore),
