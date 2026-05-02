@@ -4,18 +4,21 @@ import { createClient } from "@/utils/supabase/server";
 import worldCupData from "@/data/world-cup-2026.json";
 import { calculatePoints } from "@/lib/utils/oracle";
 
-export async function processFinishedMatches() {
+/**
+ * Oráculo: Sincroniza puntos y duelos para una liga específica.
+ */
+export async function processFinishedMatches(leagueId?: string) {
   try {
     const supabase = await createClient();
 
-    // 1. Partidos finalizados
+    // 1. Partidos finalizados en el JSON
     const finishedMatches = worldCupData.partidos.filter((m: any) => m.estado === "finalizado");
     if (finishedMatches.length === 0) {
       return { success: true, message: "No hay partidos finalizados." };
     }
     const finishedMatchIds = finishedMatches.map((m: any) => m.id.toString());
     
-    // 2. Actualizar Predicciones
+    // 2. Actualizar Puntos de Predicciones
     const { data: pendingPredictions } = await supabase
       .from('predictions')
       .select('*')
@@ -30,15 +33,20 @@ export async function processFinishedMatches() {
       }
     }
 
-    // 3. Obtener Miembros de la Liga
-    const { data: members } = await supabase.from('league_members').select('user_id, league_id');
-    if (!members) return { success: true, message: "No hay miembros en la liga." };
+    // 3. Obtener solo los miembros de la liga que estamos auditando
+    let query = supabase.from('league_members').select('user_id, league_id');
+    if (leagueId) {
+      query = query.eq('league_id', leagueId);
+    }
+    const { data: members } = await query;
+    if (!members || members.length === 0) return { success: true, message: "No hay miembros que procesar." };
 
-    // 4. Resolver Duelos Activos
-    const { data: allActiveDuels } = await supabase
-      .from('league_duels')
-      .select('id, match_id, league_id')
-      .eq('status', 'active');
+    // 4. Resolver Duelos Activos de esta liga
+    let duelQuery = supabase.from('league_duels').select('id, match_id, league_id').eq('status', 'active');
+    if (leagueId) {
+      duelQuery = duelQuery.eq('league_id', leagueId);
+    }
+    const { data: allActiveDuels } = await duelQuery;
 
     const activeDuels = (allActiveDuels || []).filter(duel => 
       finishedMatchIds.includes(duel.match_id?.toString())
@@ -71,10 +79,10 @@ export async function processFinishedMatches() {
       await supabase.from('league_duels').update({ status: 'resolved' }).eq('id', duel.id);
     }
 
-    // 5. --- RECALCULO GLOBAL DE MEDALLAS Y PUNTOS ---
-    // Lo hacemos fuera para que siempre mantenga la tabla al día
+    // 5. --- RECALCULO DE MEDALLAS ---
+    // Usamos los IDs de duelos que SIEMPRE podemos ver para esta liga
     for (const member of members) {
-      // A. Contar Puntos y Aciertos
+      // Puntos y Aciertos
       const { data: userPreds } = await supabase.from('predictions').select('points_earned').eq('user_id', member.user_id).not('points_earned', 'is', null);
       let totalPts = 0, aciertos = 0, plenos = 0;
       if (userPreds) {
@@ -86,22 +94,23 @@ export async function processFinishedMatches() {
         });
       }
 
-      // B. Contar Victorias en Duelos (Escaneo de toda la liga)
-      const { data: leagueDuels } = await supabase.from('league_duels').select('id').eq('league_id', member.league_id);
-      const leagueDuelIds = leagueDuels?.map(ld => ld.id) || [];
+      // Contador de Victorias (Solo de esta liga)
+      const { data: myLeagueDuels } = await supabase.from('league_duels').select('id').eq('league_id', member.league_id);
+      const leagueDuelIds = myLeagueDuels?.map(ld => ld.id) || [];
       
       let victories = 0;
       if (leagueDuelIds.length > 0) {
+        // Consultamos directamente cuántas victorias tiene en esos duelos
         const { count } = await supabase
           .from('duel_participants')
-          .select('*', { count: 'exact', head: true })
+          .select('user_id', { count: 'exact', head: true })
           .eq('user_id', member.user_id)
           .eq('is_winner', true)
           .in('duel_id', leagueDuelIds);
+        
         victories = count || 0;
       }
 
-      // C. Update final
       await supabase
         .from('league_members')
         .update({
@@ -114,10 +123,10 @@ export async function processFinishedMatches() {
         .eq('league_id', member.league_id);
     }
 
-    return { success: true, message: "Sincronización y Auditoría de Medallas completada." };
+    return { success: true, message: "Auditoría de Arena completada con éxito." };
 
   } catch (error: any) {
-    console.error("[Oráculo] Error fatal:", error);
+    console.error("[Oráculo] Error:", error);
     return { success: false, message: error.message };
   }
 }

@@ -32,15 +32,19 @@ export default function StandingsClient({
   const [copied, setCopied] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  const handleSync = async () => {
+  const handleAudit = async () => {
+    if (!leagueInfo?.id) return;
     setIsSyncing(true);
     try {
-      const result = await processFinishedMatches();
+      const result = await processFinishedMatches(leagueInfo.id);
       if (result.success) {
+        alert("¡Auditoría de Arena completada! Los puntos y victorias han sido sincronizados.");
         window.location.reload();
+      } else {
+        alert("Error en la auditoría: " + result.message);
       }
-    } catch (error) {
-      console.error("Error sincronizando:", error);
+    } catch (err) {
+      alert("Error crítico en el Oráculo.");
     } finally {
       setIsSyncing(false);
     }
