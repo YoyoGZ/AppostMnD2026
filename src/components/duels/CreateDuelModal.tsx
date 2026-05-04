@@ -142,7 +142,7 @@ export function CreateDuelModal({ isOpen, onClose, leagueId, members }: CreateDu
           className="w-full mt-2 bg-primary hover:bg-primary/90 disabled:bg-white/5 disabled:text-white/20 text-black font-black uppercase tracking-[0.2em] p-5 rounded-xl flex justify-center items-center gap-3 transition-all disabled:cursor-not-allowed shadow-[0_0_30px_rgba(251,191,36,0.1)] hover:shadow-[0_0_40px_rgba(251,191,36,0.25)]"
         >
           {isLoading ? (
-            <><Loader2 className="w-5 h-5 animate-spin" /> Forjando Combate...</>
+            <><Loader2 className="w-5 h-5 animate-spin" /> Generando el Combate...</>
           ) : (
             <><Swords className="w-6 h-6" /> Iniciar Duelo</>
           )}

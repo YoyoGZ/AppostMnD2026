@@ -67,3 +67,39 @@ El Server Action corría usando las credenciales recién creadas del usuario (`a
 
 ### Resolución 2 (The House Way)
 Se construyó una política RLS quirúrgica: `UPDATE USING (is_used = false) WITH CHECK (is_used = true AND used_by = auth.uid())`. Esto permite al usuario modificar el token **solo** en el momento de consumirlo para quemarlo y atarlo a su cuenta, sin comprometer el resto de la base de datos. Se logró transaccionalidad atómica sin necesidad de exponer la `SERVICE_ROLE_KEY`.
+
+## 2026-05-04: El Misterio de las Medallas — N+1 RLS Block en Iteraciones Multi-User (LT-2)
+
+### Síntoma
+`duelos_ganados` permanecía en 0 para todos los miembros de la liga después de ejecutar el Oráculo, a pesar de que `is_winner = true` se grababa correctamente en `duel_participants`.
+
+### Diagnóstico
+El Step 5 del Oráculo iteraba sobre todos los miembros de la liga y ejecutaba una query de conteo en `duel_participants` **filtrando por `user_id` de otros usuarios**: `.eq('user_id', member.user_id)`. El Oráculo corre como Server Action con la sesión del usuario que lo dispara (`auth.uid()`). Si la política RLS de `duel_participants` usa `user_id = auth.uid()`, la query devuelve `count: null` silenciosamente para cualquier miembro que no sea el usuario actual. Esto es una variante del patrón LT-1 (Silent RLS Failure) aplicado a **iteraciones multi-usuario**.
+
+### Resolución (The House Way)
+**Anti-Patrón a Evitar**: Nunca hacer N queries individuales sobre tablas con RLS, filtrando por `user_id` de otros usuarios en un loop de iteración.
+
+**La Regla**: Cuando un proceso del servidor necesita datos de MÚLTIPLES usuarios en simultáneo (como el Oráculo), usar siempre un **bulk fetch** filtrando por un ID que SÍ tienes permiso de leer (ej. `duel_id`, `league_id`), y agregar los resultados en memoria con un `Map`.
+
+```typescript
+// ❌ PATRÓN PELIGROSO (N queries, bloqueable por RLS):
+for (const member of members) {
+  const { count } = await supabase
+    .from('duel_participants')
+    .select('*', { count: 'exact' })
+    .eq('user_id', member.user_id) // ← bloqueado por RLS para otros users
+    .eq('is_winner', true);
+}
+
+// ✅ PATRÓN SEGURO (1 query, agregación en memoria):
+const { data: allWinners } = await supabase
+  .from('duel_participants')
+  .select('user_id')
+  .eq('is_winner', true)
+  .in('duel_id', allLeagueDuelIds); // ← filtra por ID que SÍ puedes leer
+
+const victoriesMap = new Map();
+(allWinners || []).forEach(w => {
+  victoriesMap.set(w.user_id, (victoriesMap.get(w.user_id) || 0) + 1);
+});
+```

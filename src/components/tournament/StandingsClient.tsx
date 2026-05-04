@@ -131,29 +131,45 @@ export default function StandingsClient({
         </h2>
         
         {leagueInfo?.isAdmin && (
-          <div className="flex flex-wrap justify-center gap-3 mt-4">
+          <div className="flex flex-wrap justify-center gap-3 mt-6">
+            {/* 1. Link Invitación */}
             <button
-              onClick={() => setIsDuelModalOpen(true)}
-              className="flex items-center gap-2 bg-yellow-500/20 border border-yellow-500/50 px-4 py-2 rounded-full hover:bg-yellow-500/30 transition-all text-[10px] font-black uppercase text-yellow-400"
+              onClick={handleCopyLink}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all text-[10px] font-black uppercase tracking-wider ${
+                copied 
+                  ? "bg-green-500/20 border-green-500 text-green-400" 
+                  : "bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:border-white/40"
+              }`}
             >
-              <Swords className="w-4 h-4" /> Forjar Duelo
-            </button>
-            
-            <button
-              onClick={handleArchive}
-              disabled={isSyncing}
-              className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 px-4 py-2 rounded-full hover:bg-red-500/20 transition-all text-[10px] font-black uppercase text-red-400 disabled:opacity-30"
-            >
-              <Trash2 className="w-4 h-4" /> Limpiar Arena
+              {copied ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {copied ? "¡Copiado!" : "Link Invitación"}
             </button>
 
+            {/* 2. Generar Duelos (Forjar Duelo) */}
+            <button
+              onClick={() => setIsDuelModalOpen(true)}
+              className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 px-4 py-2 rounded-full hover:bg-yellow-500/20 transition-all text-[10px] font-black uppercase text-yellow-400 tracking-wider"
+            >
+              <Swords className="w-4 h-4" /> Generar Duelo
+            </button>
+            
+            {/* 3. Auditar Puntos */}
             <button 
               onClick={handleAudit}
               disabled={isSyncing}
-              className="flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-2 rounded-xl text-[10px] font-black text-primary uppercase tracking-widest hover:bg-primary/20 transition-all disabled:opacity-50"
+              className="flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-2 rounded-full text-[10px] font-black text-primary uppercase tracking-wider hover:bg-primary/20 transition-all disabled:opacity-50"
             >
-              <Swords className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-              {isSyncing ? 'Auditando...' : 'Auditar Arena'}
+              <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+              {isSyncing ? 'Auditando...' : 'Auditar Puntos'}
+            </button>
+
+            {/* 4. Limpiar Arena */}
+            <button
+              onClick={handleArchive}
+              disabled={isSyncing}
+              className="flex items-center gap-2 bg-red-500/5 border border-red-500/20 px-4 py-2 rounded-full hover:bg-red-500/10 transition-all text-[10px] font-black uppercase text-red-400/70 tracking-wider disabled:opacity-30"
+            >
+              <Trash2 className="w-4 h-4" /> Limpiar Arena
             </button>
           </div>
         )}

@@ -99,8 +99,8 @@ function OnboardingContent() {
                   <input 
                     type="text" 
                     name="name"
-                    placeholder="Nombre de tu Arena (Ej: Los Galácticos)" 
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-white/20"
+                    placeholder="Ej: Los Galácticos, La Scaloneta..." 
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-white/50 placeholder:font-medium"
                   />
                 </div>
                 <button 

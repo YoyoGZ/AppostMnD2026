@@ -47,3 +47,21 @@ Este documento centraliza los problemas técnicos y bugs encontrados durante el 
 ## 🚀 PRÓXIMOS DESAFÍOS (Fase 3: Gamificación & Seguridad)
 - **Sincronización de Resultados Reales**: Conectar el Oráculo con una API de deportes o un JSON maestro actualizado.
 - **Seguridad de Pronósticos**: Implementar el Shield Protocol para evitar cambios de apuestas post-inicio de partido.
+
+---
+
+## ✅ INCIDENCIAS RESUELTAS (Deuda Técnica)
+
+### 5. El Misterio de las Medallas (Contador de Duelos Ganados en 0)
+
+## CORREGIDO (2026-05-04) ##
+
+### Síntomas Encontrados (2026-05-02)
+- **Contador Estático**: El contador global `duelos_ganados` en `league_members` permanecía en 0 a pesar de que el Oráculo resolvía los duelos correctamente.
+- **Impacto en UX**: Las Crónicas mostraban el Taunt de nivel bajo para todos los usuarios, incluso los ganadores.
+
+### Historial de Resolución Efectiva (Solución Aplicada — 2026-05-04)
+- **Causa Raíz**: Fallo silencioso de RLS (patrón LT-1). El Step 5 del Oráculo hacía N queries individuales filtrando por `user_id` de OTROS usuarios en `duel_participants`. Al correr como Server Action con la sesión del usuario que lo dispara, RLS devolvía `count: null` silenciosamente para todos los miembros != `auth.uid()`, resultando en 0 victorias.
+- **Fix**: Refactorización del Step 5 a un único **bulk fetch** de todos los ganadores de la liga, sin filtrar por `user_id` en la DB. La agregación ocurre en memoria con un `Map<userId, victories>`. Esto elimina la dependencia de permisos por `user_id`.
+- **Acción SQL Pendiente**: Ejecutar el script `docs/sql-migrations/fix-duelos-rls.sql` en Supabase para garantizar las políticas correctas en `duel_participants` y `league_duels`.
+

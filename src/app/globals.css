@@ -145,3 +145,24 @@
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-muted-foreground/40;
 }
+
+/* ─── Accesibilidad Móvil — Escala de Tipografía ──────────────────────────────
+   Los tamaños explícitos en px no escalan con el zoom del sistema.
+   En mobile, subimos el piso mínimo de legibilidad para subtítulos y cuerpo.
+   Los títulos (text-xl, text-2xl, text-3xl+) NO se tocan.
+   ──────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Tamaños extremos → al piso legible */
+  .text-\[9px\]  { font-size: 11px !important; }
+  .text-\[10px\] { font-size: 12px !important; }
+  .text-\[11px\] { font-size: 13px !important; }
+
+  /* text-xs (12px) y text-sm (14px) → un escalón arriba */
+  .text-xs { font-size: 13px !important; letter-spacing: 0.01em; }
+  .text-sm { font-size: 15px !important; }
+
+  /* Mejorar legibilidad de textos de apoyo */
+  p, li {
+    line-height: 1.6;
+  }
+}

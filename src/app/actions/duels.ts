@@ -23,7 +23,7 @@ export async function createDuelAction(leagueId: string, matchId: string, partic
     .select('id')
     .single();
 
-  if (createError) return { error: "No se pudo forjar el duelo." };
+  if (createError) return { error: "No se pudo generar el duelo." };
 
   const participantsData = participantIds.map(uid => ({
     duel_id: duel.id,
@@ -66,7 +66,7 @@ export async function getLeagueDuelsAction(leagueId: string) {
 
   // 1. Mapeo de Equipos (ID -> Nombre)
   const teamMap = new Map(worldCupData.equipos.map((t: any) => [t.id, t.nombre]));
-  
+
   // 2. Mapeo de Partidos (ID -> "Local vs Visitante")
   const matchMap = new Map(worldCupData.partidos.map((m: any) => {
     const localName = teamMap.get(m.local) || m.local;

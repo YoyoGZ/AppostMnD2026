@@ -65,7 +65,7 @@ export default function Dashboard() {
 
         <button 
           onClick={() => setShowRules(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white/70 hover:text-white transition-all group"
+          className="flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-[11px] md:text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(251,191,36,0.1)] transition-all group"
         >
           <Info className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
           Reglas

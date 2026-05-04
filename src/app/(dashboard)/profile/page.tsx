@@ -74,14 +74,25 @@ export default function ProfilePage() {
 
       <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
         
-        <aside className="space-y-4">
+        <main className="md:col-span-2 order-1 md:order-2">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-20 text-white/20">
+              <Loader2 className="w-8 h-8 animate-spin mb-4" />
+              <p className="text-xs font-bold uppercase tracking-widest">Abriendo Crónicas...</p>
+            </div>
+          ) : (
+            <DuelChronicles duels={duels} totalWins={duelsWon} />
+          )}
+        </main>
+
+        <aside className="space-y-4 order-2 md:order-1">
           <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 ml-2">Identidad</h3>
           <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
             <div className="flex items-center gap-4 mb-4">
               <Shield className="w-5 h-5 text-primary" />
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="text-[10px] text-white/40 uppercase tracking-wider font-bold">Email</p>
-                <p className="text-sm text-white font-bold truncate max-w-[150px]">{email || "Anónimo"}</p>
+                <p className="text-sm text-white font-bold truncate">{email || "Anónimo"}</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -98,17 +109,6 @@ export default function ProfilePage() {
             <p className="text-lg font-black text-white leading-tight">{leagueName}</p>
           </div>
         </aside>
-
-        <main className="md:col-span-2">
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-20 text-white/20">
-              <Loader2 className="w-8 h-8 animate-spin mb-4" />
-              <p className="text-xs font-bold uppercase tracking-widest">Abriendo Crónicas...</p>
-            </div>
-          ) : (
-            <DuelChronicles duels={duels} totalWins={duelsWon} />
-          )}
-        </main>
       </div>
     </div>
   );

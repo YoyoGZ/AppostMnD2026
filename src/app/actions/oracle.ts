@@ -80,10 +80,44 @@ export async function processFinishedMatches(leagueId?: string) {
     }
 
     // 5. --- RECALCULO DE MEDALLAS ---
-    // Usamos los IDs de duelos que SIEMPRE podemos ver para esta liga
+    // FIX (LT-1 Anti-Pattern): El bug anterior hacía N queries individuales por miembro,
+    // filtrando por `user_id` de OTROS usuarios. Si el RLS de `duel_participants` usa
+    // `user_id = auth.uid()`, esas queries devuelven count: null silenciosamente → 0 victorias.
+    //
+    // SOLUCIÓN: Un único bulk fetch de todos los ganadores de la liga, agregado en memoria.
+    // No filtramos por user_id en la DB — solo por duel_id (que sí tenemos permiso de leer).
+
+    // Obtener todos los duel_ids de esta liga de una vez
+    const uniqueLeagueIds = [...new Set(members.map(m => m.league_id))];
+    const { data: allLeagueDuels } = await supabase
+      .from('league_duels')
+      .select('id')
+      .in('league_id', uniqueLeagueIds);
+
+    const allLeagueDuelIds = (allLeagueDuels || []).map(d => d.id);
+
+    // Bulk fetch de TODOS los ganadores de la liga (sin filtrar por user_id en DB)
+    const victoriesMap = new Map<string, number>();
+    if (allLeagueDuelIds.length > 0) {
+      const { data: allWinners } = await supabase
+        .from('duel_participants')
+        .select('user_id')
+        .eq('is_winner', true)
+        .in('duel_id', allLeagueDuelIds);
+
+      (allWinners || []).forEach(w => {
+        victoriesMap.set(w.user_id, (victoriesMap.get(w.user_id) || 0) + 1);
+      });
+    }
+
     for (const member of members) {
-      // Puntos y Aciertos
-      const { data: userPreds } = await supabase.from('predictions').select('points_earned').eq('user_id', member.user_id).not('points_earned', 'is', null);
+      // Puntos y Aciertos — query individual pero solo sobre sus propias predicciones (sin conflicto RLS)
+      const { data: userPreds } = await supabase
+        .from('predictions')
+        .select('points_earned')
+        .eq('user_id', member.user_id)
+        .not('points_earned', 'is', null);
+
       let totalPts = 0, aciertos = 0, plenos = 0;
       if (userPreds) {
         userPreds.forEach(p => {
@@ -94,24 +128,10 @@ export async function processFinishedMatches(leagueId?: string) {
         });
       }
 
-      // Contador de Victorias (Solo de esta liga)
-      const { data: myLeagueDuels } = await supabase.from('league_duels').select('id').eq('league_id', member.league_id);
-      const leagueDuelIds = myLeagueDuels?.map(ld => ld.id) || [];
-      
-      let victories = 0;
-      if (leagueDuelIds.length > 0) {
-        // Consultamos directamente cuántas victorias tiene en esos duelos
-        const { count } = await supabase
-          .from('duel_participants')
-          .select('user_id', { count: 'exact', head: true })
-          .eq('user_id', member.user_id)
-          .eq('is_winner', true)
-          .in('duel_id', leagueDuelIds);
-        
-        victories = count || 0;
-      }
+      // Victorias tomadas del mapa en memoria (no más queries bloqueadas por RLS)
+      const victories = victoriesMap.get(member.user_id) || 0;
 
-      await supabase
+      const { error: updateError } = await supabase
         .from('league_members')
         .update({
           total_pts: totalPts,
@@ -121,6 +141,10 @@ export async function processFinishedMatches(leagueId?: string) {
         })
         .eq('user_id', member.user_id)
         .eq('league_id', member.league_id);
+
+      if (updateError) {
+        console.error(`[Oráculo] Error actualizando medallas de ${member.user_id}:`, updateError.message);
+      }
     }
 
     return { success: true, message: "Auditoría de Arena completada con éxito." };
