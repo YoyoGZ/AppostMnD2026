@@ -16,8 +16,8 @@ export default async function StandingsPage() {
     redirect("/");
   }
 
-  // 1. Ejecutar el Oráculo (Auditoría de Puntos)
-  await processFinishedMatches();
+  // El Oráculo ahora se ejecuta manualmente vía Server Action (botón "Auditar Puntos")
+  // para evitar sobrecarga y errores de fetch en cada recarga de página.
 
   // 1.5 Obtener la liga activa de los metadatos del usuario
   let activeLeagueId = user.user_metadata?.active_league_id;
