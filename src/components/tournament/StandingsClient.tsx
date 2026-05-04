@@ -119,19 +119,20 @@ export default function StandingsClient({
 
   return (
     <div className="relative pb-24">
-      <div className="fixed inset-0 w-full h-full bg-gradient-to-b from-primary/5 via-black to-black -z-10 pointer-events-none" />
+      {/* Eliminado fixed inset-0 redundante para evitar conflictos de scroll vertical con el Shell */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[150px] -z-10 pointer-events-none"></div>
 
       <header className="mb-8 pt-4 md:pt-0 relative z-10 flex flex-col items-center text-center">
         <div className="w-14 h-14 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center mb-4">
           <Trophy className="w-7 h-7 text-primary" />
         </div>
-        <h2 className="text-3xl font-black tracking-tight mb-2 text-white uppercase">
+        <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2 text-white uppercase px-4">
           {leagueInfo?.name || "La Arena"}
         </h2>
         
         {leagueInfo?.isAdmin && (
-          <div className="flex flex-wrap justify-center gap-3 mt-6">
+          <div className="flex flex-wrap justify-center gap-3 mt-6 px-4">
+            {/* ... botones ... */}
             {/* 1. Link Invitación */}
             <button
               onClick={handleCopyLink}
@@ -145,7 +146,6 @@ export default function StandingsClient({
               {copied ? "¡Copiado!" : "Link Invitación"}
             </button>
 
-            {/* 2. Generar Duelos (Forjar Duelo) */}
             <button
               onClick={() => setIsDuelModalOpen(true)}
               className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 px-4 py-2 rounded-full hover:bg-yellow-500/20 transition-all text-[10px] font-black uppercase text-yellow-400 tracking-wider"
@@ -153,7 +153,6 @@ export default function StandingsClient({
               <Swords className="w-4 h-4" /> Generar Duelo
             </button>
             
-            {/* 3. Auditar Puntos */}
             <button 
               onClick={handleAudit}
               disabled={isSyncing}
@@ -163,7 +162,6 @@ export default function StandingsClient({
               {isSyncing ? 'Auditando...' : 'Auditar Puntos'}
             </button>
 
-            {/* 4. Limpiar Arena */}
             <button
               onClick={handleArchive}
               disabled={isSyncing}
@@ -175,61 +173,56 @@ export default function StandingsClient({
         )}
       </header>
 
-      <section className="max-w-4xl mx-auto w-full relative z-10 px-2 md:px-0 mb-12">
+      <section className="max-w-4xl mx-auto w-full relative z-10 px-0 md:px-0 mb-12 overflow-x-hidden">
         <DuelsColiseum duels={activeArenaDuels} />
       </section>
 
-      <section className="max-w-4xl mx-auto px-2 relative z-10">
-        {/* Table Header */}
-        <div className="hidden md:flex items-center px-6 py-3 text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">
-          <div className="w-12 text-center">Pos</div>
-          <div className="flex-1 pl-4">Gladiador</div>
-          <div className="w-24 text-center">Duelos Ganados</div>
-          <div className="w-24 text-center">Racha</div>
-          <div className="w-28 text-center">Efectividad</div>
-          <div className="w-20 text-right pr-2">PTS</div>
-        </div>
-
-        <div className="flex flex-col gap-3">
+      <section className="max-w-4xl mx-auto px-2 md:px-0 relative z-10">
+        <div className="flex flex-col gap-2">
           {leaderboard.map((user, index) => (
             <div
               key={user.id}
-              onClick={() => setSelectedUser(selectedUser === user.id ? null : user.id)}
-              className={`flex flex-col rounded-2xl border backdrop-blur-md transition-all duration-300 cursor-pointer overflow-hidden ${getPositionStyle(index)}`}
+              className={`flex flex-col rounded-2xl border backdrop-blur-md transition-all duration-300 overflow-hidden ${getPositionStyle(index)}`}
             >
-              <div className="flex items-center h-16 md:h-18 px-4 md:px-6">
-                <div className="w-8 md:w-12 flex justify-center items-center shrink-0">
+              <div className="flex items-center h-16 px-3 md:px-6">
+                <div className="w-6 md:w-12 flex justify-center items-center shrink-0">
                   {getPositionIcon(index)}
                 </div>
-                <div className="flex-1 flex items-center gap-3 md:gap-4 pl-2 md:pl-4 overflow-hidden">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black uppercase shrink-0 ${index === 0 ? "bg-yellow-500 text-black shadow-lg shadow-yellow-500/30" : "bg-white/10 text-white"}`}>
+                
+                <div className="flex-1 min-w-0 flex items-center gap-2 md:gap-4 pl-1 md:pl-4">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black uppercase shrink-0 ${index === 0 ? "bg-yellow-500 text-black" : "bg-white/10 text-white"}`}>
                     {user.alias.substring(0, 2)}
                   </div>
-                  <span className={`font-bold truncate text-sm md:text-base ${index === 0 ? "text-yellow-400" : "text-white/90"}`}>
+                  <span className={`font-bold truncate text-xs md:text-base ${index === 0 ? "text-yellow-400" : "text-white/90"}`}>
                     {user.alias}
                   </span>
                 </div>
 
                 {/* Duelos Ganados */}
-                <div className="w-16 md:w-20 flex flex-col items-center justify-center shrink-0 border-l border-white/5 md:border-none">
-                  <div className="flex items-center gap-1.5 bg-yellow-500/10 px-2.5 py-1 rounded-md border border-yellow-500/20">
-                    <span className="text-xs font-black text-yellow-500">{user.duelosGanados}</span>
-                    <Swords className="w-3.5 h-3.5 text-yellow-500" />
+                <div className="w-14 md:w-20 flex flex-col items-center justify-center shrink-0">
+                  <div className="flex items-center gap-1 bg-yellow-500/10 px-2 py-1 rounded-md border border-yellow-500/20">
+                    <span className="text-[11px] font-black text-yellow-500">{user.duelosGanados}</span>
+                    <Swords className="w-3 h-3 text-yellow-500" />
                   </div>
                 </div>
 
+                {/* Racha - Oculto en móvil */}
                 <div className="w-20 md:w-24 hidden sm:flex justify-center shrink-0">
                   {renderRacha(user.racha, user.form)}
                 </div>
-                <div className="w-24 md:w-28 flex flex-col items-center justify-center shrink-0 border-l border-white/5 pl-2 md:pl-0">
+
+                {/* Efectividad - Oculto en móvil para evitar scroll horizontal */}
+                <div className="w-24 md:w-28 hidden md:flex flex-col items-center justify-center shrink-0 border-l border-white/5">
                   <div className="flex items-center gap-1.5 text-xs font-black text-white/80">
                     <span className="text-green-400">{user.simples}</span>
                     <span className="text-white/20">/</span>
                     <span className="text-yellow-500">{user.plenos}</span>
                   </div>
                 </div>
-                <div className="w-16 md:w-20 flex justify-end shrink-0 pl-4 border-l border-white/5">
-                  <span className={`text-xl md:text-2xl font-black ${index === 0 ? "text-yellow-400" : "text-white"}`}>
+
+                {/* Puntos - Ajustado para móvil */}
+                <div className="w-12 md:w-20 flex justify-end shrink-0 pl-2 md:pl-4 border-l border-white/5 md:border-none">
+                  <span className={`text-lg md:text-2xl font-black ${index === 0 ? "text-yellow-400" : "text-white"}`}>
                     {user.pts}
                   </span>
                 </div>

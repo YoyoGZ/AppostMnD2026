@@ -21,7 +21,7 @@ export function Shell({
       <Sidebar activeLeague={activeLeague} allLeagues={allLeagues} />
       <main 
         className={cn(
-          "flex-1 flex flex-col min-h-screen transition-all duration-500 ease-in-out scroll-smooth pt-14 md:pt-0",
+          "flex-1 flex flex-col min-h-screen transition-all duration-500 ease-in-out scroll-smooth pt-14 md:pt-0 overflow-x-hidden",
           // Respetamos el ancho dinámico del sidebar fixed (Desktop)
           "md:pl-[256px]", 
           isCollapsed && "md:pl-[80px]"
