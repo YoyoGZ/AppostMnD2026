@@ -179,11 +179,11 @@ export default function HQPage() {
             </div>
             <h2 className="text-lg font-black uppercase tracking-wide">Oráculo Manual</h2>
           </div>
-          <p className="text-white/40 text-sm mb-8 leading-relaxed">
-            Estado de la API deportiva. El Botón Rojo para sobreescribir resultados manualmente.
-          </p>
-          <button className="w-full bg-green-500/10 text-green-500 border border-green-500/20 font-black py-4 rounded-xl opacity-50 cursor-not-allowed uppercase tracking-widest text-xs">
-            Próximamente...
+          <button 
+            onClick={() => router.push('/lab/sports-api')}
+            className="w-full bg-green-500 text-black hover:bg-green-400 transition-colors font-black py-4 rounded-xl uppercase tracking-widest text-xs shadow-[0_0_15px_rgba(34,197,94,0.3)] active:scale-95"
+          >
+            Entrar al Oráculo Maestro
           </button>
         </div>
 

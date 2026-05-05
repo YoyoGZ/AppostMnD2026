@@ -178,6 +178,16 @@ export default function StandingsClient({
       </section>
 
       <section className="max-w-4xl mx-auto px-2 md:px-0 relative z-10">
+        {/* Cabecera de Columnas Técnica */}
+        <div className="flex items-center px-3 md:px-6 mb-4 text-[11px] md:text-xs font-black uppercase tracking-[0.2em] text-white/60 border-b border-white/10 pb-3">
+          <div className="w-6 md:w-12 text-center">#</div>
+          <div className="flex-1 pl-1 md:pl-4">Gladiador</div>
+          <div className="w-14 md:w-20 text-center">Duelos</div>
+          <div className="w-20 md:w-24 hidden sm:block text-center">Racha</div>
+          <div className="w-24 md:w-28 hidden md:block text-center">Stats</div>
+          <div className="w-12 md:w-20 text-right pr-2 md:pr-0">Puntos</div>
+        </div>
+
         <div className="flex flex-col gap-2">
           {leaderboard.map((user, index) => (
             <div

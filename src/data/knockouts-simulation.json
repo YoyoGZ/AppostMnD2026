@@ -1,0 +1,46 @@
+{
+  "rondas": [
+    {
+      "id": "R32",
+      "nombre": "Dieciseisavos",
+      "slug": "round_of_32",
+      "partidos": [
+        { "id": "KO-32-01", "home_placeholder": "1A", "away_placeholder": "3C/D/E", "estado": "programado" },
+        { "id": "KO-32-02", "home_placeholder": "2A", "away_placeholder": "2B", "estado": "programado" },
+        { "id": "KO-32-16", "home_placeholder": "1L", "away_placeholder": "2K", "estado": "programado" }
+      ]
+    },
+    {
+      "id": "R16",
+      "nombre": "Octavos de Final",
+      "slug": "round_of_16",
+      "partidos": [
+        { "id": "KO-16-01", "home_placeholder": "Ganador KO-32-01", "away_placeholder": "Ganador KO-32-02", "estado": "bloqueado" }
+      ]
+    },
+    {
+      "id": "QF",
+      "nombre": "Cuartos de Final",
+      "slug": "quarter_finals",
+      "partidos": [
+        { "id": "KO-08-01", "home_placeholder": "Ganador KO-16-01", "away_placeholder": "Ganador KO-16-02", "estado": "bloqueado" }
+      ]
+    },
+    {
+      "id": "SF",
+      "nombre": "Semifinales",
+      "slug": "semi_finals",
+      "partidos": [
+        { "id": "KO-04-01", "home_placeholder": "Ganador KO-08-01", "away_placeholder": "Ganador KO-08-02", "estado": "bloqueado" }
+      ]
+    },
+    {
+      "id": "FINAL",
+      "nombre": "Gran Final",
+      "slug": "final",
+      "partidos": [
+        { "id": "KO-FINAL", "home_placeholder": "Finalista 1", "away_placeholder": "Finalista 2", "estado": "bloqueado" }
+      ]
+    }
+  ]
+}

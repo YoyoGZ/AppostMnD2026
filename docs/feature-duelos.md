@@ -38,3 +38,20 @@ Necesitaremos crear 2 nuevas tablas en Supabase:
 2. **Builder:** Server Actions (`createDuel`, `getLeagueDuels`).
 3. **Design Lead:** UI del "Coliseo" (Bento Cards de V/S) y Modal del Capitán.
 4. **Integrity Specialist:** Lógica del "Oráculo" para resolver el duelo cuando el partido termina, asignando la victoria y las insignias.
+
+---
+
+## 🚀 6. Expansiones Futuras: Prop-Bets & Side-Quests (Idea Fase 7+)
+
+Para evitar el desinterés en los partidos de la Jornada 3 (donde ya hay equipos eliminados), el Capitán podrá proponer duelos basados en **estadísticas específicas** proporcionadas por la API:
+
+### Nuevos Tipos de Desafíos:
+- **Batalla de Corners:** ¿Quién acierta qué equipo tendrá más tiros de esquina?
+- **El Juez de Hierro:** ¿Habrá más de 3 tarjetas amarillas en el encuentro?
+- **Punto Penal:** ¿Se pitará algún penal a favor del Equipo A?
+- **Muro Defensivo:** ¿El Equipo B mantendrá su portería a cero?
+
+### Requisitos Técnicos:
+- Sincronización extendida en `match_results` para capturar `corners`, `yellow_cards`, `red_cards` y `penalties`.
+- Interfaz dinámica de creación de duelos que permita al Capitán elegir el "Modo de Juego" (Clásico vs Side-Quest).
+

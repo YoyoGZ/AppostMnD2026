@@ -130,8 +130,8 @@
       "bunker": "San Diego, California"
     },
     {
-      "id": "EUR",
-      "nombre": "Clasif. Europeo",
+      "id": "TUR",
+      "nombre": "Türkiye",
       "grupo": "D",
       "bunker": "Minneapolis, MN"
     },
@@ -403,7 +403,7 @@
       "fecha": "2026-06-12T17:00:00Z",
       "estadio": "dallas",
       "local": "AUS",
-      "visitante": "EUR",
+      "visitante": "TUR",
       "fase": "Grupos - J1",
       "grupo": "D"
     },
@@ -672,7 +672,7 @@
       "id": 38,
       "fecha": "2026-06-18T15:00:00.000Z",
       "estadio": "bc_place",
-      "local": "EUR",
+      "local": "TUR",
       "visitante": "PAR",
       "fase": "Grupos - J2",
       "grupo": "D"
@@ -681,7 +681,7 @@
       "id": 39,
       "fecha": "2026-06-24T12:00:00.000Z",
       "estadio": "azteca",
-      "local": "EUR",
+      "local": "TUR",
       "visitante": "USA",
       "fase": "Grupos - J3",
       "grupo": "D"

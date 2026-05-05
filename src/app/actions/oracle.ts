@@ -1,17 +1,19 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import worldCupData from "@/data/world-cup-2026.json";
 import { calculatePoints } from "@/lib/utils/oracle";
 
 /**
  * Oráculo: Sincroniza puntos y duelos para una liga específica.
+ * Versión: Aislada (Fuente de Verdad: JSON)
  */
 export async function processFinishedMatches(leagueId?: string) {
   try {
-    const supabase = await createClient();
+    // Usamos el cliente admin para evitar fallos de RLS silenciosos (Lección LT-2)
+    const supabase = createAdminClient();
 
-    // 1. Partidos finalizados en el JSON
+    // 1. Partidos finalizados en el JSON (Aislamiento de API)
     const finishedMatches = worldCupData.partidos.filter((m: any) => m.estado === "finalizado");
     if (finishedMatches.length === 0) {
       return { success: true, message: "No hay partidos finalizados." };
@@ -38,15 +40,23 @@ export async function processFinishedMatches(leagueId?: string) {
     }
 
     // 3. Obtener miembros
-    let query = supabase.from('league_members').select('id, user_id, league_id');
-    if (leagueId) query = query.eq('league_id', leagueId);
-    const { data: members } = await query;
+    let membersQuery = supabase.from('league_members').select('id, user_id, league_id, alias');
+    if (leagueId) {
+      membersQuery = membersQuery.eq('league_id', leagueId);
+    }
+    const { data: members, error: membersError } = await membersQuery;
+    
+    if (membersError) throw membersError;
     if (!members || members.length === 0) return { success: true, message: "No hay miembros que procesar." };
 
     // 4. Resolver Duelos Activos (BULK-ish)
     let duelQuery = supabase.from('league_duels').select('id, match_id, league_id').eq('status', 'active');
-    if (leagueId) duelQuery = duelQuery.eq('league_id', leagueId);
-    const { data: allActiveDuels } = await duelQuery;
+    if (leagueId) {
+      duelQuery = duelQuery.eq('league_id', leagueId);
+    }
+    const { data: allActiveDuels, error: duelsError } = await duelQuery;
+
+    if (duelsError) throw duelsError;
 
     const activeDuels = (allActiveDuels || []).filter(duel => finishedMatchIds.includes(duel.match_id?.toString()));
 
@@ -71,7 +81,6 @@ export async function processFinishedMatches(leagueId?: string) {
       const winners = userIds.filter(uid => userPoints[uid] === maxPoints && maxPoints > 0);
       if (winners.length > 0) {
         const winnerUpdates = winners.map(winnerId => ({ duel_id: duel.id, user_id: winnerId, is_winner: true }));
-        // Upsert de ganadores del duelo
         await supabase.from('duel_participants').upsert(winnerUpdates, { onConflict: 'duel_id,user_id' });
       }
       await supabase.from('league_duels').update({ status: 'resolved' }).eq('id', duel.id);
@@ -88,7 +97,6 @@ export async function processFinishedMatches(leagueId?: string) {
       (allWinners || []).forEach(w => victoriesMap.set(w.user_id, (victoriesMap.get(w.user_id) || 0) + 1));
     }
 
-    // Obtener TODAS las predicciones de los miembros involucrados de una vez
     const allUserIds = members.map(m => m.user_id);
     const { data: allUserPreds } = await supabase.from('predictions').select('user_id, points_earned').in('user_id', allUserIds).not('points_earned', 'is', null);
 
@@ -104,9 +112,10 @@ export async function processFinishedMatches(leagueId?: string) {
       });
 
       return {
-        id: member.id, // Usamos el ID de la tabla league_members para el upsert
+        id: member.id,
         user_id: member.user_id,
         league_id: member.league_id,
+        alias: member.alias, // Incluimos el alias para cumplir con la restricción NOT NULL
         total_pts: totalPts,
         aciertos_simples: aciertos,
         plenos_exactos: plenos,
