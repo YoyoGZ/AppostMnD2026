@@ -4,6 +4,22 @@ import { Trophy, Lock, ChevronRight, Swords, Calendar, MapPin } from 'lucide-rea
 import { cn } from '@/lib/utils';
 import knockoutData from '@/data/knockouts-simulation.json';
 
+interface KnockoutMatch {
+  id: string;
+  home_placeholder: string;
+  away_placeholder: string;
+  fecha?: string;
+  estadio?: string;
+  estado: string;
+}
+
+interface KnockoutRound {
+  id: string;
+  nombre: string;
+  slug: string;
+  partidos: KnockoutMatch[];
+}
+
 /**
  * KnockoutBracket: El motor visual para las llaves eliminatorias del Mundial 2026.
  * Diseñado para ser Mobile-First y altamente intuitivo.
@@ -11,14 +27,15 @@ import knockoutData from '@/data/knockouts-simulation.json';
 export default function KnockoutBracket() {
   const [activeRound, setActiveRound] = useState(knockoutData.rondas[0].id);
 
-  const currentRound = knockoutData.rondas.find(r => r.id === activeRound);
+  const rounds = knockoutData.rondas as KnockoutRound[];
+  const currentRound = rounds.find(r => r.id === activeRound);
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8 space-y-8">
       
       {/* 1. Selector de Rondas (Tabs Premium) */}
       <div className="flex items-center gap-3 overflow-x-auto pb-4 no-scrollbar snap-x scroll-px-4">
-        {knockoutData.rondas.map((round) => {
+        {rounds.map((round) => {
           const isActive = activeRound === round.id;
           return (
             <button
@@ -102,7 +119,7 @@ export default function KnockoutBracket() {
               <span>{match.estadio}</span>
             </div>
             
-            {/* Hover Action (Draft) */}
+            {/* Hover Action */}
             {match.estado !== 'bloqueado' && (
               <div className="absolute inset-0 bg-primary/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                 <span className="text-black font-black text-xs uppercase tracking-[0.3em]">Cargar Apuesta</span>
