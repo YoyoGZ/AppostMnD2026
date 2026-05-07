@@ -9,7 +9,7 @@ import { createClient } from '@/utils/supabase/client';
 import { getTeamFlagUrl, normalizeFIFAId } from '@/lib/utils/flags';
 
 interface KnockoutMatch {
-  id: string;
+  id: string | number;
   home_placeholder: string;
   away_placeholder: string;
   fecha?: string;
@@ -60,7 +60,7 @@ export default function KnockoutBracket() {
     // Suscribirse a cambios en tiempo real para que el bracket se actualice solo
     const channel = createClient()
       .channel('bracket-updates')
-      .on('postgres_changes', { event: '*', table: 'match_results' }, () => fetchMatchIdentities())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'match_results' }, () => fetchMatchIdentities())
       .subscribe();
 
     return () => { channel.unsubscribe(); };

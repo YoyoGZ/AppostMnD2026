@@ -15,10 +15,10 @@ export async function processFinishedMatches(leagueId?: string) {
     const supabase = createAdminClient();
 
     // 1. Partidos finalizados (Combinamos Grupos + Eliminatorias)
-    const groupMatches = worldCupData.partidos.filter((m: any) => m.estado === "finalizado");
-    const knockoutMatches = knockoutData.rondas.flatMap(r => r.partidos).filter((m: any) => m.estado === "finalizado");
+    const groupMatches: any[] = worldCupData.partidos.filter((m: any) => m.estado === "finalizado");
+    const knockoutMatches: any[] = knockoutData.rondas.flatMap(r => r.partidos).filter((m: any) => m.estado === "finalizado");
     
-    const finishedMatches = [...groupMatches, ...knockoutMatches];
+    const finishedMatches: any[] = [...groupMatches, ...knockoutMatches];
 
     if (finishedMatches.length === 0) {
       return { success: true, message: "No hay partidos finalizados." };

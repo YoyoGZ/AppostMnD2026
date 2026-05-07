@@ -61,7 +61,7 @@ export default function MatchesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredMatches.map((p) => {
           const matchInfo: MatchInfo = {
-            id: p.id,
+            id: p.id.toString(),
             fase: p.fase,
             fecha: p.fecha,
             home: teamsMap[p.local] || { id: "TBD", nombre: "TBD" },
