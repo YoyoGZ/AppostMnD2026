@@ -2,6 +2,7 @@
 
 import React from "react";
 import { TournamentCardProps } from "@/types/tournament";
+import { getTeamFlagUrl } from "@/lib/utils/flags";
 
 export const TournamentCard = ({ view, groupLetter, teams, matchInfo }: TournamentCardProps) => {
   // Vista: Carrousel de Grupos
@@ -19,8 +20,12 @@ export const TournamentCard = ({ view, groupLetter, teams, matchInfo }: Tourname
             <div key={team.id} className="flex items-center justify-between p-2.5 rounded-xl bg-secondary/30 hover:bg-secondary/50 transition-all duration-300 group cursor-default">
               <div className="flex items-center gap-4">
                 <span className="font-bold text-xs text-muted-foreground/60 w-4 text-center">{idx + 1}</span>
-                <div className="w-9 h-6 bg-primary/10 rounded-md overflow-hidden shadow-inner flex items-center justify-center border border-white/5 group-hover:border-primary/30 transition-colors">
-                  <span className="text-[10px] font-black text-primary/60 uppercase">{team.id.slice(0,3)}</span>
+                <div className="w-8 h-5 bg-white/5 rounded overflow-hidden flex items-center justify-center border border-white/5 group-hover:border-primary/30 transition-colors relative">
+                  {getTeamFlagUrl(team.id) ? (
+                    <img src={getTeamFlagUrl(team.id)!} alt={team.nombre} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-[8px] font-black text-primary/40 uppercase">{team.id.slice(0,3)}</span>
+                  )}
                 </div>
                 <span className="font-bold text-sm text-white/90 group-hover:text-primary transition-colors">{team.nombre}</span>
               </div>
@@ -46,8 +51,12 @@ export const TournamentCard = ({ view, groupLetter, teams, matchInfo }: Tourname
           {[matchInfo.home, matchInfo.away].map((team, idx) => (
             <div key={idx} className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-8 bg-primary/10 rounded-lg overflow-hidden shadow-inner flex items-center justify-center border border-white/5">
-                  <span className="text-xs font-black text-primary/60">{team.id !== "TBD" ? team.id.slice(0,3) : "?"}</span>
+                <div className="w-10 h-6 bg-white/5 rounded overflow-hidden flex items-center justify-center border border-white/5">
+                  {getTeamFlagUrl(team.id) ? (
+                    <img src={getTeamFlagUrl(team.id)!} alt={team.nombre} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-[10px] font-black text-primary/40">{team.id !== "TBD" ? team.id.slice(0,3) : "?"}</span>
+                  )}
                 </div>
                 <span className="font-bold text-lg tracking-tight text-white">{team.nombre}</span>
               </div>

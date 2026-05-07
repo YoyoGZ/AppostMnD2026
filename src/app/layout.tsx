@@ -22,6 +22,8 @@ export const metadata: Metadata = {
  * NO incluye Shell ni Sidebar. Eso vive en (dashboard)/layout.tsx.
  * Así la página de login (/) renderiza sin chrome de navegación.
  */
+import { AuthProvider } from "@/context/AuthContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,7 +32,9 @@ export default function RootLayout({
   return (
     <html lang="es" className={`dark ${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body className="antialiased overflow-x-hidden" suppressHydrationWarning>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

@@ -5,6 +5,7 @@ import { MatchInfo } from "@/types/tournament";
 import { Clock, Lock, Check, Loader2 } from "lucide-react";
 import { getLocalMatchTimeText } from "@/lib/utils/date";
 import { createClient } from "@/utils/supabase/client";
+import { getTeamFlagUrl } from "@/lib/utils/flags";
 
 export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInfo, userId: string | null }) => {
   const [localTimeText, setLocalTimeText] = useState<string>("");
@@ -141,8 +142,12 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
         {/* Home Team */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className={`w-12 h-8 rounded-lg overflow-hidden shadow-inner flex items-center justify-center border border-white/5 ${isEntryDisabled ? "bg-white/5" : "bg-primary/10"}`}>
-              <span className={`text-xs font-black ${isEntryDisabled ? "text-white/40" : "text-primary/60"}`}>{matchInfo.home.id !== "TBD" ? matchInfo.home.id.slice(0, 3) : "?"}</span>
+            <div className={`w-10 h-6 rounded overflow-hidden flex items-center justify-center border border-white/5 ${isEntryDisabled ? "bg-white/5" : "bg-primary/10"}`}>
+              {getTeamFlagUrl(matchInfo.home.id) ? (
+                <img src={getTeamFlagUrl(matchInfo.home.id)!} alt={matchInfo.home.nombre} className="w-full h-full object-cover" />
+              ) : (
+                <span className={`text-[10px] font-black ${isEntryDisabled ? "text-white/40" : "text-primary/60"}`}>{matchInfo.home.id !== "TBD" ? matchInfo.home.id.slice(0, 3) : "?"}</span>
+              )}
             </div>
             <span className="font-bold text-lg tracking-tight text-white">{matchInfo.home.nombre}</span>
           </div>
@@ -163,8 +168,12 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
         {/* Away Team */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className={`w-12 h-8 rounded-lg overflow-hidden shadow-inner flex items-center justify-center border border-white/5 ${isEntryDisabled ? "bg-white/5" : "bg-primary/10"}`}>
-              <span className={`text-xs font-black ${isEntryDisabled ? "text-white/40" : "text-primary/60"}`}>{matchInfo.away.id !== "TBD" ? matchInfo.away.id.slice(0, 3) : "?"}</span>
+            <div className={`w-10 h-6 rounded overflow-hidden flex items-center justify-center border border-white/5 ${isEntryDisabled ? "bg-white/5" : "bg-primary/10"}`}>
+              {getTeamFlagUrl(matchInfo.away.id) ? (
+                <img src={getTeamFlagUrl(matchInfo.away.id)!} alt={matchInfo.away.nombre} className="w-full h-full object-cover" />
+              ) : (
+                <span className={`text-[10px] font-black ${isEntryDisabled ? "text-white/40" : "text-primary/60"}`}>{matchInfo.away.id !== "TBD" ? matchInfo.away.id.slice(0, 3) : "?"}</span>
+              )}
             </div>
             <span className="font-bold text-lg tracking-tight text-white">{matchInfo.away.nombre}</span>
           </div>

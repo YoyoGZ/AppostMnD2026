@@ -1,33 +1,14 @@
-export type Team = {
-  id: string;
+
+export type TeamStanding = {
+  teamId: string;
   nombre: string;
-  grupo?: string;
+  pj: number;
+  pg: number;
+  pe: number;
+  pp: number;
+  gf: number;
+  gc: number;
+  dg: number;
+  pts: number;
+  grupo: string;
 };
-
-export type MatchInfo = {
-  id: string | number;
-  home: Team;
-  away: Team;
-  fase: string;
-  fecha?: string;
-};
-
-export type TournamentCardProps = {
-  view: "group" | "match";
-  groupLetter?: string;
-  teams?: Team[];
-  matchInfo?: MatchInfo;
-};
-
-export type MatchStatus = "pending" | "playing" | "finished";
-
-export interface DashboardMatchProps {
-  homeTeam: string;
-  homeFlag: string;
-  awayTeam: string;
-  awayFlag: string;
-  status: MatchStatus;
-  date?: string;
-  initialHomeScore?: number;
-  initialAwayScore?: number;
-}

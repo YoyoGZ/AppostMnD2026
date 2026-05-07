@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { Swords, Trophy, Ghost, MessageSquareText, ChevronDown } from 'lucide-react';
+import { getTeamFlagUrl } from '@/lib/utils/flags';
+import tournamentData from '@/data/world-cup-2026.json';
 
 type DuelParticipant = {
   userId: string;
@@ -21,6 +23,15 @@ type Duel = {
 export function DuelChronicles({ duels, totalWins = 0 }: { duels: Duel[], totalWins?: number }) {
   const [showAll, setShowAll] = useState(false);
   
+  const getMatchFlags = (matchId: string) => {
+    const match = tournamentData.partidos.find(m => m.id.toString() === matchId);
+    if (!match) return { local: null, visitante: null };
+    return {
+      local: getTeamFlagUrl(match.local),
+      visitante: getTeamFlagUrl(match.visitante)
+    };
+  };
+
   if (duels.length === 0) {
     return (
       <div className="bg-white/5 border border-white/5 rounded-2xl p-8 text-center">
@@ -72,13 +83,19 @@ export function DuelChronicles({ duels, totalWins = 0 }: { duels: Duel[], totalW
           >
             <div className="p-5 relative z-10">
               <div className="flex justify-between items-start mb-4">
-                <div>
-                  <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">
-                    {new Date(duel.createdAt).toLocaleDateString()}
-                  </p>
-                  <p className="text-sm font-black text-white italic">
-                    {duel.matchName || `Partido #${duel.matchId}`}
-                  </p>
+                <div className="flex items-center gap-3">
+                  <div className="flex -space-x-1.5 shrink-0">
+                    {getMatchFlags(duel.matchId).local && <img src={getMatchFlags(duel.matchId).local!} className="w-5 h-3.5 object-cover rounded-[2px] border border-white/10" />}
+                    {getMatchFlags(duel.matchId).visitante && <img src={getMatchFlags(duel.matchId).visitante!} className="w-5 h-3.5 object-cover rounded-[2px] border border-white/10" />}
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-0.5">
+                      {new Date(duel.createdAt).toLocaleDateString()}
+                    </p>
+                    <p className="text-sm font-black text-white italic leading-none">
+                      {duel.matchName || `Partido #${duel.matchId}`}
+                    </p>
+                  </div>
                 </div>
                 <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
                   duel.status === 'active' ? 'bg-yellow-500 text-black shadow-[0_0_10px_rgba(234,179,8,0.3)]' : 'bg-white/10 text-white/50'

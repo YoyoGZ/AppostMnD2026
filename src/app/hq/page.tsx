@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { ShieldAlert, Key, Users, Activity, LogOut } from 'lucide-react';
+import { ShieldAlert, Key, Users, Activity, LogOut, Swords } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 
@@ -118,7 +118,6 @@ export default function HQPage() {
             </button>
           </div>
 
-          {/* Mini Tabla de Tokens Generados Recientemente */}
           <div className="mt-6 border-t border-white/5 pt-4">
             <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest mb-4">Pases Disponibles ({tokens.filter(t => !t.is_used).length})</h3>
             <div className="space-y-2 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
@@ -153,6 +152,46 @@ export default function HQPage() {
           </div>
         </div>
 
+        {/* Motor de Eliminatorias */}
+        <div className="bg-gradient-to-b from-primary/5 to-transparent border border-primary/20 rounded-3xl p-6 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -z-10 transition-transform group-hover:scale-150" />
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-primary/20 p-2 rounded-lg">
+              <Swords className="w-5 h-5 text-primary" />
+            </div>
+            <h2 className="text-lg font-black uppercase tracking-wide">Eliminatorias</h2>
+          </div>
+          <p className="text-white/40 text-sm mb-8 leading-relaxed">
+            Gestión de llaves, ranking de mejores terceros y despliegue oficial de la Fase Final.
+          </p>
+          <button 
+            onClick={() => router.push('/hq/knockouts')}
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/80 transition-all font-black py-4 rounded-xl uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(251,191,36,0.3)] active:scale-95"
+          >
+            Abrir Panel de Control
+          </button>
+        </div>
+
+        {/* Oráculo Maestro (Experimental) */}
+        <div className="bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-3xl p-6 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-3xl -z-10 transition-transform group-hover:scale-150" />
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-green-500/20 p-2 rounded-lg">
+              <Activity className="w-5 h-5 text-green-500" />
+            </div>
+            <h2 className="text-lg font-black uppercase tracking-wide">Oráculo (LAB)</h2>
+          </div>
+          <p className="text-white/40 text-sm mb-8 leading-relaxed">
+            Monitor de sincronización en tiempo real. Herramienta técnica de auditoría.
+          </p>
+          <button 
+            onClick={() => router.push('/lab/sports-api')}
+            className="w-full bg-white/5 text-white/40 hover:bg-white/10 transition-colors font-black py-4 rounded-xl uppercase tracking-widest text-xs border border-white/10 active:scale-95"
+          >
+            Acceder al Laboratorio
+          </button>
+        </div>
+
         {/* Censo Global Placeholder */}
         <div className="bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-3xl p-6 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -z-10 transition-transform group-hover:scale-150" />
@@ -163,27 +202,10 @@ export default function HQPage() {
             <h2 className="text-lg font-black uppercase tracking-wide">Censo Global</h2>
           </div>
           <p className="text-white/40 text-sm mb-8 leading-relaxed">
-            Monitorea el consumo de pases, usuarios activos y expulsiones por fraude.
+            Monitorea el consumo de pases, usuarios activos y estadísticas globales.
           </p>
           <button className="w-full bg-blue-500/10 text-blue-500 border border-blue-500/20 font-black py-4 rounded-xl opacity-50 cursor-not-allowed uppercase tracking-widest text-xs">
             Próximamente...
-          </button>
-        </div>
-
-        {/* Oráculo Maestro Placeholder */}
-        <div className="bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-3xl p-6 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-3xl -z-10 transition-transform group-hover:scale-150" />
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-green-500/20 p-2 rounded-lg">
-              <Activity className="w-5 h-5 text-green-500" />
-            </div>
-            <h2 className="text-lg font-black uppercase tracking-wide">Oráculo Manual</h2>
-          </div>
-          <button 
-            onClick={() => router.push('/lab/sports-api')}
-            className="w-full bg-green-500 text-black hover:bg-green-400 transition-colors font-black py-4 rounded-xl uppercase tracking-widest text-xs shadow-[0_0_15px_rgba(34,197,94,0.3)] active:scale-95"
-          >
-            Entrar al Oráculo Maestro
           </button>
         </div>
 

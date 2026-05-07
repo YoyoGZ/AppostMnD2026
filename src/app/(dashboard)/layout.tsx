@@ -23,10 +23,10 @@ export default async function DashboardLayout({
 
   // 1. Obtener todas las ligas a las que pertenece el usuario
   const myLeagues = await getMyLeagues();
+  const isSuperAdmin = user.user_metadata?.role === 'super_admin';
 
-  if (myLeagues.length === 0) {
-    // Si no tiene ligas, el middleware o el proxy deberían haberlo capturado,
-    // pero por seguridad lo mandamos al onboarding.
+  if (myLeagues.length === 0 && !isSuperAdmin) {
+    // Si no tiene ligas y NO es super admin, lo mandamos al onboarding.
     redirect("/onboarding");
   }
 
@@ -34,8 +34,8 @@ export default async function DashboardLayout({
   let activeLeagueId = user.user_metadata?.active_league_id;
   let activeLeague = myLeagues.find(l => l.id === activeLeagueId);
 
-  // 3. Si no hay liga activa válida, establecer una por defecto
-  if (!activeLeague) {
+  // 3. Si no hay liga activa válida y tiene ligas, establecer una por defecto
+  if (!activeLeague && myLeagues.length > 0) {
     // Prioridad: la que fundó (isCaptain), sino la primera de la lista
     activeLeague = myLeagues.find(l => l.isCaptain) || myLeagues[0];
     activeLeagueId = activeLeague.id;

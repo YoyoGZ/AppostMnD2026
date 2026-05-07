@@ -3,6 +3,7 @@
 import React from 'react';
 import { Swords, Check, Clock, User2, Trophy } from 'lucide-react';
 import tournamentData from '@/data/world-cup-2026.json';
+import { getTeamFlagUrl } from '@/lib/utils/flags';
 
 export type DuelParticipant = {
   userId: string;
@@ -33,7 +34,7 @@ export function DuelsColiseum({ duels }: { duels: Duel[] }) {
 
   const getMatchInfo = (matchId: string) => {
     const match = tournamentData.partidos.find(m => m.id.toString() === matchId);
-    if (!match) return { label: "Partido Desconocido", date: "" };
+    if (!match) return { label: "Partido Desconocido", date: "", flags: { local: null, visitante: null } };
     
     // Solo renderizamos la fecha formateada en el cliente para evitar errores de hidratación
     const dateLabel = mounted 
@@ -42,7 +43,11 @@ export function DuelsColiseum({ duels }: { duels: Duel[] }) {
 
     return {
       label: `${teamMap.get(match.local) || match.local} vs ${teamMap.get(match.visitante) || match.visitante}`,
-      date: dateLabel
+      date: dateLabel,
+      flags: {
+        local: getTeamFlagUrl(match.local),
+        visitante: getTeamFlagUrl(match.visitante)
+      }
     };
   };
 
@@ -85,7 +90,13 @@ export function DuelsColiseum({ duels }: { duels: Duel[] }) {
               {/* Header: Partido */}
               <div className="mb-5 pr-20">
                 <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">{matchInfo.date}</p>
-                <h4 className="text-sm font-black text-white leading-tight">{matchInfo.label}</h4>
+                <div className="flex items-center gap-2">
+                   <div className="flex -space-x-1">
+                     {matchInfo.flags.local && <img src={matchInfo.flags.local} className="w-5 h-3.5 object-cover rounded-[2px] border border-white/10" />}
+                     {matchInfo.flags.visitante && <img src={matchInfo.flags.visitante} className="w-5 h-3.5 object-cover rounded-[2px] border border-white/10" />}
+                   </div>
+                   <h4 className="text-sm font-black text-white leading-tight">{matchInfo.label}</h4>
+                </div>
               </div>
 
               {/* Gladiadores */}

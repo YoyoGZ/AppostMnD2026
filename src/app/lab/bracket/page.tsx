@@ -1,12 +1,27 @@
 'use client'
-import React from 'react';
+import React, { useState } from 'react';
 import KnockoutBracket from '@/components/tournament/KnockoutBracket';
 import PenaltyProtocol from '@/components/duels/PenaltyProtocol';
-import { Trophy, ChevronLeft, Zap } from 'lucide-react';
+import { Trophy, ChevronLeft, Zap, RefreshCcw } from 'lucide-react';
 import Link from 'next/link';
+import { processFinishedMatches } from '@/app/actions/oracle';
 
 export default function BracketLabPage() {
-  const [showPenalty, setShowPenalty] = React.useState(false);
+  const [showPenalty, setShowPenalty] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleRunOracle = async () => {
+    setIsProcessing(true);
+    try {
+      const res = await processFinishedMatches();
+      alert(res.message);
+    } catch (err) {
+      console.error(err);
+      alert("Error ejecutando el Oráculo");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-black text-white selection:bg-primary selection:text-black">
@@ -44,12 +59,21 @@ export default function BracketLabPage() {
 
       {/* Bracket Component */}
       <section className="pb-32">
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center gap-4 mb-8">
           <button 
             onClick={() => setShowPenalty(true)}
             className="flex items-center gap-2 bg-red-600/10 border border-red-600/30 px-6 py-3 rounded-full text-red-500 font-black uppercase text-[10px] tracking-widest hover:bg-red-600/20 transition-all"
           >
             <Zap className="w-4 h-4 fill-red-500" /> Simular Empate (Penales)
+          </button>
+
+          <button 
+            onClick={handleRunOracle}
+            disabled={isProcessing}
+            className="flex items-center gap-2 bg-primary/10 border border-primary/30 px-6 py-3 rounded-full text-primary font-black uppercase text-[10px] tracking-widest hover:bg-primary/20 transition-all disabled:opacity-50"
+          >
+            {isProcessing ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Trophy className="w-4 h-4" />}
+            Ejecutar Oráculo (Avance)
           </button>
         </div>
         <KnockoutBracket />

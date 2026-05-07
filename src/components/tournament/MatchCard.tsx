@@ -1,17 +1,23 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { DashboardMatchProps } from "@/types/tournament";
+import { getTeamFlagUrl } from "@/lib/utils/flags";
+
+export interface MatchCardProps extends DashboardMatchProps {
+  homeTeamId?: string;
+  awayTeamId?: string;
+}
 
 export function MatchCard({
   homeTeam,
-  homeFlag,
+  homeTeamId,
   awayTeam,
-  awayFlag,
+  awayTeamId,
   status,
   date,
   initialHomeScore,
   initialAwayScore,
-}: DashboardMatchProps) {
+}: MatchCardProps) {
   // Styles based on status
   const statusConfig = {
     pending: { label: "Pendiente", color: "bg-muted text-muted-foreground", dot: "bg-muted-foreground" },
@@ -37,8 +43,14 @@ export function MatchCard({
         
         {/* Home Team */}
         <div className="flex flex-col items-center gap-2 flex-1">
-          <span className="text-3xl" role="img" aria-label={homeTeam}>{homeFlag}</span>
-          <span className="font-medium text-sm truncate w-full text-center">{homeTeam}</span>
+          <div className="w-10 h-10 rounded-lg overflow-hidden border border-white/10 bg-white/5">
+            {getTeamFlagUrl(homeTeamId || null) ? (
+              <img src={getTeamFlagUrl(homeTeamId || null)!} alt={homeTeam} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-lg opacity-20">?</span>
+            )}
+          </div>
+          <span className="font-medium text-[11px] truncate w-full text-center text-white/70 uppercase tracking-tighter">{homeTeam}</span>
         </div>
 
         {/* Scores */}
@@ -68,8 +80,14 @@ export function MatchCard({
 
         {/* Away Team */}
         <div className="flex flex-col items-center gap-2 flex-1">
-          <span className="text-3xl" role="img" aria-label={awayTeam}>{awayFlag}</span>
-          <span className="font-medium text-sm truncate w-full text-center">{awayTeam}</span>
+          <div className="w-10 h-10 rounded-lg overflow-hidden border border-white/10 bg-white/5">
+            {getTeamFlagUrl(awayTeamId || null) ? (
+              <img src={getTeamFlagUrl(awayTeamId || null)!} alt={awayTeam} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-lg opacity-20">?</span>
+            )}
+          </div>
+          <span className="font-medium text-[11px] truncate w-full text-center text-white/70 uppercase tracking-tighter">{awayTeam}</span>
         </div>
 
       </div>

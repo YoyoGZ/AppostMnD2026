@@ -2,6 +2,7 @@
 
 import { createAdminClient } from "@/utils/supabase/admin";
 import worldCupData from "@/data/world-cup-2026.json";
+import knockoutData from "@/data/knockouts-simulation.json";
 import { calculatePoints } from "@/lib/utils/oracle";
 
 /**
@@ -13,8 +14,12 @@ export async function processFinishedMatches(leagueId?: string) {
     // Usamos el cliente admin para evitar fallos de RLS silenciosos (Lección LT-2)
     const supabase = createAdminClient();
 
-    // 1. Partidos finalizados en el JSON (Aislamiento de API)
-    const finishedMatches = worldCupData.partidos.filter((m: any) => m.estado === "finalizado");
+    // 1. Partidos finalizados (Combinamos Grupos + Eliminatorias)
+    const groupMatches = worldCupData.partidos.filter((m: any) => m.estado === "finalizado");
+    const knockoutMatches = knockoutData.rondas.flatMap(r => r.partidos).filter((m: any) => m.estado === "finalizado");
+    
+    const finishedMatches = [...groupMatches, ...knockoutMatches];
+
     if (finishedMatches.length === 0) {
       return { success: true, message: "No hay partidos finalizados." };
     }
@@ -128,7 +133,54 @@ export async function processFinishedMatches(leagueId?: string) {
       if (bulkError) throw new Error("Error en bulk update de miembros: " + bulkError.message);
     }
 
-    return { success: true, message: "Auditoría de Arena completada con éxito." };
+    // 6. --- AVANCE DE LLAVES (KNOCKOUT PROGRESSION) ---
+    const knockoutFinalized = knockoutMatches.filter(m => (m as any).path);
+    console.log(`[Oráculo] Procesando ${knockoutFinalized.length} partidos knockout finalizados...`);
+    
+    if (knockoutFinalized.length > 0) {
+      const advancementUpdates: any[] = [];
+
+      for (const match of knockoutFinalized) {
+        const path = (match as any).path;
+        console.log(`[Oráculo] Evaluando avance para partido ${match.id}. Path:`, path);
+
+        // Determinar ganador
+        let winnerId = null;
+        if (match.goles_local > match.goles_visitante) {
+          winnerId = match.equipo_local;
+        } else if (match.goles_visitante > match.goles_local) {
+          winnerId = match.equipo_visitante;
+        } else {
+          winnerId = match.winner_id_manual || match.equipo_local; 
+        }
+
+        if (winnerId) {
+          // Forzar RSA sobre ZA (FIFA Standard)
+          const finalWinnerId = winnerId === 'ZA' ? 'RSA' : winnerId;
+          
+          console.log(`[Oráculo] Ganador detectado: ${finalWinnerId}. Promoviendo a ${path.next_match}`);
+          advancementUpdates.push({
+            id: path.next_match,
+            home_team_id: path.next_pos === 'home' ? finalWinnerId : undefined,
+            away_team_id: path.next_pos === 'away' ? finalWinnerId : undefined,
+            status: 'pending',
+            last_sync: new Date().toISOString()
+          });
+        }
+      }
+
+      if (advancementUpdates.length > 0) {
+        console.log(`[Oráculo] Enviando ${advancementUpdates.length} actualizaciones a match_results:`, advancementUpdates);
+        const { error: advError } = await supabase.from('match_results').upsert(advancementUpdates);
+        if (advError) {
+          console.error("[Oráculo] Error en avance de llaves:", advError);
+        } else {
+          console.log("[Oráculo] Avance de llaves persistido con éxito.");
+        }
+      }
+    }
+
+    return { success: true, message: "Auditoría de Arena y Avance de Llaves completados." };
 
   } catch (error: any) {
     console.error("[Oráculo] Error:", error);

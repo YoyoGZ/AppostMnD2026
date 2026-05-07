@@ -1,45 +1,70 @@
 {
   "rondas": [
     {
-      "id": "R32",
-      "nombre": "Dieciseisavos",
-      "slug": "round_of_32",
+      "id": "r32",
+      "nombre": "16avos de Final",
+      "slug": "dieciseisavos",
       "partidos": [
-        { "id": "KO-32-01", "home_placeholder": "1A", "away_placeholder": "3C/D/E", "fecha": "2026-06-28T18:00:00Z", "estadio": "Estadio Azteca", "estado": "programado" },
-        { "id": "KO-32-02", "home_placeholder": "2A", "away_placeholder": "2B", "fecha": "2026-06-28T21:00:00Z", "estadio": "SoFi Stadium", "estado": "programado" },
-        { "id": "KO-32-16", "home_placeholder": "1L", "away_placeholder": "2K", "fecha": "2026-06-29T18:00:00Z", "estadio": "MetLife Stadium", "estado": "programado" }
+        { "id": 73, "home_placeholder": "Ganador Grupo E", "away_placeholder": "3ro A/B/C/D/F", "fecha": "2026-06-29", "estadio": "Gillette Stadium", "ciudad": "Foxborough", "estado": "bloqueado" },
+        { "id": 74, "home_placeholder": "Ganador Grupo I", "away_placeholder": "3ro C/D/F/G/H", "fecha": "2026-06-30", "estadio": "MetLife Stadium", "ciudad": "East Rutherford", "estado": "bloqueado" },
+        { "id": 75, "home_placeholder": "2do Grupo A", "away_placeholder": "2do Grupo B", "fecha": "2026-06-28", "estadio": "SoFi Stadium", "ciudad": "Inglewood", "estado": "bloqueado" },
+        { "id": 76, "home_placeholder": "Ganador Grupo F", "away_placeholder": "2do Grupo C", "fecha": "2026-06-29", "estadio": "Estadio Akron", "ciudad": "Guadalupe", "estado": "bloqueado" },
+        { "id": 77, "home_placeholder": "2do Grupo K", "away_placeholder": "2do Grupo L", "fecha": "2026-07-02", "estadio": "BMO Field", "ciudad": "Toronto", "estado": "bloqueado" },
+        { "id": 78, "home_placeholder": "Ganador Grupo H", "away_placeholder": "2do Grupo J", "fecha": "2026-07-02", "estadio": "SoFi Stadium", "ciudad": "Inglewood", "estado": "bloqueado" },
+        { "id": 79, "home_placeholder": "Ganador Grupo D", "away_placeholder": "3ro B/E/F/I/J", "fecha": "2026-07-01", "estadio": "Levi's Stadium", "ciudad": "Santa Clara", "estado": "bloqueado" },
+        { "id": 80, "home_placeholder": "Ganador Grupo G", "away_placeholder": "3ro A/E/H/I/J", "fecha": "2026-07-01", "estadio": "Lumen Field", "ciudad": "Seattle", "estado": "bloqueado" },
+        { "id": 81, "home_placeholder": "Ganador Grupo C", "away_placeholder": "2do Grupo F", "fecha": "2026-06-29", "estadio": "NRG Stadium", "ciudad": "Houston", "estado": "bloqueado" },
+        { "id": 82, "home_placeholder": "2do Grupo E", "away_placeholder": "2do Grupo I", "fecha": "2026-06-30", "estadio": "AT&T Stadium", "ciudad": "Arlington", "estado": "bloqueado" },
+        { "id": 83, "home_placeholder": "Ganador Grupo A", "away_placeholder": "3ro C/E/F/H/I", "fecha": "2026-06-30", "estadio": "Estadio Azteca", "ciudad": "CDMX", "estado": "bloqueado" },
+        { "id": 84, "home_placeholder": "Ganador Grupo L", "away_placeholder": "3ro E/H/I/J/K", "fecha": "2026-07-01", "estadio": "Mercedes-Benz", "ciudad": "Atlanta", "estado": "bloqueado" },
+        { "id": 85, "home_placeholder": "Ganador Grupo J", "away_placeholder": "2do Grupo H", "fecha": "2026-07-03", "estadio": "Hard Rock Stadium", "ciudad": "Miami Gardens", "estado": "bloqueado" },
+        { "id": 86, "home_placeholder": "2do Grupo D", "away_placeholder": "2do Grupo G", "fecha": "2026-07-03", "estadio": "AT&T Stadium", "ciudad": "Arlington", "estado": "bloqueado" },
+        { "id": 87, "home_placeholder": "Ganador Grupo B", "away_placeholder": "3ro E/F/G/I/J", "fecha": "2026-07-02", "estadio": "BC Place", "ciudad": "Vancouver", "estado": "bloqueado" },
+        { "id": 88, "home_placeholder": "Ganador Grupo K", "away_placeholder": "3ro D/E/I/J/L", "fecha": "2026-07-03", "estadio": "Arrowhead Stadium", "ciudad": "Kansas City", "estado": "bloqueado" }
       ]
     },
     {
-      "id": "R16",
+      "id": "r16",
       "nombre": "Octavos de Final",
-      "slug": "round_of_16",
+      "slug": "octavos",
       "partidos": [
-        { "id": "KO-16-01", "home_placeholder": "Ganador KO-32-01", "away_placeholder": "Ganador KO-32-02", "fecha": "2026-07-04T18:00:00Z", "estadio": "MetLife Stadium", "estado": "bloqueado" }
+        { "id": 89, "home_placeholder": "Ganador 74", "away_placeholder": "Ganador 77", "fecha": "2026-07-04", "estadio": "Lincoln Financial", "ciudad": "Filadelfia", "estado": "bloqueado" },
+        { "id": 90, "home_placeholder": "Ganador 73", "away_placeholder": "Ganador 75", "fecha": "2026-07-04", "estadio": "NRG Stadium", "ciudad": "Houston", "estado": "bloqueado" },
+        { "id": 91, "home_placeholder": "Ganador 83", "away_placeholder": "Ganador 84", "fecha": "2026-07-06", "estadio": "AT&T Stadium", "ciudad": "Arlington", "estado": "bloqueado" },
+        { "id": 92, "home_placeholder": "Ganador 81", "away_placeholder": "Ganador 82", "fecha": "2026-07-06", "estadio": "Lumen Field", "ciudad": "Seattle", "estado": "bloqueado" },
+        { "id": 93, "home_placeholder": "Ganador 76", "away_placeholder": "Ganador 78", "fecha": "2026-07-05", "estadio": "MetLife Stadium", "ciudad": "East Rutherford", "estado": "bloqueado" },
+        { "id": 94, "home_placeholder": "Ganador 79", "away_placeholder": "Ganador 80", "fecha": "2026-07-05", "estadio": "Estadio Azteca", "ciudad": "CDMX", "estado": "bloqueado" },
+        { "id": 95, "home_placeholder": "Ganador 86", "away_placeholder": "Ganador 88", "fecha": "2026-07-07", "estadio": "Mercedes-Benz", "ciudad": "Atlanta", "estado": "bloqueado" },
+        { "id": 96, "home_placeholder": "Ganador 85", "away_placeholder": "Ganador 87", "fecha": "2026-07-07", "estadio": "BC Place", "ciudad": "Vancouver", "estado": "bloqueado" }
       ]
     },
     {
-      "id": "QF",
+      "id": "qf",
       "nombre": "Cuartos de Final",
-      "slug": "quarter_finals",
+      "slug": "cuartos",
       "partidos": [
-        { "id": "KO-08-01", "home_placeholder": "Ganador KO-16-01", "away_placeholder": "Ganador KO-16-02", "fecha": "2026-07-09T18:00:00Z", "estadio": "Gillette Stadium", "estado": "bloqueado" }
+        { "id": 97, "home_placeholder": "Ganador 89", "away_placeholder": "Ganador 90", "fecha": "2026-07-09", "estadio": "Gillette Stadium", "ciudad": "Foxborough", "estado": "bloqueado" },
+        { "id": 98, "home_placeholder": "Ganador 93", "away_placeholder": "Ganador 94", "fecha": "2026-07-10", "estadio": "SoFi Stadium", "ciudad": "Inglewood", "estado": "bloqueado" },
+        { "id": 99, "home_placeholder": "Ganador 91", "away_placeholder": "Ganador 92", "fecha": "2026-07-11", "estadio": "Hard Rock Stadium", "ciudad": "Miami Gardens", "estado": "bloqueado" },
+        { "id": 100, "home_placeholder": "Ganador 95", "away_placeholder": "Ganador 96", "fecha": "2026-07-11", "estadio": "Arrowhead Stadium", "ciudad": "Kansas City", "estado": "bloqueado" }
       ]
     },
     {
-      "id": "SF",
+      "id": "sf",
       "nombre": "Semifinales",
-      "slug": "semi_finals",
+      "slug": "semis",
       "partidos": [
-        { "id": "KO-04-01", "home_placeholder": "Ganador KO-08-01", "away_placeholder": "Ganador KO-08-02", "fecha": "2026-07-14T20:00:00Z", "estadio": "AT&T Stadium", "estado": "bloqueado" }
+        { "id": 101, "home_placeholder": "Ganador 97", "away_placeholder": "Ganador 98", "fecha": "2026-07-14", "estadio": "AT&T Stadium", "ciudad": "Arlington", "estado": "bloqueado" },
+        { "id": 102, "home_placeholder": "Ganador 99", "away_placeholder": "Ganador 100", "fecha": "2026-07-15", "estadio": "Mercedes-Benz", "ciudad": "Atlanta", "estado": "bloqueado" }
       ]
     },
     {
-      "id": "FINAL",
-      "nombre": "Gran Final",
+      "id": "final",
+      "nombre": "Final",
       "slug": "final",
       "partidos": [
-        { "id": "KO-FINAL", "home_placeholder": "Finalista 1", "away_placeholder": "Finalista 2", "fecha": "2026-07-19T20:00:00Z", "estadio": "MetLife Stadium", "estado": "bloqueado" }
+        { "id": 103, "home_placeholder": "Perdedor 101", "away_placeholder": "Perdedor 102", "fecha": "2026-07-18", "estadio": "Hard Rock Stadium", "ciudad": "Miami Gardens", "estado": "bloqueado" },
+        { "id": 104, "home_placeholder": "Ganador 101", "away_placeholder": "Ganador 102", "fecha": "2026-07-19", "estadio": "MetLife Stadium", "ciudad": "East Rutherford", "estado": "bloqueado" }
       ]
     }
   ]
