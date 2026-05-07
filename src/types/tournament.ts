@@ -12,3 +12,11 @@ export type TeamStanding = {
   pts: number;
   grupo: string;
 };
+
+export type MatchInfo = {
+  id: string;
+  fase: string;
+  fecha: string;
+  home: { id: string; nombre: string };
+  away: { id: string; nombre: string };
+};
