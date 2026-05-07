@@ -1,7 +1,6 @@
 
 import { createClient } from '@supabase/supabase-js';
-import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
+// Tip: Si corres este script manualmente, usa: npx tsx --env-file=.env.local scratch/diag-db.ts
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
