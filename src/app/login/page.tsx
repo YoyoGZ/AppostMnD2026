@@ -1,6 +1,6 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { LoginShield } from "@/components/auth/LoginShield";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -15,7 +15,14 @@ export default function LoginPage() {
       </Link>
       
       <div className="w-full max-w-md">
-        <LoginShield />
+        <Suspense fallback={
+          <div className="flex flex-col items-center justify-center p-12 bg-white/5 border border-white/10 rounded-2xl animate-pulse">
+            <Loader2 className="w-8 h-8 text-primary animate-spin mb-4" />
+            <p className="text-white/40 text-[10px] uppercase font-bold tracking-widest">Iniciando Escudo de Acceso...</p>
+          </div>
+        }>
+          <LoginShield />
+        </Suspense>
       </div>
     </div>
   );
