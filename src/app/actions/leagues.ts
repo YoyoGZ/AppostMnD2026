@@ -25,9 +25,36 @@ export async function createLeagueAction(formData: FormData) {
     return { error: "Ya eres Capitán de una Arena. Solo puedes fundar una liga por torneo." };
   }
 
-  let name = formData.get("name")?.toString();
-  if (!name || name.trim() === "") {
-    name = randomNames[Math.floor(Math.random() * randomNames.length)];
+  let rawName = formData.get("name")?.toString()?.trim();
+  let userProvidedName = !!rawName;
+  let name = rawName || randomNames[Math.floor(Math.random() * randomNames.length)];
+
+  // Verificar si el nombre de la arena ya existe (asegurar unicidad)
+  let isUnique = false;
+  let attempts = 0;
+  
+  while (!isUnique && attempts < 10) {
+    const { data: existingArena } = await supabase
+      .from('leagues')
+      .select('id')
+      .ilike('name', name)
+      .maybeSingle();
+      
+    if (!existingArena) {
+      isUnique = true;
+    } else {
+      if (userProvidedName) {
+        return { error: `La Arena "${name}" ya existe. ¡Elige otro nombre para diferenciarte!` };
+      } else {
+        // Generar un sufijo al azar si hubo colisión con el nombre autogenerado
+        name = randomNames[Math.floor(Math.random() * randomNames.length)] + " " + Math.floor(Math.random() * 1000);
+      }
+    }
+    attempts++;
+  }
+
+  if (!isUnique) {
+    return { error: "Demasiados nombres en uso. Por favor ingresa uno manualmente." };
   }
 
   const invite_code = generateInviteCode();

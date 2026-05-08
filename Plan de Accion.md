@@ -14,11 +14,12 @@
   - [x] **Landing Page Premium**: Diseño de alto impacto en `/` con Bento Grid reordenado y Disclaimer.
   - [x] **Modo Demo (Restricted Access)**: Ruta separada en `/demo` con vista previa de componentes y navegación.
   - [x] **Funnel de Venta**: Integración de CTAs y `RegistrationModal` con Lorem Ipsum.
+  - [x] **Soporte PWA (Progresive Web App)**: Archivo manifest e instalador interactivo nativo (iOS/Android).
 - [ ] **Hito 6: Integración Realtime API**
   - [ ] Conexión con fuente de datos externa.
 
 ## Current Trajectory
-**Status**: Fase de Conversión (Landing & Demo Mode) completada. Hemos mejorado UX con ruta dedicada para el demo, un modal interceptor de registros y ajustes Mobile-first. Preparando despliegue de Producción.
+**Status**: Fase de Conversión (Landing & Demo Mode) completada y reforzada con PWA (Progressive Web App) para instalación nativa. Hemos mejorado UX con ruta dedicada para el demo, modal interceptor y accesibilidad mobile-first. Preparando despliegue.
 
 ## Squad Status
 | Agent | Task | Status |

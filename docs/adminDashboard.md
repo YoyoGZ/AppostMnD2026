@@ -46,3 +46,15 @@ El usuario que paga NO recibe simplemente un texto pelado. Recibe un **"Pase VIP
 3. **El Botón/Link Clickeable (URL corta debajo del QR)**: Para los que reciben el ticket en el mismo celular donde lo van a usar, basta con tocar el link o botón incrustado en el documento (PDF/HTML interactivo) para ser inyectados directamente al flujo de registro de la App.
 
 De este modo se logra la exclusividad visual del "Ticket de Entrada" sin generar fricciones en la adopción móvil.
+
+---
+
+## 4. Gestión de Cuentas y Accesos
+
+### Reseteo de Clave ("Clave Extraviada")
+Debido a que las contraseñas están hasheadas en `auth.users`, es imposible recuperar una contraseña original. Para evitar que un usuario pierda su cuenta y sus puntos de la Arena si olvida su clave (la cual no se puede resetear por email dado que usamos seudo-emails), se implementará un mecanismo de recuperación manual.
+
+**Acción en el God Mode:**
+- En la tabla de usuarios del HQ, el Super Admin tendrá un botón **"Resetear Clave de Jugador"**.
+- Al presionarlo, el backend utilizará la **Supabase Admin API** (`supabase.auth.admin.updateUserById`) mediante el `service_role_key` para forzar el cambio de la clave del usuario a una genérica temporal (ej: `123456`).
+- El usuario podrá ingresar nuevamente con esa clave provisoria y mantener intacto su progreso en el torneo.

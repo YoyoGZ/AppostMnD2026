@@ -37,9 +37,9 @@ export default async function Home(props: PageProps) {
       {/* --- NAVIGATION --- */}
       <nav className="sticky top-0 w-full z-50 px-6 py-4 backdrop-blur-md bg-black/20 border-b border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(251,191,36,0.1)]">
+          <Link href="/login" title="Backdoor to Login" className="w-10 h-10 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(251,191,36,0.1)] hover:bg-primary/20 transition-all cursor-pointer">
             <Shield className="w-5 h-5 text-primary" />
-          </div>
+          </Link>
           <span className="font-black tracking-[0.2em] text-sm uppercase hidden sm:block">Mundial 2026</span>
         </div>
         <div className="flex items-center gap-4">
@@ -63,8 +63,8 @@ export default async function Home(props: PageProps) {
         </h1>
         
         <p className="text-white/50 text-sm md:text-lg max-w-2xl font-medium leading-relaxed mb-10">
-            La plataforma de pronósticos más avanzada para el Mundial de Norteamérica. 
-            Crea tu Arena, desafía a tus amigos y vive la eliminatoria con datos en tiempo real y una interfaz diseñada para la victoria.
+            La plataforma de pronósticos más avanzada para el Mundial de Norteamérica.
+            Generá tu Arena, desafía a tus amigos y viví toda la competencia con datos en tiempo real y una interfaz diseñada para la victoria.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4">
@@ -74,7 +74,7 @@ export default async function Home(props: PageProps) {
             </button>
             <Link href="/demo" className="px-8 py-4 bg-white/5 border border-white/10 text-white font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center gap-3 backdrop-blur-md hover:bg-white/10 transition-all">
                 <Play className="w-4 h-4 fill-white" />
-                Explorar Demo Mode
+                Explorar Demo
             </Link>
         </div>
       </section>
@@ -89,36 +89,36 @@ export default async function Home(props: PageProps) {
                 <Ticket className="w-8 h-8 text-primary animate-pulse" />
             </div>
             <h3 className="text-2xl font-black uppercase tracking-tight mb-2 text-primary">Founder Pass VIP</h3>
-            <p className="text-white/60 text-sm max-w-md">Acceso exclusivo a funciones avanzadas, oráculo de predicciones y gestión de premios sin publicidad.</p>
+            <p className="text-white/60 text-sm max-w-md">El Fundador de la Arena tendrá acceso exclusivo a funciones avanzadas, oráculo de predicciones y Gestión de la Arena generada para sus amigos.</p>
             <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-primary/10 blur-[60px] -z-10" />
           </div>
 
           {/* Card 2: Arenas Multi-League */}
-          <div className="relative group overflow-hidden bg-white/[0.02] border border-white/5 rounded-[32px] p-8 flex flex-col justify-end hover:border-primary/30 transition-all duration-500">
-            <div className="absolute top-8 right-8 w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+          <div className="relative group overflow-hidden bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-[32px] p-8 flex flex-col justify-end hover:border-primary/40 transition-all duration-500">
+            <div className="absolute top-8 right-8 w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center">
                 <Users className="w-6 h-6 text-primary" />
             </div>
-            <h3 className="text-xl font-black uppercase tracking-tight mb-2">Multi-Arenas</h3>
-            <p className="text-white/40 text-xs">Crea ligas privadas, invita a tus capitanes y gestiona múltiples torneos simultáneos.</p>
+            <h3 className="text-xl font-black uppercase tracking-tight mb-2 text-primary">Multi-Arenas</h3>
+            <p className="text-white/60 text-sm max-w-md">Podes generar las ligas privadas que quieras, invitás a tus otros Capitanes y podes participar en múltiples torneos simultáneos.</p>
           </div>
 
           {/* Card 3: Dashboard */}
-          <div className="relative group overflow-hidden bg-white/[0.02] border border-white/5 rounded-[32px] p-8 flex flex-col justify-end hover:border-primary/30 transition-all duration-500">
-            <div className="absolute top-8 right-8 w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+          <div className="relative group overflow-hidden bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-[32px] p-8 flex flex-col justify-end hover:border-primary/40 transition-all duration-500">
+            <div className="absolute top-8 right-8 w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 <LayoutDashboard className="w-6 h-6 text-primary" />
             </div>
-            <h3 className="text-xl font-black uppercase tracking-tight mb-2">Dashboard Ejecutivo</h3>
-            <p className="text-white/40 text-xs">Analítica visual de tus puntos y tendencias globales.</p>
+            <h3 className="text-xl font-black uppercase tracking-tight mb-2 text-primary">Dashboard Ejecutivo</h3>
+            <p className="text-white/60 text-sm max-w-md">Analítica visual de puntos y tablas completas de la Competencia.</p>
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent -z-10" />
           </div>
 
           {/* Card 4: Oráculo / Competencia (Replaces Motor Eliminatorias) */}
-          <div className="md:col-span-2 relative group overflow-hidden bg-white/[0.02] border border-white/5 rounded-[32px] p-8 flex flex-col justify-end hover:border-primary/30 transition-all duration-500">
-            <div className="absolute top-8 right-8 w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
+          <div className="md:col-span-2 relative group overflow-hidden bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-[32px] p-8 flex flex-col justify-end hover:border-primary/40 transition-all duration-500">
+            <div className="absolute top-8 right-8 w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center">
                 <Swords className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-2xl font-black uppercase tracking-tight mb-2">Arena de Pronósticos</h3>
-            <p className="text-white/40 text-sm max-w-md">La competencia central. Pronostica los resultados de los partidos de cada grupo y avanza en la tabla general antes de que el Oráculo selle el destino.</p>
+            <h3 className="text-2xl font-black uppercase tracking-tight mb-2 text-primary">Arena de Pronósticos</h3>
+            <p className="text-white/60 text-sm max-w-md">La competencia central. Los participantes pronostican los resultados de los partidos de La Arena, plantean duelos entre ellos y compiten por el primer puesto de Medallas, antes de que el Oráculo selle el destino.</p>
           </div>
 
         </div>
@@ -133,7 +133,7 @@ export default async function Home(props: PageProps) {
             <Shield className="w-8 h-8 text-primary mx-auto mb-4 opacity-80" />
             <h4 className="text-primary font-black uppercase tracking-widest text-sm mb-2">Aviso Importante</h4>
             <p className="text-white/70 text-sm leading-relaxed max-w-2xl mx-auto">
-                Nuestra plataforma <strong className="text-white">NO</strong> está diseñada para apuestas con dinero real u otros activos financieros. Incentivamos una competencia de amigos, sana, estratégica y orientada a crear experiencias memorables.
+                Incentivamos una competencia entre amigos, estratégica y orientada a crear experiencias memorables. Nuestra Plataforma <strong className="text-white">NO</strong> está diseñada para apuestas con dinero real u otros activos.
             </p>
         </div>
 

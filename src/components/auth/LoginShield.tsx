@@ -72,6 +72,12 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
           }
         });
         if (signUpError) throw signUpError;
+        
+        // Supabase security: if user exists, it might return a user but with empty identities
+        if (data?.user?.identities && data.user.identities.length === 0) {
+          throw new Error("User_Already_Exists");
+        }
+        
         authUser = data.user;
       } else {
         const { data, error: signInError } = await supabase.auth.signInWithPassword({
@@ -120,6 +126,8 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
         setError("Clave incorrecta o alias no encontrado.");
       } else if (errorMessage.includes("Rate limit")) {
         setError("Demasiados intentos. Espera un momento.");
+      } else if (errorMessage.includes("User_Already_Exists") || errorMessage.toLowerCase().includes("already registered")) {
+        setError(`El alias "${alias.trim()}" ya está en uso. ¡Por favor, elige otro!`);
       } else {
         setError(errorMessage);
       }
