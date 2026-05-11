@@ -46,7 +46,7 @@ export default async function JoinPage({ params }: Props) {
             ¡Fuiste Reclutado!
           </h1>
           <p className="text-white/40 text-[10px] sm:text-xs font-medium uppercase tracking-[0.3em] mt-2">
-            Invitación a una Arena Privada
+            Invitación a una Liga Privada
           </p>
         </header>
 

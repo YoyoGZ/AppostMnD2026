@@ -37,7 +37,7 @@ export function DuelChronicles({ duels, totalWins = 0 }: { duels: Duel[], totalW
       <div className="bg-white/5 border border-white/5 rounded-2xl p-8 text-center">
         <Ghost className="w-10 h-10 text-white/20 mx-auto mb-3" />
         <p className="text-white/40 text-xs font-bold uppercase tracking-widest">
-          Aún no hay crónicas en esta Arena
+          Aún no hay crónicas en esta Liga
         </p>
       </div>
     );

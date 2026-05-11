@@ -19,3 +19,12 @@ export async function forceMockSyncAction(): Promise<
     return { success: false, error: error.message || "Error desconocido" };
   }
 }
+
+export async function getStandingsAction(): Promise<{ success: boolean; standings?: any[]; error?: string }> {
+  try {
+    const standings = await sportsSyncAgent.getStandings(1, 2026);
+    return { success: true, standings };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

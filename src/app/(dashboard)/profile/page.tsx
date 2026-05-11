@@ -10,7 +10,7 @@ import { DuelChronicles } from "@/components/duels/DuelChronicles";
 export default function ProfilePage() {
   const [alias, setAlias] = useState<string>("Cargando...");
   const [email, setEmail] = useState<string>("");
-  const [leagueName, setLeagueName] = useState<string>("La Arena");
+  const [leagueName, setLeagueName] = useState<string>("La Liga");
   const [duelsWon, setDuelsWon] = useState<number>(0);
   const [duels, setDuels] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -105,7 +105,7 @@ export default function ProfilePage() {
           </div>
           
           <div className="bg-gradient-to-br from-primary/20 to-transparent border border-primary/20 rounded-2xl p-5">
-            <p className="text-[10px] text-primary font-black uppercase tracking-widest mb-2">Arena Activa</p>
+            <p className="text-[10px] text-primary font-black uppercase tracking-widest mb-2">Liga Activa</p>
             <p className="text-lg font-black text-white leading-tight">{leagueName}</p>
           </div>
         </aside>

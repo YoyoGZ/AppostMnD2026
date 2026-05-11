@@ -180,7 +180,7 @@ export async function processFinishedMatches(leagueId?: string) {
       }
     }
 
-    return { success: true, message: "Auditoría de Arena y Avance de Llaves completados." };
+    return { success: true, message: "Auditoría de Liga y Avance de Llaves completados." };
 
   } catch (error: any) {
     console.error("[Oráculo] Error:", error);

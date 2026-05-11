@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
  
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Mundial 2026 Arena',
+    name: 'Mundial 2026 Liga',
     short_name: 'Mundial 26',
     description: 'La plataforma premium de pronósticos para el Mundial 2026',
     start_url: '/dashboard',

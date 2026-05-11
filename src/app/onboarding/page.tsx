@@ -36,9 +36,9 @@ function OnboardingContent() {
         </h1>
         <p className="text-white/50 text-sm mt-3 font-medium px-4">
           {leagueInfo ? (
-            <>Has sido reclutado por <strong className="text-white">{leagueInfo.captainAlias}</strong> para competir en esta Arena.</>
+            <>Has sido reclutado por <strong className="text-white">{leagueInfo.captainAlias}</strong> para competir en esta Liga.</>
           ) : (
-            <>No tienes una Arena asignada. Es tu momento de crear una liga privada e invitar a tus amigos.</>
+            <>No tienes una Liga asignada. Es tu momento de crear una liga privada e invitar a tus amigos.</>
           )}
         </p>
       </header>
@@ -48,7 +48,7 @@ function OnboardingContent() {
         
         <div className="p-8">
           <h2 className="text-sm font-bold text-white uppercase tracking-widest mb-6 flex items-center gap-2">
-            <Users className="w-4 h-4 text-primary" /> {leagueInfo ? "Tu Nueva Arena" : "Reglas de la Arena"}
+            <Users className="w-4 h-4 text-primary" /> {leagueInfo ? "Tu Nueva Liga" : "Reglas de la Liga"}
           </h2>
           {leagueInfo ? (
             <div className="flex flex-col gap-6">
@@ -66,7 +66,7 @@ function OnboardingContent() {
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-sm uppercase tracking-widest py-4 rounded-xl shadow-[0_0_20px_rgba(251,191,36,0.3)] transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-                  <>¡Entrar a la Arena! <ArrowRight className="w-4 h-4" /></>
+                  <>¡Entrar a la Liga! <ArrowRight className="w-4 h-4" /></>
                 )}
               </button>
             </div>
@@ -75,7 +75,7 @@ function OnboardingContent() {
               <ul className="flex flex-col gap-4 mb-8">
                 <li className="flex gap-3 items-start">
                   <div className="w-5 h-5 rounded bg-white/5 flex items-center justify-center shrink-0 mt-0.5 border border-white/10"><span className="text-[10px] font-black text-primary">1</span></div>
-                  <p className="text-xs text-white/70 leading-relaxed">Exclusividad total: Solo hay <strong className="text-white">10 cupos</strong> máximos por Arena.</p>
+                  <p className="text-xs text-white/70 leading-relaxed">Exclusividad total: Solo hay <strong className="text-white">10 cupos</strong> máximos por Liga.</p>
                 </li>
                 <li className="flex gap-3 items-start">
                   <div className="w-5 h-5 rounded bg-white/5 flex items-center justify-center shrink-0 mt-0.5 border border-white/10"><span className="text-[10px] font-black text-primary">2</span></div>
@@ -109,7 +109,7 @@ function OnboardingContent() {
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-sm uppercase tracking-widest py-4 rounded-xl shadow-[0_0_20px_rgba(251,191,36,0.3)] transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
                 >
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-                    <>Funda tu Arena <ArrowRight className="w-4 h-4" /></>
+                    <>Funda tu Liga <ArrowRight className="w-4 h-4" /></>
                   )}
                 </button>
               </form>

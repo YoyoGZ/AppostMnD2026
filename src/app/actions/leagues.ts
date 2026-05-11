@@ -22,14 +22,14 @@ export async function createLeagueAction(formData: FormData) {
     .maybeSingle();
 
   if (existingLeague) {
-    return { error: "Ya eres Capitán de una Arena. Solo puedes fundar una liga por torneo." };
+    return { error: "Ya eres Capitán de una Liga. Solo puedes fundar una liga por torneo." };
   }
 
   let rawName = formData.get("name")?.toString()?.trim();
   let userProvidedName = !!rawName;
   let name = rawName || randomNames[Math.floor(Math.random() * randomNames.length)];
 
-  // Verificar si el nombre de la arena ya existe (asegurar unicidad)
+  // Verificar si el nombre de la liga ya existe (asegurar unicidad)
   let isUnique = false;
   let attempts = 0;
   
@@ -44,7 +44,7 @@ export async function createLeagueAction(formData: FormData) {
       isUnique = true;
     } else {
       if (userProvidedName) {
-        return { error: `La Arena "${name}" ya existe. ¡Elige otro nombre para diferenciarte!` };
+        return { error: `La Liga "${name}" ya existe. ¡Elige otro nombre para diferenciarte!` };
       } else {
         // Generar un sufijo al azar si hubo colisión con el nombre autogenerado
         name = randomNames[Math.floor(Math.random() * randomNames.length)] + " " + Math.floor(Math.random() * 1000);
@@ -69,7 +69,7 @@ export async function createLeagueAction(formData: FormData) {
 
   if (leagueError) {
     console.error("Error creando liga:", leagueError);
-    return { error: "Error al crear la arena." };
+    return { error: "Error al crear la liga." };
   }
 
   const alias = user.user_metadata?.display_name || user.email?.split('@')[0] || "Fundador";
@@ -81,7 +81,7 @@ export async function createLeagueAction(formData: FormData) {
 
   if (memberError) {
     console.error("Error uniendo admin:", memberError);
-    return { error: "Arena creada pero falló el ingreso." };
+    return { error: "Liga creada pero falló el ingreso." };
   }
 
   // Establecer como liga activa en los metadatos del usuario
@@ -117,7 +117,7 @@ export async function joinLeagueAction(inviteCode: string) {
   }
 
   if (!league) {
-    return { error: "Arena no encontrada. Verifica el enlace de invitación." };
+    return { error: "Liga no encontrada. Verifica el enlace de invitación." };
   }
 
   // Verificar cupos (Máximo 10)
@@ -127,7 +127,7 @@ export async function joinLeagueAction(inviteCode: string) {
     .eq('league_id', league.id);
 
   if (count !== null && count >= 10) {
-    return { error: "Esta Arena ya alcanzó el límite de 10 gladiadores." };
+    return { error: "Esta Liga ya alcanzó el límite de 10 gladiadores." };
   }
 
   // Multi-liga: verificar si ya está en ESTA liga específica (no en cualquier liga)
@@ -139,7 +139,7 @@ export async function joinLeagueAction(inviteCode: string) {
     .maybeSingle();
 
   if (alreadyInThisLeague) {
-    // Ya es miembro de esta arena → ir directo al dashboard
+    // Ya es miembro de esta liga → ir directo al dashboard
     redirect("/dashboard");
   }
 
@@ -152,7 +152,7 @@ export async function joinLeagueAction(inviteCode: string) {
 
   if (joinError) {
     console.error("Error al unirse:", joinError);
-    return { error: "Error al unirse a la arena." };
+    return { error: "Error al unirse a la liga." };
   }
 
   // Al unirse, la marcamos como activa automáticamente
@@ -177,7 +177,7 @@ export async function getLeagueByInvite(inviteCode: string) {
 
   let leagueBasic = leagueByCode;
 
-  // 2. Si no hay éxito, intentar por nombre de la arena
+  // 2. Si no hay éxito, intentar por nombre de la liga
   if (!leagueBasic) {
     const { data: leagueByName, error: errorByName } = await supabase
       .from('leagues')
@@ -190,7 +190,7 @@ export async function getLeagueByInvite(inviteCode: string) {
   }
 
   if (!leagueBasic) {
-    const finalError = errorByCode?.message || "No se encontró la Arena (¿RLS?)";
+    const finalError = errorByCode?.message || "No se encontró la Liga (¿RLS?)";
     return { error: finalError };
   }
   

@@ -38,7 +38,7 @@ export default function StandingsClient({
     try {
       const result = await processFinishedMatches(leagueInfo.id);
       if (result.success) {
-        alert("¡Auditoría de Arena completada! Los puntos y victorias han sido sincronizados.");
+        alert("¡Auditoría de Liga completada! Los puntos y victorias han sido sincronizados.");
         window.location.reload();
       } else {
         alert("Error en la auditoría: " + result.message);
@@ -52,7 +52,7 @@ export default function StandingsClient({
 
   const handleArchive = async () => {
     if (!leagueInfo?.id) return;
-    if (!confirm("¿Quieres limpiar los duelos antiguos de la Arena? Solo quedarán los 3 más recientes. Todos se guardarán en las Crónicas históricas.")) return;
+    if (!confirm("¿Quieres limpiar los duelos antiguos de la Liga? Solo quedarán los 3 más recientes. Todos se guardarán en las Crónicas históricas.")) return;
     
     setIsSyncing(true);
     try {
@@ -127,7 +127,7 @@ export default function StandingsClient({
           <Trophy className="w-7 h-7 text-primary" />
         </div>
         <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2 text-white uppercase px-4">
-          {leagueInfo?.name || "La Arena"}
+          {leagueInfo?.name || "La Liga"}
         </h2>
         
         {leagueInfo?.isAdmin && (
@@ -167,7 +167,7 @@ export default function StandingsClient({
               disabled={isSyncing}
               className="flex items-center gap-2 bg-red-500/5 border border-red-500/20 px-4 py-2 rounded-full hover:bg-red-500/10 transition-all text-[10px] font-black uppercase text-red-400/70 tracking-wider disabled:opacity-30"
             >
-              <Trash2 className="w-4 h-4" /> Limpiar Arena
+              <Trash2 className="w-4 h-4" /> Limpiar Liga
             </button>
           </div>
         )}

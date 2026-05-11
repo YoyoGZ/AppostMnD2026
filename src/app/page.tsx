@@ -64,7 +64,7 @@ export default async function Home(props: PageProps) {
         
         <p className="text-white/50 text-sm md:text-lg max-w-2xl font-medium leading-relaxed mb-10">
             La plataforma de pronósticos más avanzada para el Mundial de Norteamérica.
-            Generá tu Arena, desafía a tus amigos y viví toda la competencia con datos en tiempo real y una interfaz diseñada para la victoria.
+            Generá tu Liga, desafía a tus amigos y viví toda la competencia con datos en tiempo real y una interfaz diseñada para la victoria.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4">
@@ -89,16 +89,16 @@ export default async function Home(props: PageProps) {
                 <Ticket className="w-8 h-8 text-primary animate-pulse" />
             </div>
             <h3 className="text-2xl font-black uppercase tracking-tight mb-2 text-primary">Founder Pass VIP</h3>
-            <p className="text-white/60 text-sm max-w-md">El Fundador de la Arena tendrá acceso exclusivo a funciones avanzadas, oráculo de predicciones y Gestión de la Arena generada para sus amigos.</p>
+            <p className="text-white/60 text-sm max-w-md">El Fundador de la Liga tendrá acceso exclusivo a funciones avanzadas, oráculo de predicciones y Gestión de la Liga generada para sus amigos.</p>
             <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-primary/10 blur-[60px] -z-10" />
           </div>
 
-          {/* Card 2: Arenas Multi-League */}
+          {/* Card 2: Ligas Multi-League */}
           <div className="relative group overflow-hidden bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-[32px] p-8 flex flex-col justify-end hover:border-primary/40 transition-all duration-500">
             <div className="absolute top-8 right-8 w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center">
                 <Users className="w-6 h-6 text-primary" />
             </div>
-            <h3 className="text-xl font-black uppercase tracking-tight mb-2 text-primary">Multi-Arenas</h3>
+            <h3 className="text-xl font-black uppercase tracking-tight mb-2 text-primary">Multi-Ligas</h3>
             <p className="text-white/60 text-sm max-w-md">Podes generar las ligas privadas que quieras, invitás a tus otros Capitanes y podes participar en múltiples torneos simultáneos.</p>
           </div>
 
@@ -117,8 +117,8 @@ export default async function Home(props: PageProps) {
             <div className="absolute top-8 right-8 w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center">
                 <Swords className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-2xl font-black uppercase tracking-tight mb-2 text-primary">Arena de Pronósticos</h3>
-            <p className="text-white/60 text-sm max-w-md">La competencia central. Los participantes pronostican los resultados de los partidos de La Arena, plantean duelos entre ellos y compiten por el primer puesto de Medallas, antes de que el Oráculo selle el destino.</p>
+            <h3 className="text-2xl font-black uppercase tracking-tight mb-2 text-primary">Liga de Pronósticos</h3>
+            <p className="text-white/60 text-sm max-w-md">La competencia central. Los participantes pronostican los resultados de los partidos de La Liga, plantean duelos entre ellos y compiten por el primer puesto de Medallas, antes de que el Oráculo selle el destino.</p>
           </div>
 
         </div>

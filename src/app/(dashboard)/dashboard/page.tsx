@@ -5,19 +5,27 @@ import worldCupData from "@/data/world-cup-2026.json";
 import { GroupsCarousel } from "@/components/tournament/GroupsCarousel";
 import { MatchPredictionCard } from "@/components/tournament/MatchPredictionCard";
 import Modal from "@/components/ui/Modal";
-import ArenaRules from "@/components/tournament/ArenaRules";
+import LigaRules from "@/components/tournament/LigaRules";
 import { Info } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { InstallAppButton } from "@/components/pwa/InstallAppButton";
+import { getStandingsAction } from "@/app/actions/sync";
 
 export default function Dashboard() {
   const [activeGroup, setActiveGroup] = useState("A");
   const [showRules, setShowRules] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [standings, setStandings] = useState<any[]>([]);
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id || null));
+    
+    getStandingsAction().then((res) => {
+      if (res.success && res.standings) {
+        setStandings(res.standings);
+      }
+    });
   }, []);
 
   // 1. Organizar grupos en orden alfabético
@@ -31,10 +39,25 @@ export default function Dashboard() {
 
   const groupsData = Object.keys(groupedTeams)
     .sort() // alfabético A-L
-    .map((letter) => ({
-      letter,
-      teams: groupedTeams[letter],
-    }));
+    .map((letter) => {
+      const groupStandings = standings.find((g: any[]) => g[0]?.group === `Grupo ${letter}`) || [];
+      
+      const mappedTeams = groupedTeams[letter].map((team: any) => {
+        const teamStanding = groupStandings.find((s: any) => s.team.id === team.id);
+        return {
+          ...team,
+          pts: teamStanding ? teamStanding.points : 0
+        };
+      });
+
+      // Ordenar por puntos de mayor a menor
+      mappedTeams.sort((a: any, b: any) => b.pts - a.pts);
+
+      return {
+        letter,
+        teams: mappedTeams,
+      };
+    });
 
   // 2. Filtrar próximos partidos para el grupo activo (Motor Temporal)
   const groupMatches = worldCupData.partidos.filter((m: any) => m.grupo === activeGroup);
@@ -81,9 +104,9 @@ export default function Dashboard() {
       <Modal 
         isOpen={showRules} 
         onClose={() => setShowRules(false)} 
-        title="Reglas de la Arena"
+        title="Reglas de la Liga"
       >
-        <ArenaRules />
+        <LigaRules />
       </Modal>
 
       <section className="mb-16 relative z-10">

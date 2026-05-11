@@ -3,7 +3,7 @@
 import React from 'react';
 import { Trophy, Clock, Lock, Eye, AlertCircle } from 'lucide-react';
 
-const ArenaRules = () => {
+const LigaRules = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-4xl mx-auto p-4">
       {/* Card Principal: Puntuación */}
@@ -57,7 +57,7 @@ const ArenaRules = () => {
           <div className="p-3 bg-red-500/20 rounded-2xl group-hover:scale-110 transition-transform">
             <Clock className="text-red-500 w-6 h-6" />
           </div>
-          <h3 className="text-xl font-bold text-white uppercase tracking-wider">Cierre de Arena</h3>
+          <h3 className="text-xl font-bold text-white uppercase tracking-wider">Cierre de Liga</h3>
         </div>
         <p className="text-gray-300 leading-relaxed">
           Las apuestas se cierran automáticamente <span className="text-red-400 font-bold">5 minutos antes</span> del inicio del horario del partido.
@@ -80,4 +80,4 @@ const ArenaRules = () => {
   );
 };
 
-export default ArenaRules;
+export default LigaRules;

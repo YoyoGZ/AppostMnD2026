@@ -66,7 +66,7 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
             <div className="p-4 bg-primary/5 border border-primary/10 rounded-2xl my-6">
               <p className="text-xs text-primary font-bold uppercase tracking-widest mb-1">Nota del Oráculo</p>
               <p className="text-white/60 text-xs">
-                El destino de tu Arena depende de la integridad de tu Token. El Oráculo advierte: un registro fallido es una oportunidad perdida en el tablero del Mundial. Asegura tu lugar antes del pitazo inicial.
+                El destino de tu Liga depende de la integridad de tu Token. El Oráculo advierte: un registro fallido es una oportunidad perdida en el tablero del Mundial. Asegura tu lugar antes del pitazo inicial.
               </p>
             </div>
           </div>

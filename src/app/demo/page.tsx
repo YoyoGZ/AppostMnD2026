@@ -30,7 +30,7 @@ export default function DemoPage() {
                   La Experiencia <span className="text-primary">Interna</span>
               </h2>
               <p className="text-white/40 text-sm max-w-2xl mx-auto">
-                  No confíes solo en nuestra palabra. Descubre cómo se ve la interfaz de administración y el motor de predicciones antes de entrar a la Arena.
+                  No confíes solo en nuestra palabra. Descubre cómo se ve la interfaz de administración y el motor de predicciones antes de entrar a la Liga.
               </p>
           </div>
 
@@ -83,7 +83,7 @@ export default function DemoPage() {
           
           <div className="flex justify-center mt-12">
                <button data-modal-trigger="register" className="px-8 py-4 bg-primary text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:scale-105 transition-all shadow-[0_0_20px_rgba(251,191,36,0.2)]">
-                  Estoy Listo para Fundar mi Arena
+                  Estoy Listo para Fundar mi Liga
               </button>
           </div>
         </section>

@@ -144,6 +144,59 @@ export class SportsSyncAgent {
       };
     });
   }
+
+  /**
+   * Obtiene la tabla de posiciones desde API-Football (Endpoint /standings).
+   * En modo MOCK, devuelve datos simulados que reflejan los partidos inyectados.
+   */
+  async getStandings(leagueId: number, season: number): Promise<any[]> {
+    if (this.isMockMode) {
+      return this.generateMockStandings();
+    }
+
+    try {
+      const response = await fetch(`${this.baseUrl}/standings?league=${leagueId}&season=${season}`, {
+        method: "GET",
+        headers: {
+          "x-rapidapi-host": "v3.football.api-sports.io",
+          "x-rapidapi-key": this.apiKey as string,
+        },
+        next: { revalidate: 300 } // Caché 5 min para tabla de posiciones
+      });
+
+      if (!response.ok) throw new Error(`API Error: ${response.status}`);
+      const data = await response.json();
+      return data.response[0]?.league?.standings || [];
+    } catch (error) {
+      console.error("❌ Error fetching standings:", error);
+      return [];
+    }
+  }
+
+  private generateMockStandings(): any[] {
+    // Simulamos la respuesta de API-Football para los grupos B, C y D
+    // Reflejando los resultados de los partidos 2 (CAN 1-0 SUI), 3 (USA 2-0 PAR), 4 (BRA 1-1 MAR)
+    return [
+      [
+        { team: { name: "Canadá", id: "CAN" }, points: 3, all: { played: 1, win: 1, draw: 0, lose: 0, goals: { for: 1, against: 0 } }, group: "Grupo B" },
+        { team: { name: "Suiza", id: "SUI" }, points: 0, all: { played: 1, win: 0, draw: 0, lose: 1, goals: { for: 0, against: 1 } }, group: "Grupo B" },
+        { team: { name: "Qatar", id: "QAT" }, points: 0, all: { played: 0, win: 0, draw: 0, lose: 0, goals: { for: 0, against: 0 } }, group: "Grupo B" },
+        { team: { name: "Bosnia y Herz.", id: "BIH" }, points: 0, all: { played: 0, win: 0, draw: 0, lose: 0, goals: { for: 0, against: 0 } }, group: "Grupo B" }
+      ],
+      [
+        { team: { name: "Brasil", id: "BRA" }, points: 1, all: { played: 1, win: 0, draw: 1, lose: 0, goals: { for: 1, against: 1 } }, group: "Grupo C" },
+        { team: { name: "Marruecos", id: "MAR" }, points: 1, all: { played: 1, win: 0, draw: 1, lose: 0, goals: { for: 1, against: 1 } }, group: "Grupo C" },
+        { team: { name: "Escocia", id: "SCO" }, points: 0, all: { played: 0, win: 0, draw: 0, lose: 0, goals: { for: 0, against: 0 } }, group: "Grupo C" },
+        { team: { name: "Haití", id: "HAI" }, points: 0, all: { played: 0, win: 0, draw: 0, lose: 0, goals: { for: 0, against: 0 } }, group: "Grupo C" }
+      ],
+      [
+        { team: { name: "Estados Unidos", id: "USA" }, points: 3, all: { played: 1, win: 1, draw: 0, lose: 0, goals: { for: 2, against: 0 } }, group: "Grupo D" },
+        { team: { name: "Paraguay", id: "PAR" }, points: 0, all: { played: 1, win: 0, draw: 0, lose: 1, goals: { for: 0, against: 2 } }, group: "Grupo D" },
+        { team: { name: "Australia", id: "AUS" }, points: 0, all: { played: 0, win: 0, draw: 0, lose: 0, goals: { for: 0, against: 0 } }, group: "Grupo D" },
+        { team: { name: "Türkiye", id: "TUR" }, points: 0, all: { played: 0, win: 0, draw: 0, lose: 0, goals: { for: 0, against: 0 } }, group: "Grupo D" }
+      ]
+    ];
+  }
 }
 
 // Exportamos una instancia única (Singleton) para usarla en toda la app

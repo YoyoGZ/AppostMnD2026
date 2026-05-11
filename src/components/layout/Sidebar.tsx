@@ -73,7 +73,7 @@ export function Sidebar({
         <div className="flex items-center gap-2">
           <Trophy className="w-5 h-5 text-primary" />
           <div className="flex flex-col">
-            <span className="text-[9px] font-black uppercase tracking-widest text-white/40">Tu Arena</span>
+            <span className="text-[9px] font-black uppercase tracking-widest text-white/40">Tu Liga</span>
             <div className="flex items-center gap-1">
               <span className="text-sm font-bold text-white leading-tight">{activeLeague?.name || "Copa Mundial 2026"}</span>
               {allLeagues.length > 1 && (
@@ -149,7 +149,7 @@ export function Sidebar({
             </div>
             {!isCollapsed && (
               <div className="flex flex-col ml-3 overflow-hidden flex-1">
-                <span className="text-[9px] font-black uppercase tracking-widest text-primary/70">Tu Arena</span>
+                <span className="text-[9px] font-black uppercase tracking-widest text-primary/70">Tu Liga</span>
                 <div className="flex items-center justify-between gap-1 group/league cursor-pointer" onClick={() => allLeagues.length > 1 && setShowSelector(!showSelector)}>
                   <h1 className="text-base font-black tracking-tight text-white truncate">
                     {activeLeague?.name || "Copa Mundial 2026"}

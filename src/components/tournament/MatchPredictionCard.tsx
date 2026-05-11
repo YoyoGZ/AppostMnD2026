@@ -208,7 +208,7 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
           <div className="flex items-center justify-between w-full h-full">
             <div className="flex items-center gap-2 text-red-400">
               <Clock className="w-4 h-4 flex-shrink-0" />
-              <span className="text-[11px] font-black uppercase tracking-widest">Arena Cerrada</span>
+              <span className="text-[11px] font-black uppercase tracking-widest">Liga Cerrada</span>
             </div>
             <span className="text-[9px] text-red-500/50 font-bold uppercase">Límite alcanzado</span>
           </div>

@@ -85,7 +85,7 @@ export default function KnockoutManager({ isAdmin = false }: KnockoutManagerProp
             className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-primary text-primary-foreground font-black uppercase tracking-tighter rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(251,191,36,0.3)] disabled:opacity-50"
           >
             {isDeploying ? <Loader2 className="w-5 h-5 animate-spin" /> : <Swords className="w-5 h-5" />}
-            Desplegar a la Arena
+            Desplegar a la Liga
           </button>
         </div>
       )}

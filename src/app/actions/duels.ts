@@ -113,7 +113,7 @@ export async function archiveDuelsAction(leagueId: string) {
     .single();
 
   if (!league || league.created_by !== user.id) {
-    return { error: "Solo el Capitán puede limpiar la arena." };
+    return { error: "Solo el Capitán puede limpiar la liga." };
   }
 
   const { error } = await supabase
@@ -122,7 +122,7 @@ export async function archiveDuelsAction(leagueId: string) {
     .eq('league_id', leagueId)
     .eq('status', 'resolved');
 
-  if (error) return { error: "No se pudo limpiar la arena." };
+  if (error) return { error: "No se pudo limpiar la liga." };
 
   revalidatePath('/dashboard');
   return { success: true };

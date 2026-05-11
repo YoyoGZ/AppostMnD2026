@@ -98,7 +98,7 @@ export default function HQPage() {
             <h2 className="text-lg font-black uppercase tracking-wide">Fábrica de Pases</h2>
           </div>
           <p className="text-white/40 text-sm mb-6 leading-relaxed">
-            Generador maestro de Licencias de Capitán. Vende accesos únicos para fundar Arenas.
+            Generador maestro de Licencias de Capitán. Vende accesos únicos para fundar Ligas.
           </p>
 
           <div className="flex gap-2 mb-6">

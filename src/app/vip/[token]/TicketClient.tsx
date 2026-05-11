@@ -47,7 +47,7 @@ export default function TicketClient({ token }: { token: string }) {
         throw new Error(res.error || "Error al procesar el ticket. Contacta a soporte.");
       }
 
-      // 3. Todo perfecto. El usuario es redirigido a fundar su arena
+      // 3. Todo perfecto. El usuario es redirigido a fundar su liga
       router.push("/onboarding");
       
     } catch (err: any) {

@@ -113,7 +113,7 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
           <div className="text-center">
             <p className="text-white/50 text-xs uppercase tracking-widest font-bold mb-2 flex items-center justify-center gap-2">
               <Users className="w-3.5 h-3.5 text-primary" />
-              Arena Privada
+              Liga Privada
             </p>
             <h2 className="text-2xl font-black text-white tracking-tighter">
               {leagueInfo.name}
@@ -131,7 +131,7 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
             <p className="text-white/70 text-xs leading-relaxed">
               Hola,{" "}
               <strong className="text-primary">{userAlias}</strong>. Fuiste
-              invitado a unirte a esta Arena. ¿Aceptas el desafío?
+              invitado a unirte a esta Liga. ¿Aceptas el desafío?
             </p>
           </div>
 
@@ -182,7 +182,7 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
         <div className="text-center">
           <p className="text-white/50 text-xs uppercase tracking-widest font-bold mb-2 flex items-center justify-center gap-2">
             <Shield className="w-3.5 h-3.5 text-primary" />
-            Tu Arena
+            Tu Liga
           </p>
           <h2 className="text-2xl font-black text-white tracking-tighter">
             {leagueInfo.name}
@@ -212,7 +212,7 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
               type="text"
               value={alias}
               onChange={(e) => setAlias(e.target.value)}
-              placeholder="Tu Alias / Apodo en la Arena"
+              placeholder="Tu Alias / Apodo en la Liga"
               className="block w-full pl-11 pr-4 py-3.5 border border-white/10 rounded-xl bg-black/40 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all text-sm"
               required
               disabled={isLoading}
@@ -264,7 +264,7 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <>
-                Crear Cuenta y Entrar a la Arena{" "}
+                Crear Cuenta y Entrar a la Liga{" "}
                 <ArrowRight className="w-4 h-4" />
               </>
             )}

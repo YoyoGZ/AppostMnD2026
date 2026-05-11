@@ -30,7 +30,7 @@ export const TournamentCard = ({ view, groupLetter, teams, matchInfo }: Tourname
                 <span className="font-bold text-sm text-white/90 group-hover:text-primary transition-colors">{team.nombre}</span>
               </div>
               <div className="flex gap-4 text-[11px] font-bold text-white/60">
-                <span title="Puntos" className="w-5 text-center bg-white/5 rounded px-1">0</span>
+                <span title="Puntos" className="w-5 text-center bg-white/5 rounded px-1">{(team as any).pts || 0}</span>
               </div>
             </div>
           ))}

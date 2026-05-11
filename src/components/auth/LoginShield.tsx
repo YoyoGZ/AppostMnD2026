@@ -150,7 +150,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                   Bienvenido a <span className="text-primary">{leagueInfo.name}</span>
                 </h1>
                 <p className="text-white/50 text-[10px] mt-2 font-bold uppercase tracking-widest">
-                  Arena fundada por <span className="text-primary/80">{leagueInfo.captainAlias}</span>
+                  Liga fundada por <span className="text-primary/80">{leagueInfo.captainAlias}</span>
                 </p>
               </>
             ) : (
@@ -199,7 +199,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
               <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center">
                 <p className="text-white/70 text-xs font-medium leading-relaxed">
                   Ya tienes una sesión activa como <strong className="text-primary">{currentUser.user_metadata?.display_name || currentUser.email?.split('@')[0]}</strong>. 
-                  ¿Quieres unirte a esta Arena ahora mismo?
+                  ¿Quieres unirte a esta Liga ahora mismo?
                 </p>
               </div>
               <button
