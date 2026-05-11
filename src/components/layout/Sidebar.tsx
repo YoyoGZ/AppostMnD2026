@@ -20,7 +20,6 @@ import { cn } from "@/lib/utils";
 import { useSidebar } from "@/context/SidebarContext";
 
 import { setActiveLeagueAction } from "@/app/actions/leagues";
-import { InstallAppButton } from "@/components/pwa/InstallAppButton";
 
 export function Sidebar({ 
   activeLeague, 
@@ -211,8 +210,6 @@ export function Sidebar({
         </nav>
         
         <div className="p-4 border-t border-border/20">
-          {!isCollapsed && <InstallAppButton />}
-          
           <Link
             href="/settings"
             className={cn(

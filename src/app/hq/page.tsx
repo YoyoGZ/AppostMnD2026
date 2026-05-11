@@ -179,16 +179,24 @@ export default function HQPage() {
             <div className="bg-green-500/20 p-2 rounded-lg">
               <Activity className="w-5 h-5 text-green-500" />
             </div>
-            <h2 className="text-lg font-black uppercase tracking-wide">Oráculo (LAB)</h2>
+            <h2 className="text-lg font-black uppercase tracking-wide">Sync Agent (MOCK)</h2>
           </div>
           <p className="text-white/40 text-sm mb-8 leading-relaxed">
-            Monitor de sincronización en tiempo real. Herramienta técnica de auditoría.
+            Fuerza la inyección de datos simulados en Supabase para probar cambios en las tablas de posiciones de los grupos.
           </p>
           <button 
-            onClick={() => router.push('/lab/sports-api')}
-            className="w-full bg-white/5 text-white/40 hover:bg-white/10 transition-colors font-black py-4 rounded-xl uppercase tracking-widest text-xs border border-white/10 active:scale-95"
+            onClick={async () => {
+              const { forceMockSyncAction } = await import('@/app/actions/sync');
+              const res = await forceMockSyncAction();
+              if (res.success) {
+                alert(`¡Sincronización exitosa! ${res.updatedCount} partidos inyectados en Supabase. Revisa el Dashboard.`);
+              } else {
+                alert("Error sincronizando: " + res.error);
+              }
+            }}
+            className="w-full bg-green-500/20 text-green-400 hover:bg-green-500/40 transition-colors font-black py-4 rounded-xl uppercase tracking-widest text-xs border border-green-500/30 shadow-[0_0_15px_rgba(34,197,94,0.1)] active:scale-95"
           >
-            Acceder al Laboratorio
+            Inyectar Resultados Mock
           </button>
         </div>
 

@@ -55,16 +55,10 @@ export function InstallAppButton() {
     <>
       <button
         onClick={handleInstallClick}
-        className="w-full mt-2 mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-black transition-all group shadow-[0_0_15px_rgba(251,191,36,0.1)]"
+        className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-black transition-all group shadow-[0_0_15px_rgba(251,191,36,0.1)]"
       >
-        <div className="w-8 h-8 rounded-lg bg-primary/20 group-hover:bg-black/20 flex items-center justify-center shrink-0">
-          <Smartphone className="w-4 h-4" />
-        </div>
-        <div className="flex flex-col text-left overflow-hidden">
-          <span className="text-[11px] font-black uppercase tracking-widest leading-none truncate">Instalar App</span>
-          <span className="text-[9px] opacity-70 font-medium truncate">Acceso rápido desde el celular</span>
-        </div>
-        <Download className="w-4 h-4 ml-auto opacity-50 group-hover:opacity-100 transition-opacity shrink-0" />
+        <Smartphone className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+        <span className="text-[10px] font-black uppercase tracking-[0.15em]">INSTALL</span>
       </button>
 
       {/* Modal Instrucciones iOS */}

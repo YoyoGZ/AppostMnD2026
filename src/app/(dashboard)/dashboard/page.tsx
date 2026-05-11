@@ -8,6 +8,7 @@ import Modal from "@/components/ui/Modal";
 import ArenaRules from "@/components/tournament/ArenaRules";
 import { Info } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
+import { InstallAppButton } from "@/components/pwa/InstallAppButton";
 
 export default function Dashboard() {
   const [activeGroup, setActiveGroup] = useState("A");
@@ -63,13 +64,18 @@ export default function Dashboard() {
           <p className="text-white/60 text-sm font-medium">Dashboard General de tu Equipo</p>
         </div>
 
-        <button 
-          onClick={() => setShowRules(true)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-[11px] md:text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(251,191,36,0.1)] transition-all group"
-        >
-          <Info className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-          Reglas
-        </button>
+        <div className="flex flex-col gap-2 items-end">
+          <button 
+            onClick={() => setShowRules(true)}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-[11px] md:text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(251,191,36,0.1)] transition-all group w-fit"
+          >
+            <Info className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
+            Reglas
+          </button>
+          <div className="origin-right">
+            <InstallAppButton />
+          </div>
+        </div>
       </header>
 
       <Modal 
