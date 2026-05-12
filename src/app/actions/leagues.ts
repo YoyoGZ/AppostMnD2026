@@ -263,3 +263,63 @@ export async function setActiveLeagueAction(leagueId: string) {
   return { success: true };
 }
 
+
+/**
+ * Cambia el nombre de la liga. Solo permitido para el Creador (Capitán).
+ */
+export async function updateLeagueNameAction(leagueId: string, newName: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "No autenticado" };
+
+  // 1. Validar que el usuario sea el creador de la liga
+  const { data: league, error: fetchError } = await supabase
+    .from('leagues')
+    .select('created_by')
+    .eq('id', leagueId)
+    .single();
+
+  if (fetchError || !league) return { error: "Liga no encontrada" };
+  if (league.created_by !== user.id) return { error: "Solo el Capitán puede renombrar la Liga" };
+
+  // 2. Realizar el update
+  const { error: updateError } = await supabase
+    .from('leagues')
+    .update({ name: newName.trim() })
+    .eq('id', leagueId);
+
+  if (updateError) return { error: updateError.message };
+  return { success: true };
+}
+
+/**
+ * Envía un mensaje al chat de la liga.
+ */
+export async function sendLeagueMessageAction(leagueId: string, content: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "No autenticado" };
+
+  // 1. Obtener el alias del usuario en esa liga
+  const { data: member } = await supabase
+    .from('league_members')
+    .select('alias')
+    .eq('league_id', leagueId)
+    .eq('user_id', user.id)
+    .single();
+
+  if (!member) return { error: "No eres miembro de esta liga" };
+
+  // 2. Insertar mensaje
+  const { error } = await supabase
+    .from('league_messages')
+    .insert({
+      league_id: leagueId,
+      user_id: user.id,
+      sender_alias: member.alias,
+      content: content.trim()
+    });
+
+  if (error) return { error: error.message };
+  return { success: true };
+}

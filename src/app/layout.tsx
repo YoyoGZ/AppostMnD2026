@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/context/AuthContext";
+import { PWARegister } from "@/components/pwa/PWARegister";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,6 +17,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Mundial 2026 | Dashboard de Resultados y Pronosticos",
   description: "Plataforma premium para el seguimiento interactivo de la Copa del Mundo 2026. Análisis de grupos, calendarios y estadísticas en tiempo real.",
+  icons: {
+    icon: '/logo.svg',
+    apple: '/logo.svg',
+  }
 };
 
 /**
@@ -22,7 +28,6 @@ export const metadata: Metadata = {
  * NO incluye Shell ni Sidebar. Eso vive en (dashboard)/layout.tsx.
  * Así la página de login (/) renderiza sin chrome de navegación.
  */
-import { AuthProvider } from "@/context/AuthContext";
 
 export default function RootLayout({
   children,
@@ -33,6 +38,7 @@ export default function RootLayout({
     <html lang="es" className={`dark ${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body className="antialiased overflow-x-hidden" suppressHydrationWarning>
         <AuthProvider>
+          <PWARegister />
           {children}
         </AuthProvider>
       </body>

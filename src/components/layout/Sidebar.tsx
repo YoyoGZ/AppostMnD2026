@@ -13,7 +13,8 @@ import {
   ChevronRight,
   LogOut,
   Crown,
-  Swords
+  Swords,
+  MessageSquare
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
@@ -28,7 +29,7 @@ export function Sidebar({
   activeLeague?: { id: string, name: string, isCaptain: boolean },
   allLeagues?: { id: string, name: string, isCaptain: boolean }[]
 }) {
-  const { isCollapsed, setIsCollapsed } = useSidebar();
+  const { isCollapsed, setIsCollapsed, isChatOpen, setIsChatOpen } = useSidebar();
   const [isChangingLeague, setIsChangingLeague] = useState(false);
   const [showSelector, setShowSelector] = useState(false);
   const pathname = usePathname();
@@ -61,6 +62,12 @@ export function Sidebar({
     { icon: CalendarDays, label: "Partidos", href: "/matches" },
     { icon: Swords, label: "Eliminatorias", href: "/knockouts" },
     { icon: Trophy, label: "Posic. LIGA", href: "/standings" },
+    { 
+      icon: MessageSquare, 
+      label: "Chat", 
+      onClick: () => setIsChatOpen(!isChatOpen),
+      active: isChatOpen
+    },
     { icon: User, label: "Perfil", href: "/profile" },
   ];
 
@@ -95,21 +102,42 @@ export function Sidebar({
       {/* Mobile Bottom Navigation (Hidden on desktop) */}
       <nav className="md:hidden fixed bottom-0 left-0 w-full bg-black/80 backdrop-blur-3xl border-t border-white/10 z-50 pb-safe">
         <ul className="flex justify-around items-center h-[72px] px-1 overflow-x-hidden">
-          {navItems.map((item) => (
-            <li key={item.label}>
-              <Link
-                href={item.href}
-                className={cn(
-                  "flex flex-col items-center justify-center w-full h-full p-1 transition-all duration-300",
-                  isActive(item.href) ? "text-primary" : "text-muted-foreground hover:text-primary/70"
-                )}
-                aria-label={item.label}
-              >
-                <item.icon className={cn("w-5 h-5 mb-1 transition-transform", isActive(item.href) && "scale-110")} />
+          {navItems.map((item) => {
+            const content = (
+              <>
+                <item.icon className={cn("w-5 h-5 mb-1 transition-transform", (isActive(item.href || '') || item.active) && "scale-110")} />
                 <span className="text-[8px] font-bold uppercase tracking-wider">{item.label}</span>
-              </Link>
-            </li>
-          ))}
+              </>
+            );
+
+            return (
+              <li key={item.label}>
+                {item.href ? (
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "flex flex-col items-center justify-center w-full h-full p-1 transition-all duration-300",
+                      isActive(item.href) ? "text-primary" : "text-muted-foreground hover:text-primary/70"
+                    )}
+                    aria-label={item.label}
+                  >
+                    {content}
+                  </Link>
+                ) : (
+                  <button
+                    onClick={item.onClick}
+                    className={cn(
+                      "flex flex-col items-center justify-center w-full h-full p-1 transition-all duration-300",
+                      item.active ? "text-primary" : "text-muted-foreground hover:text-primary/70"
+                    )}
+                    aria-label={item.label}
+                  >
+                    {content}
+                  </button>
+                )}
+              </li>
+            );
+          })}
           <li className="flex-1 flex justify-center">
             <button
               onClick={handleSignOut}
@@ -186,27 +214,37 @@ export function Sidebar({
         </div>
         
         <nav className="flex-1 px-3 py-8 space-y-2">
-          {navItems.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={cn(
-                "flex items-center rounded-xl transition-all duration-300 group overflow-hidden",
-                isCollapsed ? "justify-center p-3" : "px-4 py-3.5",
-                isActive(item.href) 
-                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
-                  : "text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
-              )}
-            >
-              <item.icon className={cn(
-                "w-5 h-5 shrink-0 transition-transform duration-300",
-                !isActive(item.href) && "group-hover:scale-110"
-              )} />
-              {!isCollapsed && (
-                <span className="ml-4 font-semibold text-sm whitespace-nowrap">{item.label}</span>
-              )}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const commonClasses = cn(
+              "flex items-center rounded-xl transition-all duration-300 group overflow-hidden w-full",
+              isCollapsed ? "justify-center p-3" : "px-4 py-3.5",
+              (isActive(item.href || '') || item.active)
+                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
+                : "text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
+            );
+
+            const content = (
+              <>
+                <item.icon className={cn(
+                  "w-5 h-5 shrink-0 transition-transform duration-300",
+                  !(isActive(item.href || '') || item.active) && "group-hover:scale-110"
+                )} />
+                {!isCollapsed && (
+                  <span className="ml-4 font-semibold text-sm whitespace-nowrap">{item.label}</span>
+                )}
+              </>
+            );
+
+            return item.href ? (
+              <Link key={item.label} href={item.href} className={commonClasses}>
+                {content}
+              </Link>
+            ) : (
+              <button key={item.label} onClick={item.onClick} className={commonClasses}>
+                {content}
+              </button>
+            );
+          })}
         </nav>
         
         <div className="p-4 border-t border-border/20">

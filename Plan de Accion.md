@@ -15,15 +15,22 @@
   - [x] **Modo Demo (Restricted Access)**: Ruta separada en `/demo` con vista previa de componentes y navegación.
   - [x] **Funnel de Venta**: Integración de CTAs y `RegistrationModal` con instrucciones reales.
   - [x] **Soporte PWA (Progresive Web App)**: Archivo manifest e instalador interactivo nativo (iOS/Android).
-    - [ ] *Pendiente visual:* Generar y ubicar `icon-192x192.png` y `icon-512x512.png` en la carpeta `/public` para evitar error 404.
+    - [x] **Fix de Instalación**: Service Worker registrado e iconos de respaldo configurados.
+    - [ ] *Pendiente visual:* Generar y ubicar las imágenes oficiales finales (`icon-192x192.png` y `icon-512x512.png`) para remover placeholders externos.
   - [x] **Audit de Calidad**: Verificación visual y funcional del funnel de conversión.
 - [x] **Hito 6: Integración Realtime API** (COMPLETADO MOCK)
   - [x] Conexión con fuente de datos externa (Resultados Mundial): `SportsSyncAgent` creado y listo con Mock Mode.
   - [x] Sincronización de marcadores en tiempo real (Supabase).
   - [x] Actualización dinámica de tablas de posiciones (FIFA).
+- [ ] **Hito 7: Infraestructura & Seguridad (Shield Protocol)** 🛡️
+  - [ ] Implementar **Supabase Keep-Alive** (Ping automático cada 48h).
+  - [ ] Reforzar Server Actions con validación de roles en servidor (Admin/Owner).
+- [ ] **Hito 8: Social & Engagement (Comunidad)** 💬
+  - [ ] **Chat de Liga Realtime**: Mensajería instantánea para miembros de una liga.
+  - [ ] **Social Share Kit**: Generación de tarjetas para compartir en redes.
 
 ## Current Trajectory
-**Status**: Hito 6 (Mock) finalizado y validado con éxito. El flujo completo (HQ -> Supabase -> Dashboard Reactivo) funciona a la perfección. Adicionalmente, se realizó una refactorización global segura renombrando "Arena" a "Liga" en toda la plataforma para lograr coherencia total en el producto.
+**Status**: Hito 6 (Mock) finalizado y validado con éxito. El flujo completo (HQ -> Supabase -> Dashboard Reactivo) funciona a la perfección. Adicionalmente, se realizó una refactorización global segura renombrando "Arena" a "Liga" en toda la plataforma para lograr coherencia total en el producto. El soporte PWA ha sido corregido y validado localmente.
 **Próximo Paso (Mañana):**
 1. Inyectar llave de API-Football y apagar el "Mock Mode".
 2. Buscar un partido real en curso esta semana y sincronizarlo directo desde la API al Dashboard.

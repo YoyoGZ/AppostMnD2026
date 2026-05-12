@@ -23,6 +23,7 @@ export function InstallAppButton() {
 
     // Atrapar el evento nativo en Android / Chrome
     const handleBeforeInstallPrompt = (e: Event) => {
+      console.log('✅ beforeinstallprompt fired');
       e.preventDefault();
       setDeferredPrompt(e);
     };
@@ -35,6 +36,7 @@ export function InstallAppButton() {
   }, []);
 
   const handleInstallClick = async () => {
+    console.log('Install clicked, deferredPrompt:', !!deferredPrompt, 'isIOS:', isIOS);
     if (isIOS) {
       setShowIOSModal(true);
     } else if (deferredPrompt) {
