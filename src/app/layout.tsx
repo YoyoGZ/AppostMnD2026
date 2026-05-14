@@ -18,8 +18,12 @@ export const metadata: Metadata = {
   title: "Mundial 2026 | Dashboard de Resultados y Pronosticos",
   description: "Plataforma premium para el seguimiento interactivo de la Copa del Mundo 2026. Análisis de grupos, calendarios y estadísticas en tiempo real.",
   icons: {
-    icon: '/logo.svg',
-    apple: '/logo.svg',
+    icon: [
+      { url: '/favicon.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: '/icon-192x192.png',
+    shortcut: '/favicon.png',
   }
 };
 

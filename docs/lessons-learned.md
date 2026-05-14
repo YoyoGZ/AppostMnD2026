@@ -17,6 +17,13 @@ El sistema de puntuación ("El Oráculo") procesaba la lógica matemática corre
 2. **Defensas de Tipos**: Coerción explícita (`.toString()`) en los emparejamientos de ID de base de datos vs JSON.
 3. **SQL Fix**: Se requiere que las tablas dinámicas modificables por el servidor bajo la identidad del cliente (ANON_KEY) cuenten con políticas explícitas `UPDATE using (user_id = auth.uid())`.
 
+## 8. Reglas de Arquitectura Next.js 16 (Anti-Errores)
+1. **Prohibido Middleware**: El archivo `middleware.ts` está OBSOLETO. No lo crees, no lo menciones.
+2. **Uso de Proxy**: Toda lógica de interceptación DEBE vivir en `src/proxy.ts`.
+3. **Prioridad de Documentación**: Antes de proponer cambios arquitectónicos, es OBLIGATORIO leer `docs/lessons-learned.md`.
+
+Estas reglas NO SON SUGERENCIAS. Son el sistema de trabajo dentro de Antigravity.
+
 ## 2026-04-30: El Middleware Fantasma y el Muro de CORS en Producción
 
 ### Síntoma
@@ -103,3 +110,17 @@ const victoriesMap = new Map();
   victoriesMap.set(w.user_id, (victoriesMap.get(w.user_id) || 0) + 1);
 });
 ```
+
+## 2026-05-14: El Incidente del 404 y la Deprecación Crítica del Middleware
+
+### Síntoma
+Error 404 persistente al intentar acceder a rutas que deberían existir (como `/login`) y fallo de compilación: `Both middleware file and proxy file are detected`.
+
+### Diagnóstico
+1. **Conflicto de Identidad**: En Next.js 16, el motor de rutas ha eliminado el soporte para `middleware.ts`. El uso de `proxy.ts` no es solo una sugerencia, es el **único** punto de entrada permitido para la interceptación de peticiones.
+2. **Error de Agente**: Intentar "corregir" la arquitectura creando un archivo `middleware.ts` rompe el ciclo de vida de Next.js, provocando que el servidor de desarrollo entre en un estado de pánico que resulta en 404s para rutas válidas.
+
+### Resolución (The House Way)
+1. **REGLA DE ORO**: Nunca crear archivos `middleware.ts`. El archivo `src/proxy.ts` es el soberano absoluto de la lógica de sesión y protección.
+2. **Eliminación Total**: Cualquier vestigio de `middleware.ts` debe ser purgado de inmediato para permitir que el compilador de Next.js 16 procese el `proxy.ts`.
+3. **Persistencia de Aprendizaje**: Si una ruta da 404, el primer paso de diagnóstico debe ser verificar que NO existan archivos `middleware.ts` duplicando la lógica de `proxy.ts`.

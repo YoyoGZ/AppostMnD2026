@@ -11,20 +11,16 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#050505',
     icons: [
       {
-        src: '/logo.svg',
-        sizes: 'any',
-        type: 'image/svg+xml',
-        purpose: 'maskable',
-      },
-      {
-        src: 'https://placehold.co/192x192/050505/FCD34D/png?text=M26',
+        src: '/icon-192x192.png',
         sizes: '192x192',
         type: 'image/png',
+        purpose: 'any',
       },
       {
-        src: 'https://placehold.co/512x512/050505/FCD34D/png?text=Mundial+2026',
+        src: '/icon-512x512.png',
         sizes: '512x512',
         type: 'image/png',
+        purpose: 'maskable',
       },
     ],
   }

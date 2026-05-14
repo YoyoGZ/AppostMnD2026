@@ -203,7 +203,20 @@ Si alguna categoría es <9:
    **Regla de Validación de Errores Históricos (Contexto Vivo)**:
    Solo el usuario puede dar por terminado y confirmado el intento de correccion de un bug.  Ante situaciones de intervenciones en el código (como esta), deberas esperar a que haga las pruebas correspondientes.
 
-   Luego de un intento de corrección de un bug, deberas completar la tarea con las indicaciones de recarga del proyecto (si es necesario) y preguntaras si he encontrado solucionado el bug que se atacó.
+## 🚀 PRÓXIMOS DESAFÍOS (Fase 3: Gamificación & Seguridad)
+- **Sincronización de Resultados Reales**: Conectar el Oráculo con una API de deportes o un JSON maestro actualizado.
+- **Seguridad de Pronósticos**: Implementar el Shield Protocol para evitar cambios de apuestas post-inicio de partido.
+
+---
+
+## ✅ INCIDENCIAS RESUELTAS (Deuda Técnica)
+
+### 6. El Error de Middleware vs Proxy (Next.js 16)
+## CORREGIDO (2026-05-14) ##
+- **Causa Raíz**: Intento de usar el estándar antiguo de Next.js. 
+- **Solución**: Purgado de `middleware.ts` y adopción total de `src/proxy.ts`. Se ha documentado en las reglas globales.
+
+ Luego de un intento de corrección de un bug, deberas completar la tarea con las indicaciones de recarga del proyecto (si es necesario) y preguntaras si he encontrado solucionado el bug que se atacó.
 
 ---
 
@@ -244,5 +257,12 @@ La memoria documentada es tan importante como el código
 Idioma: Todas las explicaciones de diseño, comentarios en el código y nombres de etiquetas para el usuario deben ser exclusivamente en Español, manteniendo solo los términos técnicos de programación en inglés (keywords, variables).
 
 ---
+
+## 8. Reglas de Arquitectura Next.js 16 (Antigravity Standard)
+
+> ⚠️ CRÍTICO: Estas reglas son producto de incidentes reales documentados el 2026-05-14.
+
+1. **Middleware OBSOLETO (PROHIBIDO)**: NUNCA crear `middleware.ts`. Next.js 16 lo eliminó. Todo interceptor de peticiones DEBE vivir en `src/proxy.ts` exportando la función `proxy`. Tener ambos archivos simultáneamente bloquea el compilador con `unhandledRejection`.
+2. **Instalación PWA Universal**: El botón `InstallAppButton` debe funcionar como túnel hacia Producción cuando se invoca desde `localhost` o IPs locales. Un usuario final NUNCA debe instalar una instancia efímera de desarrollo.
 
 Estas reglas NO SON SUGERENCIAS. Son el sistema de trabajo dentro de Antigravity.
