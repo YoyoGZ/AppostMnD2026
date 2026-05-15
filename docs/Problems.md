@@ -65,3 +65,45 @@ Este documento centraliza los problemas técnicos y bugs encontrados durante el 
 - **Fix**: Refactorización del Step 5 a un único **bulk fetch** de todos los ganadores de la liga, sin filtrar por `user_id` en la DB. La agregación ocurre en memoria con un `Map<userId, victories>`. Esto elimina la dependencia de permisos por `user_id`.
 - **Acción SQL Pendiente**: Ejecutar el script `docs/sql-migrations/fix-duelos-rls.sql` en Supabase para garantizar las políticas correctas en `duel_participants` y `league_duels`.
 
+---
+
+## 🔶 PENDIENTES DE REVISIÓN (Sesión 2026-05-14)
+
+### 6. Diferencia de Color Primario entre Dispositivos (Dorado vs Marrón)
+
+### Síntomas Reportados
+- En celulares de misma marca pero distinto modelo, el color `#fbbf24` se ve marrón-ámbar en vez del dorado esperado.
+- No se reproduce en todos los dispositivos — depende del tipo de pantalla.
+
+### Diagnóstico
+- Color definido correctamente en hex sRGB. Sin uso de `oklch()`.
+- Causa probable: diferencia de renderizado entre pantallas **AMOLED** y **LCD**. Las AMOLED con saturación o temperatura cálida desplazan el dorado hacia ámbar/marrón.
+
+### Solución Recomendada
+1. Probar ajustando el valor hex del primary a un tono más saturado y "frío":
+   - Actual: `--primary: #fbbf24`
+   - Propuesta: `--primary: #f59e0b` (Amber-500 — más estable entre pantallas)
+2. Validar en ambos dispositivos antes de hacer push.
+3. Si persiste, evaluar `@media (color-gamut: p3)` con un color alternativo para pantallas de gama amplia.
+
+---
+
+### 7. Alerta de "Sitio Malicioso" al Acceder desde URL de Vercel
+
+### Síntomas Reportados
+- Al abrir la URL `.vercel.app` desde un desktop ajeno, el browser/antivirus mostró alerta de "sitio malicioso".
+- No se reproduce en los propios dispositivos de desarrollo.
+
+### Diagnóstico
+- El dominio `vercel.app` es confiable. La alerta NO es por el dominio en sí.
+- Causas probables:
+  1. **Antivirus corporativo o extension de browser** del equipo ajeno bloqueando URLs desconocidas.
+  2. **Google Safe Browsing heurístico**: las rutas `/vip/[token]` y `/join/[code]` son patrones similares al phishing — el sistema las analiza automáticamente hasta verificar legitimidad.
+  3. **Sin historial de reputación** para la URL de staging provisional.
+
+### Solución Recomendada
+1. **Verificar estado en Google Safe Browsing**: `https://transparencyreport.google.com/safe-browsing/search` — ingresar la URL de Vercel. Si está marcada, completar el formulario de revisión.
+2. **Solución definitiva — Dominio propio**: Conectar un dominio final (ej: `mundialapp.com`) en Vercel → Settings → Domains. Los dominios `.com` con SSL de Vercel eliminan el problema de reputación de forma permanente.
+3. **Mientras tanto**: Indicar a testers que es un falso positivo y usar Chrome/Firefox sin extensiones de seguridad activas para las pruebas.
+
+

@@ -26,7 +26,8 @@ export default async function DashboardLayout({
   const isSuperAdmin = user.user_metadata?.role === 'super_admin';
 
   if (myLeagues.length === 0 && !isSuperAdmin) {
-    // Si no tiene ligas y NO es super admin, lo mandamos al onboarding.
+    // permanentRedirect reemplaza la entrada actual en el historial (no apila).
+    // Evita que el botón "atrás" en mobile regrese al dashboard vacío.
     redirect("/onboarding");
   }
 

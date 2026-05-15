@@ -65,9 +65,11 @@ export async function updateSession(request: NextRequest) {
       .maybeSingle()
 
     if (!membership) {
+      // REWRITE en lugar de REDIRECT: muestra /onboarding sin agregar entrada al historial del browser.
+      // Esto evita que el botón "atrás" en mobile regrese a esta pantalla inesperadamente.
       const url = request.nextUrl.clone()
       url.pathname = '/onboarding'
-      return NextResponse.redirect(url)
+      return NextResponse.rewrite(url)
     }
   }
 

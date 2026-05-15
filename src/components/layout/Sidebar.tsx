@@ -7,7 +7,6 @@ import {
   Home, 
   Trophy, 
   CalendarDays, 
-  Settings, 
   User,
   ChevronLeft,
   ChevronRight,
@@ -248,18 +247,6 @@ export function Sidebar({
         </nav>
         
         <div className="p-4 border-t border-border/20">
-          <Link
-            href="/settings"
-            className={cn(
-              "flex items-center rounded-xl text-muted-foreground hover:bg-secondary/80 hover:text-foreground transition-all",
-              isCollapsed ? "justify-center p-3" : "px-4 py-3.5"
-            )}
-          >
-            <Settings className="w-5 h-5 shrink-0" />
-            {!isCollapsed && (
-              <span className="ml-4 font-semibold text-sm">Configuración</span>
-            )}
-          </Link>
           
           <button
             onClick={handleSignOut}
