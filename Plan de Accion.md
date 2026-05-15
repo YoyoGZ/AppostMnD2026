@@ -34,27 +34,30 @@
   - [x] **Tabla `profiles`**: Creada en Supabase con campos `id`, `email`, `display_name`, `role` (`super_admin` / `founder` / `member`), RLS activo.
   - [x] **Trigger Auto-Provisioning**: `on_auth_user_created` crea perfil automáticamente en cada nuevo registro.
   - [!] *Pendiente:* Asignar `role = 'founder'` al crear una Liga (integrar en Server Action de creación de Liga).
-- [ ] **Hito 7: Infraestructura & Seguridad (Shield Protocol)** 🛡️
-  - [ ] Implementar **Supabase Keep-Alive** (Ping automático cada 48h).
-  - [ ] Reforzar Server Actions con validación de roles en servidor (Admin/Owner).
+- [x] **Hito 7: Infraestructura & Seguridad (Shield Protocol)** 🛡️
+  - [x] **`requireRole()` Helper**: Validación de roles centralizada en `src/utils/auth/requireRole.ts`. Consulta tabla `profiles` como fuente de verdad (no el JWT).
+  - [x] **`admin.ts` refactorizado**: `generateTokens`, `fetchTokens`, `deleteToken` usan `requireRole('super_admin')`.
+  - [x] **`leagues.ts` — rol Founder**: `createLeagueAction` asigna automáticamente `role = 'founder'` en la tabla `profiles` al crear una liga.
+  - [x] **`duels.ts` refactorizado**: `createDuelAction` requiere `member` autenticado. `archiveDuelsAction` requiere `founder`.
+  - [x] **Supabase Keep-Alive**: Cron Job en `vercel.json` llama `/api/keep-alive` cada 3 días. Protegido con `CRON_SECRET`.
 - [ ] **Hito 8: Social & Engagement (Comunidad)** 💬
   - [ ] **Chat de Liga Realtime**: Mensajería instantánea para miembros de una liga.
   - [ ] **Social Share Kit**: Generación de tarjetas para compartir en redes.
 
 ## Current Trajectory
-**Status**: Sistema de autenticación migrado a email real con tabla `profiles` y roles formales (`super_admin` / `founder` / `member`). Landing page enriquecida con íconos oficiales del medallón, sección de sorteo de camiseta argentina y elementos de navegación diferenciados por viewport. PWA con íconos propios generados desde el asset oficial. El flujo de registro y login está operativo y validado.
+**Status**: Hito 7 completado. Shield Protocol activo: `requireRole()` centraliza la validación de roles en servidor contra la tabla `profiles`. Server Actions de admin, ligas y duelos reforzadas. Supabase Keep-Alive operativo vía Vercel Cron Job cada 3 días.
 
 **Próximos Pasos:**
-1. Asignar `role = 'founder'` en el Server Action de creación de Liga.
+1. Agregar `CRON_SECRET` en Vercel Dashboard → Settings → Environment Variables.
 2. Inyectar llave de API-Football y apagar el "Mock Mode".
 3. Reemplazar íconos PWA con versión SVG definitiva cuando esté disponible.
-4. Pulir detalles visuales menores para el lanzamiento oficial.
+4. Hito 8: Chat de Liga Realtime.
 
 ## Squad Status
 | Agent | Task | Status |
 | :--- | :--- | :--- |
 | Builder | Vercel Deployment Fixes | ✅ RESOLVED |
 | Design Lead | Landing Page & Demo Route | ✅ VERIFIED & POLISHED |
-| Integrity | Auth Email + Roles DB | ✅ COMPLETED |
+| Integrity | Auth Email + Roles DB + Shield | ✅ COMPLETED |
 | Product | Conversion Funnel + Sorteo | ✅ INTEGRATED |
-| Builder | PWA Icons & Manifest | ✅ COMPLETED |
+| Builder | PWA Icons & Keep-Alive Cron | ✅ COMPLETED |

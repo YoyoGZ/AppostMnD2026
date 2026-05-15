@@ -3,21 +3,28 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import worldCupData from "@/data/world-cup-2026.json";
+import { requireRole } from "@/utils/auth/requireRole";
 
 /**
  * Crea un duelo en una liga específica.
  */
 export async function createDuelAction(leagueId: string, matchId: string, participantIds: string[]) {
+  let userId: string;
+  try {
+    const { user } = await requireRole('member');
+    userId = user.id;
+  } catch {
+    return { error: "No autenticado o sin permisos." };
+  }
+
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "No autenticado" };
 
   const { data: duel, error: createError } = await supabase
     .from('league_duels')
     .insert({
       league_id: leagueId,
       match_id: matchId,
-      created_by: user.id,
+      created_by: userId,
       status: 'active'
     })
     .select('id')
@@ -102,9 +109,14 @@ export async function getLeagueDuelsAction(leagueId: string) {
  * Archiva todos los duelos terminados de una liga. Solo el Capitán puede hacerlo.
  */
 export async function archiveDuelsAction(leagueId: string) {
+  try {
+    await requireRole('founder');
+  } catch {
+    return { error: "Solo el Capitán puede limpiar la liga." };
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "No autenticado" };
 
   const { data: league } = await supabase
     .from('leagues')
@@ -112,8 +124,8 @@ export async function archiveDuelsAction(leagueId: string) {
     .eq('id', leagueId)
     .single();
 
-  if (!league || league.created_by !== user.id) {
-    return { error: "Solo el Capitán puede limpiar la liga." };
+  if (!league || league.created_by !== user!.id) {
+    return { error: "Solo el Capitán de esta liga puede limpiarla." };
   }
 
   const { error } = await supabase

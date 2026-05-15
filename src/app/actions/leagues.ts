@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { requireRole } from "@/utils/auth/requireRole";
 
 const randomNames = ["Los Galácticos", "La Scaloneta", "Escuadrón Táctico", "Los Pibes", "Leyendas del '26", "El Tercer Tiempo", "La Naranja Mecánica"];
 
@@ -83,6 +84,13 @@ export async function createLeagueAction(formData: FormData) {
     console.error("Error uniendo admin:", memberError);
     return { error: "Liga creada pero falló el ingreso." };
   }
+
+  // Asignar rol 'founder' en la tabla profiles
+  await supabase
+    .from('profiles')
+    .update({ role: 'founder' })
+    .eq('id', user.id)
+    .eq('role', 'member'); // Solo promover si aún es member (no degradar a super_admin)
 
   // Establecer como liga activa en los metadatos del usuario
   await supabase.auth.updateUser({

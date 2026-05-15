@@ -1,18 +1,20 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { requireRole } from "@/utils/auth/requireRole";
 
 export async function generateTokensAction(quantity: number) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user || user.user_metadata?.role !== 'super_admin') {
+  try {
+    await requireRole('super_admin');
+  } catch {
     return { success: false, error: "No autorizado" };
   }
 
-  // Crear array de inserciones
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   const inserts = Array.from({ length: quantity }).map(() => ({
-    created_by: user.id,
+    created_by: user!.id,
   }));
 
   const { data, error } = await supabase
@@ -29,12 +31,13 @@ export async function generateTokensAction(quantity: number) {
 }
 
 export async function fetchTokensAction() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user || user.user_metadata?.role !== 'super_admin') {
+  try {
+    await requireRole('super_admin');
+  } catch {
     return { success: false, error: "No autorizado" };
   }
+
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from('access_tokens')
@@ -49,12 +52,13 @@ export async function fetchTokensAction() {
 }
 
 export async function deleteTokenAction(tokenId: string) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user || user.user_metadata?.role !== 'super_admin') {
+  try {
+    await requireRole('super_admin');
+  } catch {
     return { success: false, error: "No autorizado" };
   }
+
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from('access_tokens')
