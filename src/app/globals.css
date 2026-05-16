@@ -61,7 +61,7 @@
   .dark {
     --background: #05070a; /* Deep night black/blue */
     --foreground: #f1f5f9;
-    --primary: #fbbf24; /* Trophy Gold */
+    --primary: #facc15; /* Trophy Gold (Yellow-400 para AMOLED) */
     --primary-foreground: #020817;
     --secondary: #0f1115; /* Sidebar & Subtle surfaces */
     --secondary-foreground: #f1f5f9;
@@ -73,7 +73,7 @@
     --destructive-foreground: #f1f5f9;
     --border: rgba(255, 255, 255, 0.08); /* Minimalist thin border */
     --input: #0f1115;
-    --ring: #fbbf24;
+    --ring: #facc15;
     --success: #10b981; /* Grass Green */
     --warning: #f59e0b;
 

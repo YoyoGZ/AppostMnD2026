@@ -28,3 +28,15 @@ export async function getStandingsAction(): Promise<{ success: boolean; standing
     return { success: false, error: error.message };
   }
 }
+
+export async function getLiveMatchTestAction(): Promise<{ success: boolean; data?: any; error?: string }> {
+  try {
+    const liveData = await sportsSyncAgent.getAnyRealLiveMatch();
+    if (liveData) {
+      return { success: true, data: liveData };
+    }
+    return { success: false, error: "No hay ningún partido de fútbol jugándose en el mundo en este exacto momento." };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

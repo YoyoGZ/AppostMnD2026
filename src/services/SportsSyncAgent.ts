@@ -55,6 +55,43 @@ export class SportsSyncAgent {
   }
 
   /**
+   * Obtiene un único partido REAL que se esté jugando en este mismo instante en el mundo.
+   * Utilizado para tests visuales en producción.
+   */
+  async getAnyRealLiveMatch(): Promise<APIFootballFixtureResponse | null> {
+    if (!this.apiKey) {
+      console.warn("No hay API_FOOTBALL_KEY. Entrando en mock mode forzado para live test.");
+      return this.generateMockLiveScores([2])[0];
+    }
+
+    try {
+      const response = await fetch(`${this.baseUrl}/fixtures?live=all`, {
+        method: "GET",
+        headers: {
+          "x-rapidapi-host": "v3.football.api-sports.io",
+          "x-rapidapi-key": this.apiKey,
+        },
+        // No cacheamos o le damos muy poco tiempo porque es una prueba EN VIVO estricta
+        cache: "no-store"
+      });
+
+      if (!response.ok) throw new Error(`API Error: ${response.status}`);
+
+      const data = await response.json();
+      
+      // Devolvemos el primer partido que encuentre (o null si literalmente no hay futbol en el mundo ahora)
+      if (data.response && data.response.length > 0) {
+        return data.response[0] as APIFootballFixtureResponse;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error("❌ Error en SportsSyncAgent getAnyRealLiveMatch:", error);
+      return null;
+    }
+  }
+
+  /**
    * Transforma el status corto de la API a nuestro modelo interno.
    */
   mapStatusToInternal(apiShortStatus: string): MatchStatus {

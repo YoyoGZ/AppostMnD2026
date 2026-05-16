@@ -3,6 +3,7 @@ import React from 'react';
 import { ShieldAlert, Key, Users, Activity, LogOut, Swords } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import { LiveMatchTestModal } from './LiveMatchTestModal';
 
 export default function HQPage() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function HQPage() {
   const [tokens, setTokens] = React.useState<any[]>([]);
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [quantity, setQuantity] = React.useState(1);
+  const [isLiveMatchTestOpen, setIsLiveMatchTestOpen] = React.useState(false);
 
   React.useEffect(() => {
     import('@/app/actions/admin').then((m) => {
@@ -200,6 +202,26 @@ export default function HQPage() {
           </button>
         </div>
 
+        {/* Test En Vivo (API-Football) */}
+        <div className="bg-gradient-to-b from-red-500/5 to-transparent border border-red-500/20 rounded-3xl p-6 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full blur-3xl -z-10 transition-transform group-hover:scale-150" />
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-red-500/20 p-2 rounded-lg">
+              <Activity className="w-5 h-5 text-red-500" />
+            </div>
+            <h2 className="text-lg font-black uppercase tracking-wide text-red-500">Live API Test</h2>
+          </div>
+          <p className="text-white/40 text-sm mb-8 leading-relaxed">
+            Verifica la conexión con API-Football en tiempo real abriendo la tarjeta de un partido en curso.
+          </p>
+          <button 
+            onClick={() => setIsLiveMatchTestOpen(true)}
+            className="w-full bg-red-500/10 text-red-500 hover:bg-red-500/30 transition-colors font-black py-4 rounded-xl uppercase tracking-widest text-xs border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)] active:scale-95"
+          >
+            Probar Match Card
+          </button>
+        </div>
+
         {/* Censo Global Placeholder */}
         <div className="bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-3xl p-6 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -z-10 transition-transform group-hover:scale-150" />
@@ -218,6 +240,10 @@ export default function HQPage() {
         </div>
 
       </main>
+
+      {isLiveMatchTestOpen && (
+        <LiveMatchTestModal onClose={() => setIsLiveMatchTestOpen(false)} />
+      )}
     </div>
   );
 }
