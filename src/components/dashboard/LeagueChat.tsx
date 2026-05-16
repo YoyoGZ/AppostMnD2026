@@ -35,7 +35,7 @@ export function LeagueChat({ leagueId, currentUserId, onClose }: LeagueChatProps
         .eq('league_id', leagueId)
         .order('created_at', { ascending: true })
         .limit(50);
-      
+
       if (data) setMessages(data);
     };
 
@@ -93,11 +93,11 @@ export function LeagueChat({ leagueId, currentUserId, onClose }: LeagueChatProps
           </div>
           <div>
             <h3 className="text-sm font-black uppercase tracking-widest text-white">Chat de Liga</h3>
-            <p className="text-[10px] text-white/40 font-medium">Gladiadores en línea</p>
+            <p className="text-[10px] text-white/40 font-medium">Jugadores en línea</p>
           </div>
         </div>
         {onClose && (
-          <button 
+          <button
             onClick={onClose}
             className="md:hidden p-2 bg-white/5 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors"
           >
@@ -107,32 +107,31 @@ export function LeagueChat({ leagueId, currentUserId, onClose }: LeagueChatProps
       </div>
 
       {/* Cuerpo del Chat */}
-      <div 
+      <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar scroll-smooth"
       >
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center opacity-30">
             <MessageSquare className="w-12 h-12 mb-4" />
-            <p className="text-sm italic">No hay mensajes aún. ¡Sé el primero en calentar el ambiente!</p>
+            <p className="text-sm italic">No hay mensajes todavía. ¡Sé vos el primero en picantearla!</p>
           </div>
         ) : (
           messages.map((msg) => {
             const isMe = msg.user_id === currentUserId;
             return (
-              <div 
-                key={msg.id} 
+              <div
+                key={msg.id}
                 className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}
               >
                 <div className="flex items-center gap-2 mb-1 px-1">
                   {!isMe && <span className="text-[9px] font-black uppercase tracking-widest text-primary">{msg.sender_alias}</span>}
                   <span className="text-[8px] text-white/20">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
-                <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                  isMe 
-                    ? 'bg-primary text-black font-medium rounded-tr-none shadow-[0_4px_15px_rgba(251,191,36,0.2)]' 
+                <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${isMe
+                    ? 'bg-primary text-black font-medium rounded-tr-none shadow-[0_4px_15px_rgba(251,191,36,0.2)]'
                     : 'bg-white/5 border border-white/10 text-white/90 rounded-tl-none'
-                }`}>
+                  }`}>
                   {msg.content}
                 </div>
               </div>

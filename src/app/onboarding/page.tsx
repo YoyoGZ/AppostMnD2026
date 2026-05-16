@@ -58,7 +58,7 @@ function OnboardingContent() {
           {leagueInfo ? (
             <>Fuiste convocado por <strong className="text-white">{leagueInfo.captainAlias}</strong> para competir en esta Liga.</>
           ) : (
-            <>No tenés ninguna Liga todavía. Es tu momento de armar una liga privada e invitar a tus amigos.</>
+            <>No tenés ninguna Liga todavía. Es tu momento de armar una liga privada para invitar a tus amigos.</>
           )}
         </p>
       </header>
