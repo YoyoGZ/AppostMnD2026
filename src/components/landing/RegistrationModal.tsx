@@ -50,7 +50,7 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
         {/* Body - Scrollable */}
         <div className="p-6 overflow-y-auto custom-scrollbar">
           <div className="space-y-4 text-white/70 text-sm leading-relaxed font-medium">
-            <h3 className="text-white font-bold text-base mb-2">Protocolo de Admisión a la Arena</h3>
+            <h3 className="text-white font-bold text-base mb-2">Protocolo de Admisión</h3>
             
             <div className="flex gap-4 items-start">
               <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/10 text-white flex items-center justify-center text-xs font-bold mt-0.5">1</span>
@@ -72,14 +72,14 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
               <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/10 text-white flex items-center justify-center text-xs font-bold mt-0.5">3</span>
               <p>
                 <strong className="text-white block mb-1">Dominio Total</strong>
-                Con tu pase activo, vas a recibir el rango oficial de <strong className="text-primary">Capitán (Founder)</strong>. Vas a poder armar tu propia Liga, invitar hasta 9 amigos (que entran gratis) y administrar la competencia.
+                Con tu pase activo, vas a recibir el rango de <strong className="text-primary">Capitán (Founder)</strong>. Vas a poder armar tu propia Liga, invitar hasta 9 amigos y administrar la competencia.
               </p>
             </div>
 
             <div className="p-4 bg-primary/5 border border-primary/10 rounded-2xl my-6">
               <p className="text-xs text-primary font-bold uppercase tracking-widest mb-1">Nota del Oráculo</p>
               <p className="text-white/60 text-xs">
-                La gloria es para los pioneros. Solo los Fundadores van a tener acceso al panel de gestión y Creacion de Duelos. Asegurá el liderazgo del grupo antes del incio ofical !!
+                La gloria es para los pioneros. Solo los Fundadores tendrán acceso al Panel de Gestión y Creación de Duelos. Asegurá el liderazgo del grupo antes del incio oficial !!
               </p>
             </div>
           </div>

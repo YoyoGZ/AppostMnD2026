@@ -30,7 +30,7 @@ export default function PaywallPage() {
         {/* Left Side: Value Prop */}
         <div className="flex-1 space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest">
-            <Zap className="w-3 h-3 fill-current" /> Sube de Nivel
+            <Zap className="w-3 h-3 fill-current" /> Onboarding Exclusivo
           </div>
           
           <h1 className="text-4xl md:text-5xl font-black tracking-tighter leading-[1.1]">
@@ -38,15 +38,15 @@ export default function PaywallPage() {
           </h1>
           
           <p className="text-white/60 text-sm md:text-base font-medium leading-relaxed max-w-md">
-            Para armar una Liga Privada y convertirte en Capitán, necesitás activar tu franquicia. Un único pago te da control total para vos y hasta 9 amigos.
+            Para armar una Liga Privada y convertirte en el Capitán, necesitás activar tu entrada a la App. Un único pago te da acceso para vos y hasta 9 amigos.
           </p>
           
           <ul className="space-y-4 mt-8">
             {[
               "Creación de 1 Liga Privada (10 cupos).",
-              "Tus invitados entran 100% GRATIS.",
+              "Los amigos entrán con tus links de invitacion.",
               "Panel de Administración de Liga y Duelos.",
-              "Acceso al Sorteo Exclusivo de Camisetas."
+              "Acceso al Sorteo Exclusivo de la Camiseta de la Selección."
             ].map((item, i) => (
               <li key={i} className="flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
@@ -62,7 +62,7 @@ export default function PaywallPage() {
             <Shield className="w-24 h-24 text-primary/10 -rotate-12" />
           </div>
           
-          <h3 className="text-xl font-black uppercase tracking-widest text-white mb-2">Pase Capitán</h3>
+          <h3 className="text-xl font-black uppercase tracking-widest text-white mb-2">FOUNDER PASS</h3>
           <div className="flex items-baseline gap-2 mb-6">
             <span className="text-4xl font-black tracking-tighter text-primary">$50.000</span>
             <span className="text-xs text-white/40 font-bold uppercase tracking-widest">ARS</span>
