@@ -10,7 +10,7 @@ export default function HQPage() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.push('/');
+    router.push('/login');
     router.refresh();
   };
 

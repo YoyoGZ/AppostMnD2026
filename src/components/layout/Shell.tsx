@@ -45,27 +45,20 @@ export function Shell({
         <div className="h-20 md:hidden" />
       </main>
 
-      {/* Floating Chat Toggle (Desktop) */}
-      <button
-        onClick={() => setIsChatOpen(!isChatOpen)}
-        className={cn(
-          "hidden md:flex fixed bottom-8 right-8 z-[100] w-14 h-14 rounded-full bg-primary text-black items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all",
-          isChatOpen && "rotate-90 bg-white/10 text-white border border-white/10"
-        )}
-      >
-        {isChatOpen ? <X className="w-6 h-6" /> : <MessageSquare className="w-6 h-6" />}
-      </button>
-
-      {/* Chat Drawer (Desktop) */}
+      {/* Chat Drawer */}
       <div 
         className={cn(
-          "fixed top-0 right-0 h-screen w-96 z-[90] bg-black/40 backdrop-blur-3xl border-l border-white/10 shadow-2xl transition-transform duration-500 ease-in-out transform",
+          "fixed top-0 right-0 h-screen w-full md:w-96 z-[90] bg-black/90 md:bg-black/40 backdrop-blur-3xl md:border-l border-white/10 shadow-2xl transition-transform duration-500 ease-in-out transform flex flex-col",
           isChatOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
-        <div className="p-4 h-full pt-20 md:pt-4">
+        <div className="p-0 md:p-4 h-full md:pt-4">
           {activeLeague?.id && (
-            <LeagueChat leagueId={activeLeague.id} currentUserId={userId} />
+            <LeagueChat 
+              leagueId={activeLeague.id} 
+              currentUserId={userId} 
+              onClose={() => setIsChatOpen(false)}
+            />
           )}
         </div>
       </div>

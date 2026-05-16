@@ -80,9 +80,9 @@ Este documento centraliza los problemas técnicos y bugs encontrados durante el 
 - Causa probable: diferencia de renderizado entre pantallas **AMOLED** y **LCD**. Las AMOLED con saturación o temperatura cálida desplazan el dorado hacia ámbar/marrón.
 
 ### Solución Recomendada
-1. Probar ajustando el valor hex del primary a un tono más saturado y "frío":
-   - Actual: `--primary: #fbbf24`
-   - Propuesta: `--primary: #f59e0b` (Amber-500 — más estable entre pantallas)
+1. Probar ajustando el valor hex del primary hacia la paleta *Yellow* para "enfriarlo" y compensar la sobresaturación de las pantallas AMOLED:
+   - Actual: `--primary: #fbbf24` (Amber-400 — contiene demasiado rojo para AMOLED)
+   - Propuesta: `--primary: #eab308` (Yellow-500) o `--primary: #facc15` (Yellow-400 — oro más puro)
 2. Validar en ambos dispositivos antes de hacer push.
 3. Si persiste, evaluar `@media (color-gamut: p3)` con un color alternativo para pantallas de gama amplia.
 

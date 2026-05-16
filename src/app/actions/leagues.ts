@@ -15,7 +15,18 @@ export async function createLeagueAction(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "No autenticado" };
 
-  // Regla de negocio: un usuario solo puede fundar UNA liga (ser Capitán)
+  // 1. Validar que el usuario tenga el pase (Rol: founder o super_admin)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile || (profile.role !== 'founder' && profile.role !== 'super_admin')) {
+    return { error: "PAYWALL_REQUIRED" }; 
+  }
+
+  // 2. Regla de negocio: un usuario solo puede fundar UNA liga (ser Capitán)
   const { data: existingLeague } = await supabase
     .from('leagues')
     .select('id')
@@ -85,12 +96,8 @@ export async function createLeagueAction(formData: FormData) {
     return { error: "Liga creada pero falló el ingreso." };
   }
 
-  // Asignar rol 'founder' en la tabla profiles
-  await supabase
-    .from('profiles')
-    .update({ role: 'founder' })
-    .eq('id', user.id)
-    .eq('role', 'member'); // Solo promover si aún es member (no degradar a super_admin)
+  // El rol 'founder' ya lo tiene (gracias al pago previo).
+  // Solo marcamos esta liga como la activa en su metadata:
 
   // Establecer como liga activa en los metadatos del usuario
   await supabase.auth.updateUser({

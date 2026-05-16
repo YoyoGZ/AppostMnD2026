@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, Send, User } from 'lucide-react';
+import { MessageSquare, Send, User, X } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { sendLeagueMessageAction } from '@/app/actions/leagues';
 
@@ -16,9 +16,10 @@ interface Message {
 interface LeagueChatProps {
   leagueId: string;
   currentUserId: string | null;
+  onClose?: () => void;
 }
 
-export function LeagueChat({ leagueId, currentUserId }: LeagueChatProps) {
+export function LeagueChat({ leagueId, currentUserId, onClose }: LeagueChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -83,9 +84,9 @@ export function LeagueChat({ leagueId, currentUserId }: LeagueChatProps) {
   };
 
   return (
-    <div className="flex flex-col h-[500px] bg-white/[0.03] border border-white/10 rounded-[32px] overflow-hidden backdrop-blur-md shadow-2xl">
+    <div className="flex flex-col h-full md:h-[500px] bg-white/[0.03] border-none md:border-solid border-white/10 rounded-none md:rounded-[32px] overflow-hidden backdrop-blur-md shadow-2xl">
       {/* Header del Chat */}
-      <div className="px-6 py-4 border-b border-white/10 bg-white/5 flex items-center justify-between">
+      <div className="px-6 py-4 pt-10 md:pt-4 border-b border-white/10 bg-white/5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
             <MessageSquare className="w-5 h-5 text-primary" />
@@ -95,6 +96,14 @@ export function LeagueChat({ leagueId, currentUserId }: LeagueChatProps) {
             <p className="text-[10px] text-white/40 font-medium">Gladiadores en línea</p>
           </div>
         </div>
+        {onClose && (
+          <button 
+            onClick={onClose}
+            className="md:hidden p-2 bg-white/5 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       {/* Cuerpo del Chat */}

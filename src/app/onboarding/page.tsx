@@ -1,29 +1,49 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
-import { Shield, Plus, ArrowRight, Loader2, Users } from "lucide-react";
+import { Shield, Plus, ArrowRight, Loader2, Users, CheckCircle2 } from "lucide-react";
 import { createLeagueAction, getLeagueByInvite, joinLeagueAction } from "@/app/actions/leagues";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 
 function OnboardingContent() {
   const [loading, setLoading] = useState(false);
   const [leagueInfo, setLeagueInfo] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [fetchingRole, setFetchingRole] = useState(true);
+  const [supabase] = useState(() => createClient());
   const searchParams = useSearchParams();
+  const router = useRouter();
   const inviteCode = searchParams.get("invite");
   console.log(`📡 [ONBOARDING] Código detectado en URL: ${inviteCode || 'NULL'}`);
 
   useEffect(() => {
+    // 1. Verificar si tiene un código de invitación
     if (inviteCode) {
       getLeagueByInvite(inviteCode).then(res => {
-        console.log("📥 [ONBOARDING] Resultado de getLeagueByInvite:", res);
         if (res && !('error' in res)) {
           setLeagueInfo(res);
-        } else {
-          console.error("❌ [ONBOARDING] Error obteniendo liga:", res?.error);
         }
       });
     }
-  }, [inviteCode]);
+
+    // 2. Obtener el rol del usuario actual
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+          .then(({ data, error }) => {
+            if (data) setUserRole(data.role);
+            setFetchingRole(false);
+          });
+      } else {
+        setFetchingRole(false);
+      }
+    });
+  }, [inviteCode, supabase]);
 
   return (
     <div className="flex flex-col items-center justify-center flex-1 w-full max-w-md px-4 py-12">
@@ -32,13 +52,13 @@ function OnboardingContent() {
           <Shield className="w-8 h-8 text-primary drop-shadow-md" />
         </div>
         <h1 className="text-3xl font-black text-white tracking-tighter drop-shadow-md">
-          {leagueInfo ? <>BIENVENIDO A <span className="text-primary">{leagueInfo.name}</span></> : <>TÚ ERES EL <span className="text-primary">CAPITÁN</span></>}
+          {leagueInfo ? <>BIENVENIDO A <span className="text-primary">{leagueInfo.name}</span></> : <>VOS SOS EL <span className="text-primary">CAPITÁN</span></>}
         </h1>
         <p className="text-white/50 text-sm mt-3 font-medium px-4">
           {leagueInfo ? (
-            <>Has sido reclutado por <strong className="text-white">{leagueInfo.captainAlias}</strong> para competir en esta Liga.</>
+            <>Fuiste convocado por <strong className="text-white">{leagueInfo.captainAlias}</strong> para competir en esta Liga.</>
           ) : (
-            <>No tienes una Liga asignada. Es tu momento de crear una liga privada e invitar a tus amigos.</>
+            <>No tenés ninguna Liga todavía. Es tu momento de armar una liga privada e invitar a tus amigos.</>
           )}
         </p>
       </header>
@@ -54,7 +74,7 @@ function OnboardingContent() {
             <div className="flex flex-col gap-6">
               <div className="bg-primary/5 border border-primary/20 rounded-xl p-6">
                 <p className="text-xs text-white/70 leading-relaxed text-center">
-                  Estás a un paso de entrar al campo de batalla. Al unirte, podrás ver la clasificación en tiempo real y empezar a subir tus pronósticos.
+                  Estás a un paso de entrar a la cancha. Al sumarte, vas a poder ver la tabla en tiempo real y empezar a subir tus pronósticos.
                 </p>
               </div>
               <button
@@ -75,44 +95,81 @@ function OnboardingContent() {
               <ul className="flex flex-col gap-4 mb-8">
                 <li className="flex gap-3 items-start">
                   <div className="w-5 h-5 rounded bg-white/5 flex items-center justify-center shrink-0 mt-0.5 border border-white/10"><span className="text-[10px] font-black text-primary">1</span></div>
-                  <p className="text-xs text-white/70 leading-relaxed">Exclusividad total: Solo hay <strong className="text-white">10 cupos</strong> máximos por Liga.</p>
+                  <p className="text-xs text-white/70 leading-relaxed">Exclusividad total: Solo hay <strong className="text-white">10 cupos</strong> por Liga.</p>
                 </li>
                 <li className="flex gap-3 items-start">
                   <div className="w-5 h-5 rounded bg-white/5 flex items-center justify-center shrink-0 mt-0.5 border border-white/10"><span className="text-[10px] font-black text-primary">2</span></div>
-                  <p className="text-xs text-white/70 leading-relaxed">Las predicciones se bloquean en el instante que inicia el partido real.</p>
+                  <p className="text-xs text-white/70 leading-relaxed">Los pronósticos se bloquean en el instante exacto que arranca el partido real.</p>
                 </li>
                 <li className="flex gap-3 items-start">
                   <div className="w-5 h-5 rounded bg-white/5 flex items-center justify-center shrink-0 mt-0.5 border border-white/10"><span className="text-[10px] font-black text-primary">3</span></div>
-                  <p className="text-xs text-white/70 leading-relaxed">Como capitán, obtendrás un "Magic Link" para invitar directamente por WhatsApp.</p>
+                  <p className="text-xs text-white/70 leading-relaxed">Como capitán, vas a tener un "Magic Link" para invitar directo por WhatsApp.</p>
                 </li>
               </ul>
 
-              <form action={async (formData) => {
-                setLoading(true);
-                const res = await createLeagueAction(formData);
-                if (res?.error) {
-                  alert(res.error);
-                  setLoading(false);
-                }
-              }} className="flex flex-col gap-4">
-                <div className="relative">
-                  <input 
-                    type="text" 
-                    name="name"
-                    placeholder="Ej: Los Galácticos, La Scaloneta..." 
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-white/50 placeholder:font-medium"
-                  />
+              {fetchingRole ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
                 </div>
-                <button 
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-sm uppercase tracking-widest py-4 rounded-xl shadow-[0_0_20px_rgba(251,191,36,0.3)] transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
-                >
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-                    <>Funda tu Liga <ArrowRight className="w-4 h-4" /></>
+              ) : userRole === 'member' ? (
+                // --- VISTA PARA MIEMBROS (NO FOUNDERS) ---
+                <div className="flex flex-col gap-4 mt-6">
+                  <div className="p-4 bg-primary/10 border border-primary/20 rounded-xl text-center">
+                    <p className="text-sm text-white/80 font-medium mb-4">
+                      Necesitás activar tu franquicia para poder armar tu propia Liga.
+                    </p>
+                    <button
+                      onClick={() => router.push('/paywall')}
+                      className="w-full bg-primary hover:bg-primary/90 text-black font-black text-sm uppercase tracking-widest py-4 rounded-xl shadow-[0_0_20px_rgba(251,191,36,0.3)] transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+                    >
+                      Adquirir Founder Pass <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                // --- VISTA PARA FOUNDERS / ADMINS ---
+                <div className="flex flex-col gap-4">
+                  {(userRole === 'founder' || userRole === 'super_admin') && (
+                    <div className="bg-[#fbbf24]/10 border border-[#fbbf24]/30 rounded-xl p-3 flex items-center justify-center gap-2 mb-2 animate-in fade-in slide-in-from-bottom-4">
+                      <CheckCircle2 className="w-4 h-4 text-[#fbbf24]" />
+                      <span className="text-xs font-bold text-[#fbbf24] uppercase tracking-widest">
+                        Franquicia Activada
+                      </span>
+                    </div>
                   )}
-                </button>
-              </form>
+                  <form action={async (formData) => {
+                    setLoading(true);
+                    const res = await createLeagueAction(formData);
+                    if (res?.error) {
+                      if (res.error === "PAYWALL_REQUIRED") {
+                        router.push('/paywall');
+                        setLoading(false);
+                      } else {
+                        alert(res.error);
+                        setLoading(false);
+                      }
+                    }
+                  }} className="flex flex-col gap-4">
+                  <div className="relative">
+                    <input 
+                      type="text" 
+                      name="name"
+                      placeholder="Ej: Los Galácticos, La Scaloneta..." 
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-white/50 placeholder:font-medium"
+                    />
+                  </div>
+                  <button 
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-sm uppercase tracking-widest py-4 rounded-xl shadow-[0_0_20px_rgba(251,191,36,0.3)] transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+                  >
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                      <>Armá tu Liga <ArrowRight className="w-4 h-4" /></>
+                    )}
+                  </button>
+                </form>
+                </div>
+              )}
             </>
           )}
         </div>

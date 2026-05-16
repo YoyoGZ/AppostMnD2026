@@ -50,11 +50,10 @@ export default async function Home(props: PageProps) {
           </Link>
           <span className="font-black tracking-[0.2em] text-sm uppercase hidden sm:block">Mundial 2026</span>
         </div>
-        <div className="flex items-center gap-4">
-            <Link href="/demo" className="text-[10px] uppercase font-bold tracking-widest text-white/60 hover:text-white transition-colors">Ver Demo</Link>
-            <button data-modal-trigger="register" className="px-5 py-2 bg-primary text-black text-[10px] font-black uppercase tracking-widest rounded-lg hover:scale-105 transition-transform shadow-[0_0_15px_rgba(251,191,36,0.2)]">
-                Quiero Registrarme
-            </button>
+        <div className="flex items-center gap-2 sm:gap-4">
+            <Link href="/login" className="px-4 py-2 bg-transparent border border-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-white/5 hover:border-white/40 transition-colors">
+                Ingresar
+            </Link>
         </div>
       </nav>
 
@@ -95,12 +94,12 @@ export default async function Home(props: PageProps) {
               Generá tu Liga, desafía a tus amigos y viví toda la competencia con datos en tiempo real y una interfaz diseñada para la victoria.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4">
-              <button data-modal-trigger="register" className="px-8 py-4 bg-primary text-black font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center gap-3 shadow-[0_10px_40px_rgba(251,191,36,0.3)] hover:translate-y-[-2px] transition-all group">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <button data-modal-trigger="register" className="px-8 py-4 bg-primary text-black font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center gap-3 shadow-[0_10px_40px_rgba(251,191,36,0.3)] hover:translate-y-[-2px] transition-all group w-full sm:w-auto justify-center">
                   Quiero Registrarme Ahora
                   <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
-              <Link href="/demo" className="px-8 py-4 bg-white/5 border border-white/10 text-white font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center gap-3 backdrop-blur-md hover:bg-white/10 transition-all">
+              <Link href="/demo" className="px-8 py-4 bg-white/5 border border-white/10 text-white font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center gap-3 backdrop-blur-md hover:bg-white/10 transition-all w-full sm:w-auto justify-center">
                   <Play className="w-4 h-4 fill-white" />
                   Explorar Demo
               </Link>
@@ -211,15 +210,17 @@ export default async function Home(props: PageProps) {
             <div className="absolute top-4 left-4 w-2 h-2 rounded-full bg-[#74b9ff]/40" />
             <div className="absolute bottom-4 right-4 w-3 h-3 rounded-full bg-[#74b9ff]/20" />
 
-            {/* Placeholder visual */}
-            <div className="relative z-10 flex flex-col items-center gap-4 text-center p-8">
-              <div className="w-24 h-24 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-                {/* Silueta camiseta SVG inline */}
-                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-14 h-14 opacity-30">
-                  <path d="M20 8L8 18V26L16 24V56H48V24L56 26V18L44 8L38 14C36 16 28 16 26 14L20 8Z" stroke="#74b9ff" strokeWidth="2" strokeLinejoin="round"/>
-                </svg>
+            {/* Placeholder visual / Imagen Oficial */}
+            <div className="relative z-10 flex flex-col items-center gap-4 text-center p-8 w-full h-full justify-center">
+              <div className="relative w-48 h-48 md:w-56 md:h-56 drop-shadow-[0_0_40px_rgba(116,185,255,0.4)] hover:scale-110 hover:rotate-2 transition-all duration-500">
+                {/* Asegúrate de colocar la imagen generada en public/assets/camiseta.png */}
+                <Image 
+                  src="/assets/camiseta.png" 
+                  alt="Camiseta Oficial Argentina"
+                  fill
+                  className="object-contain drop-shadow-2xl"
+                />
               </div>
-              <p className="text-white/20 text-xs uppercase tracking-widest font-bold">Imagen próximamente</p>
             </div>
 
             {/* Diagonal stripe decorativa argentina */}

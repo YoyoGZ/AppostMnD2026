@@ -11,14 +11,44 @@ interface ModalProps {
 }
 
 const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
+  // Sincronización con el historial para el botón "Atrás" de Android/iOS
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Cuando el modal se abre, agregamos un estado a la historia si no existe
+    if (window.location.hash !== "#modal") {
+      window.history.pushState(null, "", window.location.pathname + window.location.search + "#modal");
+    }
+
+    const handlePopState = () => {
+      // Si el hash ya no es #modal (ej. el usuario presionó Atrás)
+      if (window.location.hash !== "#modal") {
+        onClose();
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [isOpen, onClose]);
+
+  const handleClose = () => {
+    // Si el usuario cierra el modal por UI (botón X, backdrop, Escape), 
+    // debemos limpiar la historia para no dejar el #modal atascado.
+    if (window.location.hash === "#modal") {
+      window.history.back();
+    } else {
+      onClose();
+    }
+  };
+
   // Cerrar con Escape
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') handleClose();
     };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
-  }, [onClose]);
+  }, [handleClose]);
 
   if (!isOpen) return null;
 
@@ -27,17 +57,17 @@ const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
+        onClick={handleClose}
       />
       
       {/* Content */}
-      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-[#0a0a1a] border border-white/10 rounded-[2rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in duration-300">
+      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-[#0a0a1a] border border-white/10 rounded-[2rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in duration-300 custom-scrollbar">
         <div className="sticky top-0 z-10 flex items-center justify-between p-6 bg-[#0a0a1a]/80 backdrop-blur-md border-b border-white/5">
-          <h2 className="text-2xl font-black text-white uppercase tracking-tighter italic italic">
+          <h2 className="text-2xl font-black text-white uppercase tracking-tighter italic">
             <span className="text-primary mr-2">//</span> {title}
           </h2>
           <button 
-            onClick={onClose}
+            onClick={handleClose}
             className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/50 hover:text-white"
           >
             <X size={24} />
@@ -48,12 +78,12 @@ const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
           {children}
         </div>
 
-        <div className="p-6 flex justify-end">
+        <div className="p-6 flex justify-end border-t border-white/5 mt-4">
           <button 
-            onClick={onClose}
+            onClick={handleClose}
             className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white font-bold uppercase tracking-widest text-xs transition-all"
           >
-            Entendido
+            Volver
           </button>
         </div>
       </div>

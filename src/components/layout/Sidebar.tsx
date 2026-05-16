@@ -37,7 +37,7 @@ export function Sidebar({
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.push("/");
+    router.push("/login");
     router.refresh();
   };
 
@@ -60,7 +60,7 @@ export function Sidebar({
     { icon: Home, label: "Dashboard", href: "/dashboard" },
     { icon: CalendarDays, label: "Partidos", href: "/matches" },
     { icon: Swords, label: "Eliminatorias", href: "/knockouts" },
-    { icon: Trophy, label: "Posic. LIGA", href: "/standings" },
+    { icon: Trophy, label: "LA LIGA", href: "/standings" },
     { 
       icon: MessageSquare, 
       label: "Chat", 

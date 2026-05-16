@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { X, Shield, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface RegistrationModalProps {
   isOpen: boolean;
@@ -9,6 +10,8 @@ interface RegistrationModalProps {
 }
 
 export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
+  const router = useRouter();
+
   if (!isOpen) return null;
 
   return (
@@ -47,26 +50,36 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
         {/* Body - Scrollable */}
         <div className="p-6 overflow-y-auto custom-scrollbar">
           <div className="space-y-4 text-white/70 text-sm leading-relaxed font-medium">
-            <h3 className="text-white font-bold text-base mb-2">Protocolo de Admisión</h3>
-            <p>
-              En el boton de abajo te conectamos a Whatsapp, nos envias tu Nombre completo y DNI y tu solicitud de Acceso ( Quiero usar la App !!)
-            </p>
-            <p>
-              Transferis el monto de $50.000 al alias "MONDIAL-APP-OK" , nos mandas el comprobante de la transferencia por Whatsapp y una vez recibida, te pasamos el Token de Acceso.
-            </p>
-            <p>
-              Con tu Token de Acceso, ya podes entrar a la App !!. Vas al login y te registras (Guarda con la clave !!) Y pasas directo a la App.
-            </p>
-            <p>
-              El Token de Acceso que recibís es unico e intransferible (es imposible usarlo dos veces).
-            </p>
-            <p>
-              La empresa no se responsabiliza por la obtencion de un nuevo Token de Acceso.
-            </p>
+            <h3 className="text-white font-bold text-base mb-2">Protocolo de Admisión a la Arena</h3>
+            
+            <div className="flex gap-4 items-start">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/10 text-white flex items-center justify-center text-xs font-bold mt-0.5">1</span>
+              <p>
+                <strong className="text-white block mb-1">Registro de Identidad</strong>
+                Primero vas a tener que validar tu identidad creando tu cuenta segura en la Plataforma.
+              </p>
+            </div>
+            
+            <div className="flex gap-4 items-start">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold mt-0.5">2</span>
+              <p>
+                <strong className="text-white block mb-1">Adquisición del Founder Pass</strong>
+                Una vez registrado, vas a acceder a la pasarela de pagos segura para activar tu membresía.
+              </p>
+            </div>
+
+            <div className="flex gap-4 items-start">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/10 text-white flex items-center justify-center text-xs font-bold mt-0.5">3</span>
+              <p>
+                <strong className="text-white block mb-1">Dominio Total</strong>
+                Con tu pase activo, vas a recibir el rango oficial de <strong className="text-primary">Capitán (Founder)</strong>. Vas a poder armar tu propia Liga, invitar hasta 9 amigos (que entran gratis) y administrar la competencia.
+              </p>
+            </div>
+
             <div className="p-4 bg-primary/5 border border-primary/10 rounded-2xl my-6">
               <p className="text-xs text-primary font-bold uppercase tracking-widest mb-1">Nota del Oráculo</p>
               <p className="text-white/60 text-xs">
-                El destino de tu Liga depende de la integridad de tu Token. El Oráculo advierte: un registro fallido es una oportunidad perdida en el tablero del Mundial. Asegura tu lugar antes del pitazo inicial.
+                La gloria es para los pioneros. Solo los Fundadores van a tener acceso al panel de gestión y Creacion de Duelos. Asegurá el liderazgo del grupo antes del incio ofical !!
               </p>
             </div>
           </div>
@@ -74,7 +87,13 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
 
         {/* Footer CTAs */}
         <div className="p-6 border-t border-white/5 bg-white/[0.02] flex flex-col sm:flex-row gap-3">
-          <button className="flex-1 px-6 py-4 bg-primary text-black font-black uppercase tracking-widest text-xs rounded-2xl flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform shadow-[0_0_20px_rgba(251,191,36,0.2)]">
+          <button 
+            onClick={() => {
+              onClose();
+              router.push('/login');
+            }}
+            className="flex-1 px-6 py-4 bg-primary text-black font-black uppercase tracking-widest text-xs rounded-2xl flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform shadow-[0_0_20px_rgba(251,191,36,0.2)]"
+          >
             Aceptar y Continuar
             <ChevronRight className="w-4 h-4" />
           </button>
