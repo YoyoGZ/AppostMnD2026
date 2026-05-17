@@ -29,7 +29,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
         setRole(null);
       }
-    } catch (error) {
+    } catch (error: any) {
+      // Supabase lanza errores de "Lock stolen" en React Strict Mode (Modo Dev).
+      // Es inofensivo, así que lo ignoramos para que no rompa la pantalla roja.
+      if (error?.message?.includes("Lock") || error?.name === "AbortError") {
+        return;
+      }
       console.error("Error loading user context:", error);
     } finally {
       setLoading(false);

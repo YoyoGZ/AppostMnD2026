@@ -67,24 +67,16 @@ Este documento centraliza los problemas técnicos y bugs encontrados durante el 
 
 ---
 
-## 🔶 PENDIENTES DE REVISIÓN (Sesión 2026-05-14)
-
+## CORREGIDO (2026-05-16) ##
 ### 6. Diferencia de Color Primario entre Dispositivos (Dorado vs Marrón)
 
 ### Síntomas Reportados
-- En celulares de misma marca pero distinto modelo, el color `#fbbf24` se ve marrón-ámbar en vez del dorado esperado.
-- No se reproduce en todos los dispositivos — depende del tipo de pantalla.
+- ~~En celulares de misma marca pero distinto modelo, el color `#fbbf24` se ve marrón-ámbar en vez del dorado esperado.~~
+- ~~No se reproduce en todos los dispositivos — depende del tipo de pantalla.~~
 
-### Diagnóstico
-- Color definido correctamente en hex sRGB. Sin uso de `oklch()`.
-- Causa probable: diferencia de renderizado entre pantallas **AMOLED** y **LCD**. Las AMOLED con saturación o temperatura cálida desplazan el dorado hacia ámbar/marrón.
-
-### Solución Recomendada
-1. Probar ajustando el valor hex del primary hacia la paleta *Yellow* para "enfriarlo" y compensar la sobresaturación de las pantallas AMOLED:
-   - Actual: `--primary: #fbbf24` (Amber-400 — contiene demasiado rojo para AMOLED)
-   - Propuesta: `--primary: #eab308` (Yellow-500) o `--primary: #facc15` (Yellow-400 — oro más puro)
-2. Validar en ambos dispositivos antes de hacer push.
-3. Si persiste, evaluar `@media (color-gamut: p3)` con un color alternativo para pantallas de gama amplia.
+### Diagnóstico & Solución Aplicada
+- **Causa**: Diferencia de renderizado entre pantallas **AMOLED** y **LCD**. Las AMOLED con saturación o temperatura cálida desplazan el dorado (`Amber-400`) hacia ámbar/marrón.
+- **Solución**: Se ajustó el valor de la variable `--primary` y `--ring` en `globals.css` a `#facc15` (Yellow-400). Al reducir el rojo en la composición del color, se logró un oro más puro que resiste la distorsión cálida de las pantallas OLED. Eliminación exitosa del tinte marrón.
 
 ---
 

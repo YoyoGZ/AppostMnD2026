@@ -9,6 +9,7 @@ import LigaRules from "@/components/tournament/LigaRules";
 import { Info } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { InstallAppButton } from "@/components/pwa/InstallAppButton";
+import { PushOptInButton } from "@/components/pwa/PushOptInButton";
 import { getStandingsAction } from "@/app/actions/sync";
 
 export default function Dashboard() {
@@ -95,8 +96,9 @@ export default function Dashboard() {
             <Info className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
             Reglas
           </button>
-          <div className="origin-right">
+          <div className="flex flex-col items-end gap-3 origin-right mt-1">
             <InstallAppButton />
+            <PushOptInButton />
           </div>
         </div>
       </header>

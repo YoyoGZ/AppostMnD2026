@@ -25,39 +25,39 @@
   - [x] **Mobile Sorteo Banner**: Mini banner `¡Hay Sorteo! ↓` visible solo en mobile (`md:hidden`), debajo del Hero.
 - [x] **Hito 6: Integración Realtime API** (CONEXIÓN ESTABLECIDA) 📡
   - [x] Conexión con API-Football verificada (League ID: 1).
-  - [!] *Limitación de Fuente:* La temporada 2026 está detectada pero el proveedor aún no ha cargado los Fixtures oficiales.
   - [x] Sincronización de marcadores en tiempo real (Supabase).
   - [x] Actualización dinámica de tablas de posiciones (FIFA).
+  - [x] **Live Match Test (Admin HQ)**: Modal con Glassmorphism conectado al endpoint en vivo real para testear renderizado de escudos, layout numérico y traducción inteligente de estado del partido (1H -> 1T).
 - [x] **Hito 6.5: Sistema de Autenticación & Roles** 🔐
   - [x] **Migración a Email Real**: Registro eliminó el sistema alias→pseudo-email. Usa email real en `supabase.auth.signUp()`.
   - [x] **Formulario Mejorado**: Campo email + alias/apodo (solo registro) + sugerencia de clave DNI + validaciones + Eye toggles en ambos campos de clave.
   - [x] **Tabla `profiles`**: Creada en Supabase con campos `id`, `email`, `display_name`, `role` (`super_admin` / `founder` / `member`), RLS activo.
   - [x] **Trigger Auto-Provisioning**: `on_auth_user_created` crea perfil automáticamente en cada nuevo registro.
-  - [!] *Pendiente:* Asignar `role = 'founder'` al crear una Liga (integrar en Server Action de creación de Liga).
 - [x] **Hito 7: Infraestructura & Seguridad (Shield Protocol)** 🛡️
-  - [x] **`requireRole()` Helper**: Validación de roles centralizada en `src/utils/auth/requireRole.ts`. Consulta tabla `profiles` como fuente de verdad (no el JWT).
-  - [x] **`admin.ts` refactorizado**: `generateTokens`, `fetchTokens`, `deleteToken` usan `requireRole('super_admin')`.
-  - [x] **`leagues.ts` — rol Founder**: `createLeagueAction` asigna automáticamente `role = 'founder'` en la tabla `profiles` al crear una liga.
-  - [x] **`duels.ts` refactorizado**: `createDuelAction` requiere `member` autenticado. `archiveDuelsAction` requiere `founder`.
+  - [x] **`requireRole()` Helper**: Validación de roles centralizada en `src/utils/auth/requireRole.ts`.
   - [x] **Supabase Keep-Alive**: Cron Job en `vercel.json` llama `/api/keep-alive` cada 3 días. Protegido con `CRON_SECRET`.
-- [ ] **Hito 8: Social & Engagement (Comunidad)** 💬
-  - [ ] **Chat de Liga Realtime**: Mensajería instantánea para miembros de una liga.
-  - [ ] **Social Share Kit**: Generación de tarjetas para compartir en redes.
+- [x] **Hito 8: Alertas & Retención (Push Protocol)** 🔔
+  - [x] **Web Push API**: Service Worker configurado para interceptar eventos silenciosos.
+  - [x] **VAPID Keys**: Llaves generadas e instaladas en entorno.
+  - [x] **Base de Datos**: Tabla `push_subscriptions` creada con política RLS estricta para guardar el endpoint de cada usuario.
+  - [x] **Opt-In Dinámico**: Componente inteligente `PushOptInButton` en el Dashboard que detecta el estado del permiso y bloqueos del navegador.
+- [ ] **Hito 9: Monetización & Visual Polish** 💎
+  - [ ] Integración final del Webhook de Mercado Pago para procesar pagos reales.
+  - [ ] Pulido general de la Interfaz Visual y optimización de experiencia (UX) en el flujo de registro.
+  - [ ] Reemplazar íconos PWA con versión SVG definitiva.
 
 ## Current Trajectory
-**Status**: Hito 7 completado. Shield Protocol activo: `requireRole()` centraliza la validación de roles en servidor contra la tabla `profiles`. Server Actions de admin, ligas y duelos reforzadas. Supabase Keep-Alive operativo vía Vercel Cron Job cada 3 días.
+**Status**: Hitos 6, 7 y 8 completados de manera exitosa. Las notificaciones Push (opt-in y guardado de tokens) ya funcionan en la base de datos de producción (Supabase) superando las restricciones de incógnito y Chrome. El modal de API en vivo confirmó que la conexión y el parseo de datos (incluyendo dominios de imágenes) son estables y resisten pantallas AMOLED.
 
-**Próximos Pasos:**
-1. Agregar `CRON_SECRET` en Vercel Dashboard → Settings → Environment Variables.
-2. Inyectar llave de API-Football y apagar el "Mock Mode".
-3. Reemplazar íconos PWA con versión SVG definitiva cuando esté disponible.
-4. Hito 8: Chat de Liga Realtime.
+**Próximos Pasos (Próxima Sesión):**
+1. Pulido general en las visuales y en el flujo del registro.
+2. Integración total y final del Webhook de Mercado Pago.
+3. Chat de Liga Realtime (Backlog).
 
 ## Squad Status
 | Agent | Task | Status |
 | :--- | :--- | :--- |
-| Builder | Vercel Deployment Fixes | ✅ RESOLVED |
-| Design Lead | Landing Page & Demo Route | ✅ VERIFIED & POLISHED |
-| Integrity | Auth Email + Roles DB + Shield | ✅ COMPLETED |
-| Product | Conversion Funnel + Sorteo | ✅ INTEGRATED |
-| Builder | PWA Icons & Keep-Alive Cron | ✅ COMPLETED |
+| Builder | Live API Test & Server Actions | ✅ VERIFIED & POLISHED |
+| Design Lead | AMOLED Color Fix & Opt-In UX | ✅ VERIFIED & POLISHED |
+| Infrastructure | Web Push Service Worker | ✅ COMPLETED |
+| Product | Webhook MP & Visual Polish | ⏳ PENDING |
