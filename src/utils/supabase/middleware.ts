@@ -38,7 +38,6 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/standings') ||
     request.nextUrl.pathname.startsWith('/profile') ||
     request.nextUrl.pathname.startsWith('/settings') ||
-    request.nextUrl.pathname.startsWith('/login') ||
     request.nextUrl.pathname.startsWith('/hq')
 
   // 1. Sin sesión + ruta protegida → a la Home (Login)
@@ -48,12 +47,29 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // 2. Con sesión + en Home → al Dashboard o HQ
+  // 2. Con sesión + en Home → Solo redirigir si TIENEN liga o son admin
   if (user && request.nextUrl.pathname === '/') {
-    const url = request.nextUrl.clone()
     const role = user.user_metadata?.role;
-    url.pathname = role === 'super_admin' ? '/hq' : '/dashboard'
-    return NextResponse.redirect(url)
+    
+    if (role === 'super_admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/hq'
+      return NextResponse.redirect(url)
+    }
+
+    // Verificar si tiene liga
+    const { data: membership } = await supabase
+      .from('league_members')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (membership) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
+    // Si no tiene membresía, no lo redirigimos. Le permitimos ver la Landing Page para que pueda leerla o desloguearse.
   }
 
   // 3. Verificación de membresía básica (solo para el Dashboard principal)
