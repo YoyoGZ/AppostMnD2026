@@ -95,10 +95,10 @@ export default async function Home(props: PageProps) {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button data-modal-trigger="register" className="px-8 py-4 bg-primary text-black font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center gap-3 shadow-[0_10px_40px_rgba(251,191,36,0.3)] hover:translate-y-[-2px] transition-all group w-full sm:w-auto justify-center">
-                  Quiero Registrarme Ahora
+              <Link href="/login?mode=register" className="px-8 py-4 bg-primary text-black font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center gap-3 shadow-[0_10px_40px_rgba(251,191,36,0.3)] hover:translate-y-[-2px] transition-all group w-full sm:w-auto justify-center">
+                  Armá tu Liga
                   <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
+              </Link>
               <Link href="/demo" className="px-8 py-4 bg-white/5 border border-white/10 text-white font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center gap-3 backdrop-blur-md hover:bg-white/10 transition-all w-full sm:w-auto justify-center">
                   <Play className="w-4 h-4 fill-white" />
                   Explorar Demo
@@ -212,13 +212,14 @@ export default async function Home(props: PageProps) {
 
             {/* Placeholder visual / Imagen Oficial */}
             <div className="relative z-10 flex flex-col items-center gap-4 text-center p-8 w-full h-full justify-center">
-              <div className="relative w-48 h-48 md:w-56 md:h-56 drop-shadow-[0_0_40px_rgba(116,185,255,0.4)] hover:scale-110 hover:rotate-2 transition-all duration-500">
+              <div className="relative w-56 h-56 md:w-72 md:h-72 drop-shadow-[0_0_40px_rgba(116,185,255,0.4)] hover:scale-110 hover:rotate-2 transition-all duration-500">
                 {/* Asegúrate de colocar la imagen generada en public/assets/camiseta.png */}
                 <Image 
                   src="/assets/camiseta.png" 
                   alt="Camiseta Oficial Argentina"
                   fill
-                  className="object-contain drop-shadow-2xl"
+                  sizes="(max-width: 768px) 224px, 288px"
+                  className="object-contain drop-shadow-2xl scale-110"
                 />
               </div>
             </div>

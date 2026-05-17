@@ -48,7 +48,7 @@ export default function TicketClient({ token }: { token: string }) {
       }
 
       // 3. Todo perfecto. El usuario es redirigido a fundar su liga
-      router.push("/onboarding");
+      router.push("/login?mode=register");
       
     } catch (err: any) {
       setError(err.message || "Error inesperado al canjear el ticket.");

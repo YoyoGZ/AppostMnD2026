@@ -21,7 +21,10 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
   // 1. Cargar apuesta existente al montar el componente o cuando cambie el userId
   useEffect(() => {
     const fetchPrediction = async () => {
-      if (!userId) return;
+      if (!userId) {
+        setIsLoading(false);
+        return;
+      }
       
       const { data } = await supabase
         .from('predictions')

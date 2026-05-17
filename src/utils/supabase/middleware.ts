@@ -38,7 +38,7 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/standings') ||
     request.nextUrl.pathname.startsWith('/profile') ||
     request.nextUrl.pathname.startsWith('/settings') ||
-    request.nextUrl.pathname.startsWith('/onboarding') ||
+    request.nextUrl.pathname.startsWith('/login') ||
     request.nextUrl.pathname.startsWith('/hq')
 
   // 1. Sin sesión + ruta protegida → a la Home (Login)
@@ -57,7 +57,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // 3. Verificación de membresía básica (solo para el Dashboard principal)
-  if (user && request.nextUrl.pathname.startsWith('/dashboard') && request.nextUrl.pathname !== '/onboarding') {
+  if (user && request.nextUrl.pathname.startsWith('/dashboard') && request.nextUrl.pathname !== '/login') {
     const { data: membership } = await supabase
       .from('league_members')
       .select('id')
@@ -68,7 +68,8 @@ export async function updateSession(request: NextRequest) {
       // REWRITE en lugar de REDIRECT: muestra /onboarding sin agregar entrada al historial del browser.
       // Esto evita que el botón "atrás" en mobile regrese a esta pantalla inesperadamente.
       const url = request.nextUrl.clone()
-      url.pathname = '/onboarding'
+      url.pathname = '/login'
+      url.searchParams.set('mode', 'register')
       return NextResponse.rewrite(url)
     }
   }

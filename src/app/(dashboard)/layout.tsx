@@ -28,7 +28,7 @@ export default async function DashboardLayout({
   if (myLeagues.length === 0 && !isSuperAdmin) {
     // permanentRedirect reemplaza la entrada actual en el historial (no apila).
     // Evita que el botón "atrás" en mobile regrese al dashboard vacío.
-    redirect("/onboarding");
+    redirect("/login?mode=register");
   }
 
   // 2. Identificar la liga activa desde los metadatos

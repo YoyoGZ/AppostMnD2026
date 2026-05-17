@@ -98,4 +98,16 @@ Este documento centraliza los problemas técnicos y bugs encontrados durante el 
 2. **Solución definitiva — Dominio propio**: Conectar un dominio final (ej: `mundialapp.com`) en Vercel → Settings → Domains. Los dominios `.com` con SSL de Vercel eliminan el problema de reputación de forma permanente.
 3. **Mientras tanto**: Indicar a testers que es un falso positivo y usar Chrome/Firefox sin extensiones de seguridad activas para las pruebas.
 
+---
 
+## CORREGIDO (2026-05-17) ##
+### 8. Fricción en el Flujo de Invitados (Onboarding sin Email)
+
+### Síntomas Reportados
+- ~~El formulario actual para usuarios "invitados" solo solicitaba `Alias` y `Password`.~~
+- ~~Se usaba un `pseudoEmail` generado automáticamente que el usuario desconocía, impidiendo futuros inicios de sesión.~~
+
+### Historial de Resolución Efectiva (Solución Aplicada)
+1. **Integración de Email Real**: Se agregó el campo de `Email` obligatorio en el componente `JoinClient.tsx`.
+2. **Eliminación de la Deuda**: Se erradicó la lógica de sanitización que creaba el `pseudoEmail` y ahora el registro se realiza usando el correo real del usuario.
+3. **Flujo Protegido**: Ahora los invitados tienen la misma capacidad de recuperar su cuenta e iniciar sesión desde el `LoginShield` que los usuarios Fundadores.

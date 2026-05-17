@@ -41,23 +41,26 @@
   - [x] **VAPID Keys**: Llaves generadas e instaladas en entorno.
   - [x] **Base de Datos**: Tabla `push_subscriptions` creada con política RLS estricta para guardar el endpoint de cada usuario.
   - [x] **Opt-In Dinámico**: Componente inteligente `PushOptInButton` en el Dashboard que detecta el estado del permiso y bloqueos del navegador.
-- [ ] **Hito 9: Monetización & Visual Polish** 💎
+- [x] **Hito 9: Refactor Funnel de Conversión (One-Shot Onboarding)** 💎
+  - [x] **Destrucción de Vistas Obsoletas:** Eliminar el flujo largo actual (6 pasos) y consolidar la experiencia de Onboarding.
+  - [x] **Nueva Vista 1 (Registro + Bautismo):** Unificar la creación de cuenta en Supabase con el input "Nombre de tu Liga" para generar el anclaje (Endowment Effect).
+  - [x] **Nueva Vista 2 (Paywall Dinámico):** Mostrar el componente de pago inmediatamente después de reservar el nombre ("La liga [Nombre] es tuya. Pagá la franquicia para activarla").
+  - [x] **Mejora del Modo `/demo` (Vidriera):** Inyectar un JSON estático en los componentes reales del Dashboard. Interfaz 100% interactiva donde botones bloqueados disparan el CTA de "Comprar Founder Pass". (Mantiene intacto el Shield Protocol).
   - [ ] Integración final del Webhook de Mercado Pago para procesar pagos reales.
-  - [ ] Pulido general de la Interfaz Visual y optimización de experiencia (UX) en el flujo de registro.
   - [ ] Reemplazar íconos PWA con versión SVG definitiva.
 
 ## Current Trajectory
-**Status**: Hitos 6, 7 y 8 completados de manera exitosa. Las notificaciones Push (opt-in y guardado de tokens) ya funcionan en la base de datos de producción (Supabase) superando las restricciones de incógnito y Chrome. El modal de API en vivo confirmó que la conexión y el parseo de datos (incluyendo dominios de imágenes) son estables y resisten pantallas AMOLED.
+**Status**: Hito 9 completado con éxito. Se reestructuró totalmente el Funnel de Conversión, implementando el Onboarding One-Shot y el Paywall reactivo. Se creó el modo Demo interactivo ("Vidriera") que intercepta interacciones y redirige a la compra. También se erradicó la deuda técnica del Onboarding de Invitados, obligando al uso de Email real para prevenir la pérdida de cuentas.
 
 **Próximos Pasos (Próxima Sesión):**
-1. Pulido general en las visuales y en el flujo del registro.
-2. Integración total y final del Webhook de Mercado Pago.
+1. Integración total y final del Webhook de Mercado Pago.
+2. Desarrollo del Motor de Duelos Privados o Knockouts.
 3. Chat de Liga Realtime (Backlog).
 
 ## Squad Status
 | Agent | Task | Status |
 | :--- | :--- | :--- |
-| Builder | Live API Test & Server Actions | ✅ VERIFIED & POLISHED |
-| Design Lead | AMOLED Color Fix & Opt-In UX | ✅ VERIFIED & POLISHED |
+| Builder | One-Shot Onboarding & Guest Auth | ✅ VERIFIED & POLISHED |
+| Design Lead | Demo Mode Interceptor UX | ✅ VERIFIED & POLISHED |
 | Infrastructure | Web Push Service Worker | ✅ COMPLETED |
-| Product | Webhook MP & Visual Polish | ⏳ PENDING |
+| Product | Webhook MP & Checkout Flow | ⏳ PENDING |

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Shield, ArrowRight, Loader2, Lock, User, Users, X } from "lucide-react";
+import { Shield, ArrowRight, Loader2, Lock, User, Mail, Users, X } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { joinLeagueAction } from "@/app/actions/leagues";
 import { useRouter } from "next/navigation";
@@ -23,6 +23,7 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
   const router = useRouter();
   const supabase = createClient();
 
+  const [email, setEmail] = useState("");
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -50,8 +51,12 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
     e.preventDefault();
     setError(null);
 
-    if (alias.trim().length < 3) {
-      setError("El alias debe tener al menos 3 letras.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError("El correo electrónico no es válido.");
+      return;
+    }
+    if (alias.trim().length < 2) {
+      setError("El alias debe tener al menos 2 letras.");
       return;
     }
     if (password !== confirmPassword) {
@@ -61,18 +66,9 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
 
     setIsLoading(true);
 
-    // Sanitizar alias → pseudo-email
-    const sanitized = alias
-      .trim()
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]/g, "");
-    const pseudoEmail = `${sanitized}@fixture2026.app`;
-
     try {
       const { error: signUpError } = await supabase.auth.signUp({
-        email: pseudoEmail,
+        email: email.trim().toLowerCase(),
         password,
         options: { data: { display_name: alias.trim() } },
       });
@@ -204,6 +200,21 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
 
         {/* Formulario registro + join */}
         <form onSubmit={handleRegisterAndJoin} className="flex flex-col gap-4">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Mail className="h-4 w-4 text-white/30" />
+            </div>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Tu correo electrónico"
+              className="block w-full pl-11 pr-4 py-3.5 border border-white/10 rounded-xl bg-black/40 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all text-sm"
+              required
+              disabled={isLoading}
+            />
+          </div>
+
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <User className="h-4 w-4 text-white/30" />

@@ -1,23 +1,41 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { Shield, CreditCard, CheckCircle2, ChevronRight, Zap, Loader2 } from "lucide-react";
-import { mockPaymentAction } from "@/app/actions/payments";
+import { createPaymentPreferenceAction } from "@/app/actions/payments";
+import { createLeagueAction } from "@/app/actions/leagues";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function PaywallPage() {
+function PaywallContent() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const leagueName = searchParams.get('leagueName');
 
-  const handleMockPayment = async () => {
+  const handleMercadoPagoPayment = async () => {
     setLoading(true);
-    const res = await mockPaymentAction();
-    if (res?.error) {
-      alert(res.error);
+    
+    if (!leagueName) {
+      alert("No se encontró el nombre de la liga. Por favor volvé al inicio.");
+      router.push('/');
+      return;
+    }
+
+    try {
+      const res = await createPaymentPreferenceAction(leagueName);
+      
+      if (res?.error) {
+        alert(res.error);
+        setLoading(false);
+      } else if (res?.initPoint) {
+        // Redirigir al Checkout Oficial de Mercado Pago
+        window.location.href = res.initPoint;
+      }
+    } catch (error: any) {
+      console.error("Error de conexión:", error);
+      alert("Error conectando con Mercado Pago. Intentá nuevamente.");
       setLoading(false);
-    } else if (res?.success) {
-      router.push('/onboarding');
     }
   };
 
@@ -34,11 +52,18 @@ export default function PaywallPage() {
           </div>
           
           <h1 className="text-4xl md:text-5xl font-black tracking-tighter leading-[1.1]">
-            CONSEGUÍ TU <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-white">FOUNDER PASS</span>
+            {leagueName ? (
+              <>ACTIVÁ TU LIGA <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-white uppercase">"{leagueName}"</span></>
+            ) : (
+              <>CONSEGUÍ TU <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-white">FOUNDER PASS</span></>
+            )}
           </h1>
           
           <p className="text-white/60 text-sm md:text-base font-medium leading-relaxed max-w-md">
-            Para armar una Liga Privada y convertirte en el Capitán, necesitás activar tu entrada a la App. Un único pago te da acceso para vos y hasta 9 amigos.
+            {leagueName 
+              ? `¡Excelente elección! La liga "${leagueName}" ya está reservada. Activá tu franquicia para abrirle la puerta a tus 9 amigos.`
+              : "Para armar una Liga Privada y convertirte en el Capitán, necesitás activar tu entrada a la App. Un único pago te da acceso para vos y hasta 9 amigos."
+            }
           </p>
           
           <ul className="space-y-4 mt-8">
@@ -70,36 +95,44 @@ export default function PaywallPage() {
           
           <div className="space-y-4">
             <button 
-              onClick={handleMockPayment}
+              onClick={handleMercadoPagoPayment}
               disabled={loading}
-              className="w-full py-4 px-6 bg-primary hover:bg-primary/90 text-black font-black uppercase tracking-widest text-xs rounded-2xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(251,191,36,0.3)] disabled:opacity-50 disabled:hover:scale-100"
+              className="w-full py-4 px-6 bg-[#009EE3] hover:bg-[#0087C1] text-white font-black uppercase tracking-widest text-xs rounded-2xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(0,158,227,0.3)] disabled:opacity-50 disabled:hover:scale-100"
             >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Simulando...
+                  Conectando Seguro...
                 </>
               ) : (
                 <>
                   <CreditCard className="w-4 h-4" />
-                  Simular Pago (MOCK)
+                  Pagar con Mercado Pago
                 </>
               )}
             </button>
             
             <p className="text-[10px] text-center text-white/40 uppercase tracking-widest font-bold">
-              Próximamente: Integración Mercado Pago
+              Pagos procesados de forma segura
             </p>
           </div>
           
           <div className="mt-6 pt-6 border-t border-white/10 text-center">
-            <Link href="/onboarding" className="text-xs text-white/50 hover:text-white transition-colors uppercase tracking-widest font-bold">
-              Volver Atrás
+            <Link href="/" className="text-xs text-white/50 hover:text-white transition-colors uppercase tracking-widest font-bold">
+              Volver al Inicio
             </Link>
           </div>
         </div>
 
       </div>
     </div>
+  );
+}
+
+export default function PaywallPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen w-full bg-[#050505] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+      <PaywallContent />
+    </Suspense>
   );
 }

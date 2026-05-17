@@ -17,9 +17,11 @@ type LoginShieldProps = {
 export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShieldProps) => {
   const searchParams = useSearchParams();
   const urlInviteCode = searchParams.get("invite");
+  const mode = searchParams.get("mode");
   const inviteCode = propInviteCode || urlInviteCode;
 
-  const [isNewUser, setIsNewUser] = useState(!!inviteCode);
+  const [isNewUser, setIsNewUser] = useState(!!inviteCode || mode === 'register');
+  const [leagueName, setLeagueName] = useState("");
   const [email, setEmail] = useState("");
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
@@ -50,6 +52,13 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
     console.log(`🔑 [LOGINSHIELD] Iniciando Auth. InviteCode: ${inviteCode || 'NONE'}`);
     setError(null);
     setIsLoading(true);
+
+    // Validación de Liga (solo si es nuevo y no es invitado)
+    if (isNewUser && !inviteCode && leagueName.trim().length < 3) {
+      setError("El nombre de la liga debe tener al menos 3 caracteres.");
+      setIsLoading(false);
+      return;
+    }
 
     // Validación de email
     if (!isValidEmail(email.trim())) {
@@ -114,6 +123,9 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
         const targetPath = `/join/${inviteCode}`;
         console.log(`🚀 [LOGINSHIELD] Redirigiendo a página de unión: ${targetPath}`);
         router.push(targetPath);
+      } else if (isNewUser && leagueName) {
+        console.log(`🚀 [LOGINSHIELD] Redirigiendo al Paywall para activar la liga: ${leagueName}`);
+        router.push(`/paywall?leagueName=${encodeURIComponent(leagueName.trim())}`);
       } else if (role === 'super_admin') {
         console.log(`🚀 [LOGINSHIELD] Redirigiendo al Cuartel General (God Mode)`);
         router.push("/hq");
@@ -175,33 +187,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
             )}
           </div>
 
-          {/* Tabs */}
-          {!currentUser && (
-            <div className="flex bg-black/40 rounded-xl p-1 mb-6 border border-white/5">
-              <button
-                type="button"
-                onClick={() => { setIsNewUser(false); setError(null); }}
-                className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all duration-300 ${
-                  !isNewUser
-                    ? "bg-primary text-primary-foreground shadow-[0_0_15px_rgba(251,191,36,0.2)]"
-                    : "text-white/40 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                Ingresar
-              </button>
-              <button
-                type="button"
-                onClick={() => { setIsNewUser(true); setError(null); }}
-                className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all duration-300 ${
-                  isNewUser
-                    ? "bg-transparent text-primary border-[2px] border-primary shadow-[0_0_15px_rgba(251,191,36,0.2)]"
-                    : "text-white/40 hover:text-white hover:bg-white/5 border-[2px] border-transparent"
-                }`}
-              >
-                Nueva Cuenta
-              </button>
-            </div>
-          )}
+
 
           {currentUser && inviteCode ? (
             <div className="flex flex-col gap-6">
@@ -227,6 +213,23 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
             </div>
           ) : (
             <form onSubmit={handleAuth} className="flex flex-col gap-4">
+
+              {/* ── Campo: Nombre de Liga (Solo para Fundadores Nuevos) ── */}
+              <div className={`transition-all duration-300 overflow-hidden ${isNewUser && !inviteCode ? "max-h-24 opacity-100" : "max-h-0 opacity-0"}`}>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <ShieldAlert className="h-5 w-5 text-primary" />
+                  </div>
+                  <input
+                    type="text"
+                    value={leagueName}
+                    onChange={(e) => setLeagueName(e.target.value)}
+                    placeholder="Bautizá tu Liga (Ej: Los Pibes)"
+                    className="block w-full pl-12 pr-4 py-3.5 border-2 border-primary/50 rounded-xl bg-primary/5 text-white placeholder-white/50 font-black focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                    required={isNewUser && !inviteCode}
+                  />
+                </div>
+              </div>
 
               {/* ── Campo: Email ── */}
               <div className="relative">
@@ -352,6 +355,21 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                 )}
                 {!isLoading && <ArrowRight className="w-5 h-5" />}
               </button>
+
+              {/* ── Toggle Login / Registro ── */}
+              {!inviteCode && (
+                <div className="mt-4 text-center">
+                  {isNewUser ? (
+                    <button type="button" onClick={() => { setIsNewUser(false); setError(null); }} className="text-white/40 hover:text-white text-[11px] uppercase font-bold tracking-widest transition-colors">
+                      ¿Ya tenés cuenta? <span className="text-primary">Ingresá acá</span>
+                    </button>
+                  ) : (
+                    <button type="button" onClick={() => { setIsNewUser(true); setError(null); }} className="text-white/40 hover:text-white text-[11px] uppercase font-bold tracking-widest transition-colors">
+                      ¿No tenés cuenta? <span className="text-primary">Armá tu Liga acá</span>
+                    </button>
+                  )}
+                </div>
+              )}
             </form>
           )}
         </div>

@@ -6,9 +6,6 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(clients.claim());
 });
 
-self.addEventListener('fetch', (event) => {
-  event.respondWith(fetch(event.request));
-});
 
 // Interceptar Push Notifications desde nuestro servidor
 self.addEventListener('push', (event) => {

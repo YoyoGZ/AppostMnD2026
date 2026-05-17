@@ -36,7 +36,7 @@ export default async function StandingsPage() {
 
   if (!activeLeagueId) {
     console.log("❌ [STANDINGS] No se encontró liga activa para el usuario.");
-    redirect("/onboarding");
+    redirect("/login?mode=register");
   }
 
   // 2. Traer el Leaderboard fresco SOLO de esta liga
@@ -51,7 +51,7 @@ export default async function StandingsPage() {
   }
 
   if (!data || data.length === 0) {
-    redirect("/onboarding");
+    redirect("/login?mode=register");
   }
 
   const leagueData: any = data[0].leagues;
