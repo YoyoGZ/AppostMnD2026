@@ -51,7 +51,7 @@ export default function BracketLabPage() {
             El Camino del <span className="text-primary">Campeón</span>
           </h2>
           <p className="max-w-xl mx-auto text-white/40 text-sm font-medium leading-relaxed px-6">
-            Visualización técnica de las llaves eliminatorias del Mundial 2026. 
+            Visualización técnica de las llaves eliminatorias en MundiApp26. 
             Navegación escalonada y placeholders dinámicos.
           </p>
         </div>

@@ -5,10 +5,10 @@ import TicketClient from "./TicketClient";
 export async function generateMetadata({ params }: { params: Promise<{ token: string }> }) {
   // WhatsApp y Telegram leerán esta metadata para "enmascarar" el link
   return {
-    title: 'PASE VIP - Fixture Mundial 2026',
+    title: 'PASE VIP - Fixture MundiApp26',
     description: 'Entrada oficial de un solo uso. Haz clic para redimir tu acceso y fundar tu Liga Privada.',
     openGraph: {
-      title: '🎟️ LICENCIA DE CAPITÁN - Mundial 2026',
+      title: '🎟️ LICENCIA DE CAPITÁN - MundiApp26',
       description: 'Acceso seguro y exclusivo. Toca aquí para ver tu entrada digital.',
       images: ['/logo.svg'], 
     },

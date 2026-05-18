@@ -1,4 +1,4 @@
-# Plan de Acción - Mundial 2026 🏆
+# Plan de Acción - MundiApp26 🏆
 
 ## Master Roadmap - Fase Eliminatorias & Conversión
 
@@ -47,6 +47,7 @@
   - [x] **Mejora del Modo `/demo` (Vidriera):** Inyectar un JSON estático en los componentes reales del Dashboard. Interfaz 100% interactiva donde botones bloqueados disparan el CTA de "Comprar Founder Pass". (Mantiene intacto el Shield Protocol).
   - [x] Integración final del Webhook de Mercado Pago para procesar pagos reales.
   - [x] Reemplazar íconos PWA con versión SVG definitiva.
+  - [x] **HQ Redesign & Control de Pasarela**: Remoción de la fábrica de tokens obsoleta, integración del Switch de cambio de precio en caliente ($20 vs. $50.000 ARS) y automatización del Censo Global conectado a la API de Mercado Pago en tiempo real.
 
 ## Current Trajectory
 **Status**: Fase de Conversión y Pasarela de Pagos (Hito 9) COMPLETADA AL 100%. La pasarela de Mercado Pago Checkout Pro fue testeada exitosamente en Producción con dinero real. El Webhook Callback activa automáticamente la membresía "Founder" y crea la Liga en la base de datos sin fricción.

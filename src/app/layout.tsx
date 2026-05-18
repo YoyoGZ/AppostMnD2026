@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mundial 2026 | Dashboard de Resultados y Pronosticos",
-  description: "Plataforma premium para el seguimiento interactivo de la Copa del Mundo 2026. Análisis de grupos, calendarios y estadísticas en tiempo real.",
+  title: "MundiApp26 | Dashboard de Resultados y Pronosticos",
+  description: "Plataforma premium para el seguimiento interactivo de MundiApp26. Análisis de grupos, calendarios y estadísticas en tiempo real.",
   icons: {
     icon: [
       { url: '/favicon.png', sizes: '32x32', type: 'image/png' },

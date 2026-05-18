@@ -1,4 +1,4 @@
-# Documentación Técnica: Motor de Eliminatorias Mundial 2026
+# Documentación Técnica: Motor de Eliminatorias MundiApp26
 
 Este documento detalla la lógica de negocio y los componentes implementados para la gestión de la fase final.
 

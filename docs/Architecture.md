@@ -1,4 +1,4 @@
-# 🏛️ Architecture & Infrastructure (Mundial 2026)
+# 🏛️ Architecture & Infrastructure (MundiApp26)
 
 Este documento centraliza las decisiones arquitectónicas clave del proyecto y sus componentes estructurales para garantizar mantenibilidad.
 

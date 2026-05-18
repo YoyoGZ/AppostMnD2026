@@ -1,4 +1,4 @@
-# Flujo Integral de la Aplicación - Mundial 2026 🏆
+# Flujo Integral de la Aplicación - MundiApp26 🏆
 
 Este documento detalla el "Customer Journey" y la arquitectura funcional de la plataforma. Diseñado para auditoría de producto y alineación técnica.
 

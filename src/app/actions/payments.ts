@@ -51,7 +51,12 @@ export async function createPaymentPreferenceAction(leagueName: string) {
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` 
       : process.env.VERCEL_URL 
         ? `https://${process.env.VERCEL_URL}`
-        : 'https://mundial2026.vercel.app'; // Fallback estricto a Vercel
+        : 'https://mundiapp26.vercel.app'; // Fallback estricto a Vercel
+
+    // Consultar en tiempo real el modo test de precios en la base de datos
+    const { getTestModeAction } = await import('@/app/actions/admin');
+    const testModeResult = await getTestModeAction();
+    const finalPrice = testModeResult.active ? 20 : 50000; // $20 en modo test, $50.000 en producción
 
     // Crear la preferencia de pago
     const preference = new Preference(client);
@@ -62,9 +67,9 @@ export async function createPaymentPreferenceAction(leagueName: string) {
           {
             id: 'founder_pass_2026',
             title: `Founder Pass - Liga ${leagueName}`,
-            description: "Licencia de Plataforma - Mundial 2026",
+            description: "Licencia de Plataforma - MundiApp26",
             quantity: 1,
-            unit_price: 50000, // VALOR OFICIAL FINAL DE LA FRANQUICIA ($50.000 ARS)
+            unit_price: finalPrice, // VALOR DINÁMICO ALTERNABLE
             currency_id: "ARS",
           }
         ],

@@ -1,6 +1,6 @@
-# Arquitectura de Plataforma Social: Proyecto "Fixture Mundial 2026"
+# Arquitectura de Plataforma Social: Proyecto "Fixture MundiApp26"
 
-Este documento contiene las especificaciones funcionales (GDD - Game Design Document) para la evolución del Mundial 2026 Dashboard hacia una plataforma social de apuestas deportivas entre amigos.
+Este documento contiene las especificaciones funcionales (GDD - Game Design Document) para la evolución del MundiApp26 Dashboard hacia una plataforma social de apuestas deportivas entre amigos.
 
 ## 1. El Sistema de Ligas (Squads)
 - **Roles:** Cada liga tendrá un `Admin` creador y `Users` invitados.

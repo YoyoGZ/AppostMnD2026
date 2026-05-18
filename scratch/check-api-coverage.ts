@@ -1,14 +1,14 @@
 /**
- * SCRIPT DE DIAGNÓSTICO: COBERTURA MUNDIAL 2026
+ * SCRIPT DE DIAGNÓSTICO: COBERTURA MUNDIAPP26
  * 
- * Este script verifica si API-Football tiene los datos del Mundial 2026.
+ * Este script verifica si API-Football tiene los datos del MundiApp26.
  */
 
 const API_KEY = "2672e54b9659d01a9d41a50005dc6849"; // Reemplazar con la key real
 const API_HOST = "v3.football.api-sports.io";
 
 async function checkCoverage() {
-  console.log("🚀 Iniciando auditoría de cobertura para Mundial 2026...");
+  console.log("🚀 Iniciando auditoría de cobertura para MundiApp26...");
 
   const headers = {
     "x-rapidapi-host": API_HOST,

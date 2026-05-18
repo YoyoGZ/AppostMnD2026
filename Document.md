@@ -1,6 +1,6 @@
 # Documentación de Integración de Agentes (Squad Antigravity)
 
-Este documento registra los Agentes/Personas especializadas integradas formalmente en el proyecto **Mundial 2026** bajo la estructura *The House Way*.
+Este documento registra los Agentes/Personas especializadas integradas formalmente en el proyecto **MundiApp26** bajo la estructura *The House Way*.
 
 ---
 

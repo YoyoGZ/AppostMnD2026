@@ -41,7 +41,7 @@ Si el usuario compra el acceso desde su propio celular y recibe un QR por WhatsA
 
 ### La Solución "The House Way" (Graphic Ticket)
 El usuario que paga NO recibe simplemente un texto pelado. Recibe un **"Pase VIP Digital"** (una imagen estilizada) que contiene:
-1. **El Arte**: Branding premium del Fixture Mundial 2026.
+1. **El Arte**: Branding premium del Fixture MundiApp26.
 2. **El Código QR**: Que funciona de maravilla si alguien compra las entradas en la PC y las escanea con el celular, o si se las quiere regalar físicamente a un empleado o amigo.
 3. **El Botón/Link Clickeable (URL corta debajo del QR)**: Para los que reciben el ticket en el mismo celular donde lo van a usar, basta con tocar el link o botón incrustado en el documento (PDF/HTML interactivo) para ser inyectados directamente al flujo de registro de la App.
 

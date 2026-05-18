@@ -13,7 +13,7 @@ self.addEventListener('push', (event) => {
 
   try {
     const data = event.data.json();
-    const title = data.title || 'Mundial 2026';
+    const title = data.title || 'MundiApp26';
     const options = {
       body: data.body || 'Tienes una nueva alerta de la Liga.',
       icon: '/icon.svg',

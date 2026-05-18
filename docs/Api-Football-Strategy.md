@@ -1,5 +1,5 @@
 Estrategia de Integración: API-Football v3 🏟️
-Este documento resume los aspectos clave de la API-Football (v3) enfocados exclusivamente en las necesidades del motor del Mundial 2026.
+Este documento resume los aspectos clave de la API-Football (v3) enfocados exclusivamente en las necesidades del motor del MundiApp26.
 
 1. El Endpoint Principal: /fixtures
 Esta es la ruta que llamaremos para obtener la información central del partido.
