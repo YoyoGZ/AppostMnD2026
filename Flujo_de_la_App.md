@@ -4,24 +4,32 @@ Este documento detalla el "Customer Journey" y la arquitectura funcional de la p
 
 ---
 
-## 1. Etapa de Atracción & Conversión (Landing)
-
+## 1. Etapa de Atracción & Conversión (Landing & Paywall)
+ 
 ### El Punto de Entrada
 *   **Flujo**: El usuario llega a `/`. Se encuentra con una propuesta visual de alto impacto (Glassmorphism + Bento Grid).
 *   **Acciones**: 
     *   Ver la propuesta de valor.
-    *   Explorar la **Demo** (`/demo`) para ver la interfaz sin registrarse.
-    *   Registrarse/Entrar a través del `RegistrationModal`.
+    *   Explorar la **Demo** (`/demo`) para ver la interfaz sin registrarse (simula el coliseo de duelos y dashboard).
+    *   Registrarse/Entrar a través del `RegistrationModal` introduciendo su Email Real (eliminando pseudoEmails obsoletos para asegurar la recuperación de cuentas).
 *   **Archivos Clave**:
     *   `src/app/page.tsx` (Estructura Landing).
     *   `src/components/landing/LandingWrapper.tsx` (Contenedor visual).
     *   `src/components/landing/RegistrationModal.tsx` (Funnel de conversión).
 
-### El Sistema de Invitación
-*   **Flujo**: Si el usuario llega con un link de invitación (`/?invite=CODE`), la Landing personaliza el mensaje mostrando el nombre de la Liga a la que se unirá.
-*   **Acciones**: Unión automática a la liga tras el registro.
+### El Funnel de Conversión One-Shot & Pasarela de Pagos
+*   **Flujo**: Al registrarse, el usuario define el nombre de su futura Liga y es redirigido de forma atómica a la pasarela de cobro real (**Mercado Pago Checkout Pro**).
+*   **Pasarela & Webhook**: Una vez procesado el pago real en producción, un webhook seguro y atómico en el backend (`/api/webhooks/mercadopago`) asciende al usuario al rol de `founder` y activa su arena, evitando fraudes y saltos de paywall.
 *   **Archivos Clave**:
-    *   `src/app/actions/leagues.ts` (Función `getLeagueByInvite`).
+    *   `src/components/auth/LoginShield.tsx` (Intercepción y redirección al Paywall).
+    *   `src/app/actions/payments.ts` (Generación de preferencia de pago con URL dinámica de Vercel).
+    *   `src/app/api/webhooks/mercadopago/route.ts` (Procesador del Webhook).
+
+### El Sistema de Invitación
+*   **Flujo**: Si el usuario llega con un link de invitación dedicado (`/join/[code]`), el sistema lo identifica, personaliza el onboarding mostrando el nombre de la liga anfitriona y automatiza su ingreso como `member` tras registrarse con su correo real.
+*   **Archivos Clave**:
+    *   `src/app/join/[code]/page.tsx` (Ruta dedicada indestructible contra redirecciones de middleware).
+    *   `src/components/landing/JoinClient.tsx` (Formulario unificado para invitados).
 
 ---
 
@@ -86,26 +94,32 @@ Este documento detalla el "Customer Journey" y la arquitectura funcional de la p
 
 ---
 
-## 6. Oportunidades de Mejora e Integraciones Sugeridas
-
-Como **Senior Product Engineer**, detecto estas áreas para potenciar el producto:
-
-1.  **Notificaciones Push (Alertas de Gol)**: 
-    *   Aprovechar el `sw.js` que ya instalamos para enviar alertas al móvil cuando un partido sincronizado por la API cambie de marcador.
-2.  **Social Sharing Kit**: 
-    *   Generar un botón "Compartir mi Tabla" que cree una imagen dinámica para Instagram/WhatsApp con la posición del usuario en su Liga.
-3.  **Real-time Chat de Liga**:
-    *   Integrar un canal de Supabase Realtime para que los miembros de una misma Liga puedan "picarse" o charlar sobre los resultados dentro del Dashboard.
-4.  **Gráfica de Performance**:
-    *   En el Perfil, mostrar una línea de tiempo con la evolución de puntos del usuario.
+## 6. Sistema de Notificaciones Realtime (Notificaciones Push Web)
+ 
+*   **Flujo**: El usuario puede activar las notificaciones desde el Dashboard mediante un Opt-in estético con micro-animaciones.
+*   **Arquitectura**:
+    *   **Registro**: Captura del token de suscripción de Web Push y persistencia en la tabla `push_subscriptions` vinculada al `user_id`.
+*   **Service Worker**: El script `sw.js` (y `firebase-messaging-sw.js` en producción) intercepta los payloads push emitidos por el servidor, los muestra nativamente en dispositivos móviles/desktop y maneja redirecciones inteligentes a partidos y chats.
+*   **Archivos Clave**:
+    *   `public/sw.js` (Interceptor en segundo plano).
+    *   `src/app/actions/push.ts` (Servicio de almacenamiento de tokens).
+    *   `src/components/dashboard/PushOptIn.tsx` (Componente UX de suscripción).
 
 ---
 
-## 7. Mapa de Seguridad & Datos
+## 7. Mapa de Seguridad, Datos & PWA (Shield Protocol)
 
-*   **Autenticación**: Gestionada por `AuthContext.tsx` usando Supabase Auth.
-*   **Persistencia**: Supabase (Tablas de `matches`, `predictions`, `leagues`, `profiles`).
-*   **PWA**: Instalable desde el Dashboard gracias a `InstallAppButton.tsx` y `sw.js`.
+*   **Autenticación**: Gestionada por `AuthContext.tsx` con Supabase Auth e inicios de sesión estrictamente basados en Email Real y contraseña, eliminando la deuda técnica de los pseudo-correos de invitados.
+*   **Seguridad de Acceso (Shield Protocol)**: Validaciones del lado del servidor mediante Server Actions y comprobaciones de roles (`founder` / `member`) directamente sobre la base de datos de Supabase, bloqueando accesos no autorizados a páginas seguras.
+*   **PWA de Alta Fidelidad**: Totalmente instalable desde dispositivos móviles. Se erradicó el contorno blanco de los iconos mediante el uso de la versión definitiva del logo vectorial (`public/logo.svg`), regenerando los assets PNG (`icon-192x192.png`, `icon-512x512.png`, `favicon.png`) de manera impecable y transparente.
+*   **Persistencia**: Supabase (Tablas `matches`, `predictions`, `leagues`, `league_members`, `league_duels`, `duel_participants`, `push_subscriptions`).
 
 ---
-**Documento generado por Antigravity Engine - 2026**
+
+## 8. Backlog & Siguientes Pasos
+1.  **Motor de Duelos Privados (Peer-to-Peer) ⚔️**: El coliseo interactivo para apostar cara a cara con amigos en partidos individuales de la Copa del Mundo.
+2.  **Chat en Tiempo Real de Liga 💬**: Canal de Supabase Realtime para dinamizar la interacción social entre gladiadores de la misma liga.
+3.  **Social Sharing Kit**: Generar y compartir capturas estéticas de la tabla de posiciones directamente en redes sociales.
+
+---
+**Documento actualizado por Antigravity Engine - 2026**

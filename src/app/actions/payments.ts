@@ -64,7 +64,7 @@ export async function createPaymentPreferenceAction(leagueName: string) {
             title: `Founder Pass - Liga ${leagueName}`,
             description: "Licencia de Plataforma - Mundial 2026",
             quantity: 1,
-            unit_price: 20, // PRECIO REBAJADO PARA PRUEBA REAL
+            unit_price: 50000, // VALOR OFICIAL FINAL DE LA FRANQUICIA ($50.000 ARS)
             currency_id: "ARS",
           }
         ],

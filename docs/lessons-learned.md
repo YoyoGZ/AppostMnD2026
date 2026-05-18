@@ -124,3 +124,36 @@ Error 404 persistente al intentar acceder a rutas que deberían existir (como `/
 1. **REGLA DE ORO**: Nunca crear archivos `middleware.ts`. El archivo `src/proxy.ts` es el soberano absoluto de la lógica de sesión y protección.
 2. **Eliminación Total**: Cualquier vestigio de `middleware.ts` debe ser purgado de inmediato para permitir que el compilador de Next.js 16 procese el `proxy.ts`.
 3. **Persistencia de Aprendizaje**: Si una ruta da 404, el primer paso de diagnóstico debe ser verificar que NO existan archivos `middleware.ts` duplicando la lógica de `proxy.ts`.
+
+## 2026-05-17: La Trampa de Producción de Mercado Pago ("Una de las partes es de prueba")
+
+### Síntoma
+Al probar el Checkout Pro con credenciales de Producción (`APP_USR-`) y una tarjeta de crédito real, Mercado Pago rechaza el pago inmediatamente con el error: *"Algo salió mal... Una de las partes con la que intentás hacer el pago es de prueba"*.
+
+### Diagnóstico
+La integración del código y el Webhook estaban correctos. El fallo fue 100% administrativo/antifraude. Hay dos causas exclusivas para este error:
+1. **Falta de Homologación:** La cuenta vendedora (el dueño de las llaves `APP_USR`) no completó el formulario de Producción en el panel de Mercado Pago Developers (Rubro, Sitio Web, etc.). Las llaves, aunque sean de producción, actúan secretamente como Sandbox para externos.
+2. **Auto-financiamiento (Fraude):** El desarrollador intentó pagarse a sí mismo usando una tarjeta de crédito a su nombre. Mercado Pago cruza DNI, IP y datos bancarios, y bloquea la operación instantáneamente.
+
+### Resolución (The House Way)
+1. Completar rigurosamente el formulario de Producción en el panel de MP.
+2. Para pruebas "Live" con dinero real, **NUNCA usar medios de pago propios**. Se requiere que un tercero (amigo/familiar) con otra cuenta de Mercado Pago realice el pago, o utilizar credenciales explícitamente `TEST-` con las tarjetas falsas provistas por MP.
+
+## 2026-05-18: Fidelidad de Renderizado en Iconos PWA y Alternativa PNG para Logos (LT-3)
+
+### Síntoma
+Al generar o actualizar el logo oficial de la aplicación, el script `generate-icons.mjs` (utilizando la librería Sharp) desdibuja o pierde degradados y efectos de brillo vectoriales complejos presentes en el SVG original, resultando en iconos de baja calidad visual o rotos.
+
+### Diagnóstico
+La librería `sharp` y el renderizador SVG subyacente (librsvg) en entornos Node no soportan completamente la gama de propiedades modernas de vectores complejos (degradados no estándar, sombras, efectos glow por CSS SVG, etc.). Al rasterizar un SVG complejo a PNG para los iconos de la PWA (`icon-192x192.png`, `icon-512x512.png`, `favicon.png`), estos detalles se pierden o distorsionan.
+
+### Resolución (The House Way)
+1. **Alternativa PNG nativa**: El logo principal **SÍ se puede dejar en formato PNG de alta resolución** (ej. `public/logo.png`) en lugar de `.svg`.
+2. **Implementación de logo PNG**:
+   - Guardar el logo definitivo en `public/logo.png`.
+   - Modificar las referencias de `src="/logo.svg"` a `src="/logo.png"` en componentes como `/src/app/page.tsx` y `TicketClient.tsx`.
+   - Ajustar el script `scripts/generate-icons.mjs` reemplazando la constante `INPUT` para que lea `public/logo.png` directamente: `const INPUT = path.join(ROOT, 'public', 'logo.png');`. Como la fuente de entrada ya es un mapa de bits PNG renderizado a alta calidad, Sharp realizará el escalado a los iconos de PWA e iconos `favicon.png` de manera impecable y nítida.
+3. **Restauración de Escudo Temporal**:
+   - Se copió la versión vectorial limpia del escudo provisorio con estrella dorada (`src/app/icon.svg`) como el logo oficial provisional (`public/logo.svg`).
+   - Se ejecutó `node scripts/generate-icons.mjs` regenerando de manera exitosa y nítida todos los iconos PWA y favicons, confirmando su estabilidad y renderizado correcto en `localhost:3000`.
+

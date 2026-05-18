@@ -6,7 +6,7 @@ import Link from "next/link";
 import { getLeagueByInvite } from "@/app/actions/leagues";
 
 /**
- * Landing Page Premium - Mundial 2026
+ * Landing Page Premium - MundiApp26
  * Diseñada para impacto visual y conversión (Sales Funnel).
  */
 type PageProps = {
@@ -38,21 +38,21 @@ export default async function Home(props: PageProps) {
       {/* --- NAVIGATION --- */}
       <nav className="sticky top-0 w-full z-50 px-6 py-4 backdrop-blur-md bg-black/20 border-b border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/login" title="Backdoor to Login" className="w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 transition-transform cursor-pointer overflow-hidden shadow-[0_0_20px_rgba(251,191,36,0.15)]">
+          <Link href="/" className="w-12 h-12 rounded-xl flex items-center justify-center hover:scale-105 transition-transform cursor-pointer overflow-hidden shadow-[0_0_20px_rgba(251,191,36,0.2)]">
             <Image
-              src="/icon-192x192.png"
-              alt="Mundial App 2026"
-              width={40}
-              height={40}
-              className="w-10 h-10 object-cover"
+              src="/logo.svg"
+              alt="MundiApp 2026"
+              width={48}
+              height={48}
+              className="w-12 h-12 object-contain"
               priority
             />
           </Link>
-          <span className="font-black tracking-[0.2em] text-sm uppercase hidden sm:block">Mundial 2026</span>
+          <span className="font-black tracking-[0.2em] text-sm uppercase hidden sm:block">MundiApp26</span>
         </div>
         <div className="flex items-center gap-2 sm:gap-4">
             <Link href="/login" className="px-4 py-2 bg-transparent border border-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-white/5 hover:border-white/40 transition-colors">
-                Ingresar
+              Ya estoy Registrado
             </Link>
         </div>
       </nav>
@@ -86,7 +86,7 @@ export default async function Home(props: PageProps) {
 
           <h1 className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-6">
               DOMINA EL <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-white to-primary bg-[length:200%_auto] animate-gradient">MUNDIAL 2026</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-white to-primary bg-[length:200%_auto] animate-gradient">EVENTO GLOBAL 2026</span>
           </h1>
 
           <p className="text-white/50 text-sm md:text-lg max-w-2xl font-medium leading-relaxed mb-10">
@@ -125,14 +125,13 @@ export default async function Home(props: PageProps) {
       {/* --- BENTO GRID FEATURES --- */}
       <section id="features" className="px-6 py-20 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[250px]">
-          
           {/* Card 1: VIP Pass (First, col-span-2) */}
           <div className="md:col-span-2 relative group overflow-hidden bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-[32px] p-8 flex flex-col justify-end hover:border-primary/40 transition-all duration-500">
             <div className="absolute top-8 right-8 w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center">
                 <Ticket className="w-8 h-8 text-primary animate-pulse" />
             </div>
-            <h3 className="text-2xl font-black uppercase tracking-tight mb-2 text-primary">Founder Pass VIP</h3>
-            <p className="text-white/60 text-sm max-w-md">El Fundador de la Liga tendrá acceso exclusivo a funciones avanzadas, oráculo de predicciones y Gestión de la Liga generada para sus amigos.</p>
+            <h3 className="text-2xl font-black uppercase tracking-tight mb-2 text-primary">FOUNDER PASS VIP</h3>
+            <p className="text-white/60 text-sm max-w-md">Como Fundador de la Liga, tenés acceso exclusivo a funciones avanzadas: el Oráculo de Predicciones y la gestión completa de tu Liga privada.</p>
             <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-primary/10 blur-[60px] -z-10" />
           </div>
 
@@ -141,8 +140,8 @@ export default async function Home(props: PageProps) {
             <div className="absolute top-8 right-8 w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center">
                 <Users className="w-6 h-6 text-primary" />
             </div>
-            <h3 className="text-xl font-black uppercase tracking-tight mb-2 text-primary">Multi-Ligas</h3>
-            <p className="text-white/60 text-sm max-w-md">Podes generar las ligas privadas que quieras, invitás a tus otros Capitanes y podes participar en múltiples torneos simultáneos.</p>
+            <h3 className="text-xl font-black uppercase tracking-tight mb-2 text-primary">MULTI-LIGAS</h3>
+            <p className="text-white/60 text-sm max-w-md">Creá todas las ligas privadas que quieras, invitá a tus amigos o pasá el dato a otros Fundadores para participar en múltiples Ligas al mismo tiempo.</p>
           </div>
 
           {/* Card 3: Dashboard */}
@@ -150,8 +149,8 @@ export default async function Home(props: PageProps) {
             <div className="absolute top-8 right-8 w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 <LayoutDashboard className="w-6 h-6 text-primary" />
             </div>
-            <h3 className="text-xl font-black uppercase tracking-tight mb-2 text-primary">Dashboard Ejecutivo</h3>
-            <p className="text-white/60 text-sm max-w-md">Analítica visual de puntos y tablas completas de la Competencia.</p>
+            <h3 className="text-xl font-black uppercase tracking-tight mb-2 text-primary">DASHBOARD EJECUTIVO</h3>
+            <p className="text-white/60 text-sm max-w-md">Seguí la competencia con Data Real Time ( API-Football ) con analítica visual completa: puntos, posiciones y tablas actualizadas de tu Liga.</p>
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent -z-10" />
           </div>
 
@@ -160,8 +159,8 @@ export default async function Home(props: PageProps) {
             <div className="absolute top-8 right-8 w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center">
                 <Swords className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-2xl font-black uppercase tracking-tight mb-2 text-primary">Liga de Pronósticos</h3>
-            <p className="text-white/60 text-sm max-w-md">La competencia central. Los participantes pronostican los resultados de los partidos de La Liga, plantean duelos entre ellos y compiten por el primer puesto de Medallas, antes de que el Oráculo selle el destino.</p>
+            <h3 className="text-2xl font-black uppercase tracking-tight mb-2 text-primary">LIGA DE PRONÓSTICOS</h3>
+            <p className="text-white/60 text-sm max-w-md">El Escenario Central: Pronosticos de cada partido, desafios entre amigos (Los Duelos! ) y competencia por Medallas antes de que el Oráculo selle el destino.</p>
           </div>
 
         </div>
@@ -173,28 +172,118 @@ export default async function Home(props: PageProps) {
         {/* Advertencia / Disclaimer */}
         <div className="p-6 bg-primary/5 border border-primary/20 rounded-3xl mb-16 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
-            <Image src="/icon-192x192.png" alt="Mundial App" width={48} height={48} className="mx-auto mb-4 opacity-90" />
+            <Image src="/logo.svg" alt="Mundial App" width={48} height={48} className="mx-auto mb-4 opacity-90 object-contain" />
             <h4 className="text-primary font-black uppercase tracking-widest text-sm mb-2">Aviso Importante</h4>
             <p className="text-white/70 text-sm leading-relaxed max-w-2xl mx-auto">
                 Incentivamos una competencia entre amigos, estratégica y orientada a crear experiencias memorables. Nuestra Plataforma <strong className="text-white">NO</strong> está diseñada para apuestas con dinero real u otros activos.
             </p>
         </div>
 
-        {/* Bloque Extenso de Lorem Ipsum para completar */}
-        <div className="space-y-6 text-white/50 text-sm md:text-base leading-loose text-left bg-white/[0.02] p-8 md:p-12 border border-white/5 rounded-[40px]">
-            <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-8 text-center">Funcionamiento General de la Propuesta</h3>
-            <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-            </p>
-            <p>
-                Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. 
-            </p>
-            <p>
-                Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi.
-            </p>
-            <p>
-                Aliquam pulvinar vestibulum blandit. Nunc egestas, augue at pellentesque laoreet, felis eros vehicula leo, at malesuada velit leo quis pede. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Nunc nulla. Phasellus accumsan cursus velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat dolor lectus quis orci.
-            </p>
+        {/* Funcionamiento General de la Propuesta */}
+        <div className="space-y-16 text-left max-w-5xl mx-auto px-2">
+            <div className="text-center max-w-2xl mx-auto mb-12">
+              <h4 className="text-[10px] font-black tracking-[0.25em] text-primary uppercase mb-3">La Liga Mundial</h4>
+              <h3 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight leading-none">
+                ¿CÓMO FUNCIONA?
+              </h3>
+              <p className="text-white/50 text-sm mt-4 leading-relaxed font-medium">
+                Estás a punto de vivir el Mundial de otra manera. Te proponemos una experiencia diseñada para disfrutar con tus amigos, con una interfaz intuitiva que te invita a jugar desde el primer momento.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              {/* Card 1: De qué se trata */}
+              <div className="p-8 bg-white/[0.02] border border-white/5 rounded-[32px] relative overflow-hidden group hover:border-primary/20 transition-all duration-300">
+                <div className="absolute top-8 right-8 w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                  <Shield className="w-5 h-5" />
+                </div>
+                <h4 className="text-lg font-black text-white uppercase tracking-tight mb-3">¿De qué se trata?</h4>
+                <p className="text-white/60 text-sm leading-relaxed mb-4">
+                  MundiApp26 es una plataforma de pronósticos deportivos. Aquí competís por diversión, sin dinero en juego y sin restricciones de edad, género o cualquier otra condición.
+                </p>
+                <div className="p-4 bg-primary/5 border border-primary/10 rounded-2xl">
+                  <p className="text-white font-bold italic text-xs leading-relaxed">
+                    Solo fútbol, estrategia y la emoción de pegarle a los resultados más que tus amigos. Si tu grupo decide sumar un incentivo propio —"el que mas acierta NO paga el asado" o "te apuesto un fernet"— es una decisión enteramente de tu Liga. La plataforma no interviene. Esto se lo dejamos a ustedes.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 2: Cómo ingreso */}
+              <div className="p-8 bg-white/[0.02] border border-white/5 rounded-[32px] relative overflow-hidden group hover:border-primary/20 transition-all duration-300 flex flex-col justify-between">
+                <div>
+                  <div className="absolute top-8 right-8 w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                    <Ticket className="w-5 h-5" />
+                  </div>
+                  <h4 className="text-lg font-black text-white uppercase tracking-tight mb-3">¿Cómo ingreso?</h4>
+                  <p className="text-white/60 text-sm leading-relaxed mb-4">
+                    Para acceder necesitás un Access Token. Encontrás todas las instrucciones en el botón <strong className="text-white font-bold">"Quiero Registrarme"</strong>.
+                  </p>
+                  <p className="text-white/60 text-sm leading-relaxed">
+                    Una vez registrado y comprado el Founder Pass VIP, te convertís automáticamente en <strong className="text-white font-bold">Capitán y Fundador de tu Liga</strong>. Podés ponerle el nombre que quieras, o dejar que nosotros generemos uno aleatorio especial para la competencia.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 3: Los poderes del Fundador */}
+              <div className="p-8 bg-white/[0.02] border border-white/5 rounded-[32px] md:col-span-2 relative overflow-hidden group hover:border-primary/20 transition-all duration-300">
+                <div className="absolute top-8 right-8 w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                  <Users className="w-5 h-5" />
+                </div>
+                <h4 className="text-lg font-black text-white uppercase tracking-tight mb-3">Los poderes del Fundador 👑</h4>
+                <p className="text-white/65 text-sm leading-relaxed mb-6">
+                  Como Fundador, tenés acceso a funciones exclusivas que el resto de tu Liga no puede ver ni usar. Desde tu panel podés:
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                  <div className="p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors">
+                    <span className="text-primary font-black uppercase block mb-1">🔗 Invitación Fácil</span>
+                    Generar links de invitación para sumar amigos directamente a tu Liga para compartirlos por WhatsApp, Telegram, SMS o donde prefieras.
+                  </div>
+                  <div className="p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors">
+                    <span className="text-primary font-black uppercase block mb-1">📅 Fixture Oficial</span>
+                    Acceder al Fixture Oficial con todos los partidos, fechas y horarios de la cita Mayor del Fúbtol en USA, México y Canada 2026.
+                  </div>
+                  <div className="p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors">
+                    <span className="text-primary font-black uppercase block mb-1">⚔️ Gestionar Duelos</span>
+                    Gestionar los Duelos cara a cara entre los integrantes de tu Liga, para que la competencia tenga aún más intensidad.
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 4: Así se juega */}
+              <div className="p-8 bg-white/[0.02] border border-white/5 rounded-[32px] relative overflow-hidden group hover:border-primary/20 transition-all duration-300">
+                <div className="absolute top-8 right-8 w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <h4 className="text-lg font-black text-white uppercase tracking-tight mb-3">Así se juega ⚡</h4>
+                <p className="text-white/60 text-sm leading-relaxed mb-3">
+                  En la pantalla de Partidos está el corazón de la acción. Vos y tus amigos pronostican los resultados de cada partido antes de que empiecen.
+                </p>
+                <p className="text-white/60 text-sm leading-relaxed mb-4">
+                  Podés revisarlo, pero una vez que confirmás tu pronóstico <strong className="text-white font-bold">queda SELLADO</strong> — no hay vuelta atrás. Esa es tu sentencia.
+                </p>
+                <p className="text-primary font-bold text-xs uppercase tracking-wider">
+                  🎯 Podés pronosticar partido a partido o anticiparte y resolver toda la Fase de Grupos de una sola vez. El ritmo lo elegís vos.
+                </p>
+              </div>
+
+              {/* Card 5: Los Duelos */}
+              <div className="p-8 bg-white/[0.02] border border-white/5 rounded-[32px] relative overflow-hidden group hover:border-primary/20 transition-all duration-300 flex flex-col justify-between">
+                <div>
+                  <div className="absolute top-8 right-8 w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                    <Swords className="w-5 h-5" />
+                  </div>
+                  <h4 className="text-lg font-black text-white uppercase tracking-tight mb-3">Los Duelos ⚔️</h4>
+                  <p className="text-white/60 text-sm leading-relaxed mb-4">
+                    Desde la pantalla La Liga podés generar Duelos con tus amigos, enfrentandosé entre si por los pronósticos que hicieron en partidos determinados.
+                  </p>
+                  <p className="text-white/60 text-sm leading-relaxed">
+                    Los ganadores se llevan medallas y comentarios que quedan registrados en el perfil de cada jugador — una historia de victorias (y derrotas) que todos pueden ver para presumir o aguantarse las cargadas.
+                  </p>
+                </div>
+              </div>
+
+            </div>
         </div>
 
       </section>
@@ -256,10 +345,8 @@ export default async function Home(props: PageProps) {
             <p className="text-white/65 text-base leading-relaxed mb-6">
               Entre los primeros{" "}
               <strong className="text-white font-black">50 fundadores</strong>{" "}
-              que se registren en la App para formar su propia Liga y completen su grilla con{" "}
-              <strong className="text-white font-black">nueve amigos</strong>{" "}
-              (enviando los links de invitación) sortearemos una{" "}
-              <strong className="text-white">camiseta Oficial</strong>.
+              que se registren en la App para formar su propia Liga sortearemos una{" "}
+              <strong className="text-white">Camiseta Oficial de Argentina</strong>.
             </p>
 
             {/* CTA texto final */}
@@ -284,8 +371,28 @@ export default async function Home(props: PageProps) {
         </div>
       </section>
 
+      {/* --- CTA SECTION --- */}
+      <section className="relative px-6 py-28 max-w-5xl mx-auto text-center overflow-hidden border-t border-white/5">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-primary/10 rounded-full blur-[100px] pointer-events-none -z-10" />
+        
+        <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tight leading-none mb-6">
+          ¿LISTO PARA JUGAR?
+        </h2>
+        <p className="text-white/65 text-base md:text-lg max-w-xl mx-auto leading-relaxed mb-10">
+          El Mundial te espera. Registrate, armá tu Liga e invitá a tus amigos. <strong className="text-white">¡Que empiece la competencia!</strong> 🏆⚽
+        </p>
+
+        <Link href="/login?mode=register" className="inline-flex px-10 py-5 bg-primary text-black font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center gap-3 shadow-[0_10px_40px_rgba(251,191,36,0.3)] hover:scale-105 hover:-translate-y-[2px] transition-all duration-300 group mx-auto justify-center w-fit">
+            Armar mi Liga Ahora
+            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        </Link>
+      </section>
+
       {/* --- FOOTER --- */}
       <footer className="w-full border-t border-white/5 py-12 px-6 text-center">
+        <p className="text-[10px] text-white/30 uppercase font-black tracking-[0.5em] mb-4">
+          Designed by <span className="text-primary">GM/JG TheGame</span>
+        </p>
         <p className="text-[10px] text-white/30 uppercase font-black tracking-[0.5em] mb-4">
           Powered by <span className="text-primary">Antigravity Engine</span>
         </p>
@@ -295,7 +402,7 @@ export default async function Home(props: PageProps) {
             <a href="#" className="text-[9px] uppercase font-bold text-white/40 hover:text-white transition-colors">Soporte</a>
         </div>
         <p className="text-[8px] text-white/20 uppercase font-medium tracking-widest">
-          © 2026 MUNDIAL APP ARENA — Todos los derechos reservados.
+          © 2026 -  MUNDIAPP26 - LIGAS — Todos los derechos reservados.
         </p>
       </footer>
 

@@ -16,8 +16,7 @@
   - [x] **Funnel de Venta**: Integración de CTAs y `RegistrationModal` con instrucciones reales.
   - [x] **Soporte PWA (Progresive Web App)**: Archivo manifest e instalador interactivo nativo (iOS/Android).
     - [x] **Fix de Instalación**: Service Worker registrado e iconos de respaldo configurados.
-    - [x] **Íconos Oficiales**: `icon-192x192.png`, `icon-512x512.png` y `favicon.png` generados desde `mdapp26_ico.jpeg` con fondo negro. Manifest y layout actualizados. Script `scripts/generate-icons.mjs` disponible para regenerar.
-    - [!] *Pendiente visual:* Reemplazar íconos con versión SVG definitiva cuando esté disponible (bordes del medallón aún muestran contorno blanco en PNG).
+    - [x] **Íconos Oficiales**: `icon-192x192.png`, `icon-512x512.png` y `favicon.png` generados desde `logo.svg` (basado en la versión definitiva `MdApp26_ico_1.svg`). Se eliminó por completo el contorno blanco gracias a la transparencia vectorial.
   - [x] **Audit de Calidad**: Verificación visual y funcional del funnel de conversión.
   - [x] **Ícono Oficial en Landing**: Medallón `mdapp26` reemplaza al Shield genérico en navbar y disclaimer. Backdoor `/login` preservado.
   - [x] **Sección Sorteo Camiseta Argentina**: Nuevo bloque con 2 cards (imagen placeholder + texto del sorteo) antes del footer. Ancla `#sorteo` con scroll-mt.
@@ -46,16 +45,15 @@
   - [x] **Nueva Vista 1 (Registro + Bautismo):** Unificar la creación de cuenta en Supabase con el input "Nombre de tu Liga" para generar el anclaje (Endowment Effect).
   - [x] **Nueva Vista 2 (Paywall Dinámico):** Mostrar el componente de pago inmediatamente después de reservar el nombre ("La liga [Nombre] es tuya. Pagá la franquicia para activarla").
   - [x] **Mejora del Modo `/demo` (Vidriera):** Inyectar un JSON estático en los componentes reales del Dashboard. Interfaz 100% interactiva donde botones bloqueados disparan el CTA de "Comprar Founder Pass". (Mantiene intacto el Shield Protocol).
-  - [ ] Integración final del Webhook de Mercado Pago para procesar pagos reales.
-  - [ ] Reemplazar íconos PWA con versión SVG definitiva.
+  - [x] Integración final del Webhook de Mercado Pago para procesar pagos reales.
+  - [x] Reemplazar íconos PWA con versión SVG definitiva.
 
 ## Current Trajectory
-**Status**: Hito 9 completado con éxito. Se reestructuró totalmente el Funnel de Conversión, implementando el Onboarding One-Shot y el Paywall reactivo. Se creó el modo Demo interactivo ("Vidriera") que intercepta interacciones y redirige a la compra. También se erradicó la deuda técnica del Onboarding de Invitados, obligando al uso de Email real para prevenir la pérdida de cuentas.
+**Status**: Fase de Conversión y Pasarela de Pagos (Hito 9) COMPLETADA AL 100%. La pasarela de Mercado Pago Checkout Pro fue testeada exitosamente en Producción con dinero real. El Webhook Callback activa automáticamente la membresía "Founder" y crea la Liga en la base de datos sin fricción.
 
-**Próximos Pasos (Próxima Sesión):**
-1. Integración total y final del Webhook de Mercado Pago.
-2. Desarrollo del Motor de Duelos Privados o Knockouts.
-3. Chat de Liga Realtime (Backlog).
+**Próximos Pasos:**
+1. Desarrollo del Motor de Duelos Privados (Apuestas Peer-to-Peer).
+2. Chat de Liga Realtime (Backlog).
 
 ## Squad Status
 | Agent | Task | Status |
@@ -63,4 +61,4 @@
 | Builder | One-Shot Onboarding & Guest Auth | ✅ VERIFIED & POLISHED |
 | Design Lead | Demo Mode Interceptor UX | ✅ VERIFIED & POLISHED |
 | Infrastructure | Web Push Service Worker | ✅ COMPLETED |
-| Product | Webhook MP & Checkout Flow | ⏳ PENDING |
+| Product | Webhook MP & Checkout Flow | ✅ VERIFIED & POLISHED |

@@ -86,6 +86,14 @@
 }
 
 @layer base {
+  html {
+    font-size: 17px;
+  }
+  @media (max-width: 768px) {
+    html {
+      font-size: 18px; /* 2 puntos más grande en celular */
+    }
+  }
   * {
     @apply border-border;
   }
@@ -156,13 +164,14 @@
    ──────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   /* Tamaños extremos → al piso legible */
-  .text-\[9px\]  { font-size: 11px !important; }
-  .text-\[10px\] { font-size: 12px !important; }
-  .text-\[11px\] { font-size: 13px !important; }
+  .text-\[9px\]  { font-size: 12px !important; }
+  .text-\[10px\] { font-size: 13px !important; }
+  .text-\[11px\] { font-size: 14px !important; }
 
   /* text-xs (12px) y text-sm (14px) → un escalón arriba */
-  .text-xs { font-size: 13px !important; letter-spacing: 0.01em; }
-  .text-sm { font-size: 15px !important; }
+  .text-xs { font-size: 14px !important; letter-spacing: 0.01em; }
+  .text-sm { font-size: 16px !important; }
+  .text-base { font-size: 18px !important; }
 
   /* Mejorar legibilidad de textos de apoyo */
   p, li {

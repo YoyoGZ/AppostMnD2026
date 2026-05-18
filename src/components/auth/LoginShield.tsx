@@ -370,6 +370,20 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                   )}
                 </div>
               )}
+              
+              {/* Botón de escape: Cerrar sesión si ya estabas logueado */}
+              {currentUser && !inviteCode && (
+                <div className="mt-2 text-center border-t border-white/5 pt-4">
+                  <p className="text-white/40 text-[10px] mb-2 font-medium">Estás logueado como {currentUser.email}</p>
+                  <button 
+                    type="button" 
+                    onClick={() => supabase.auth.signOut().then(() => window.location.href = '/')} 
+                    className="text-red-400/60 hover:text-red-400 text-[11px] uppercase font-bold tracking-widest transition-colors"
+                  >
+                    Cerrar sesión actual
+                  </button>
+                </div>
+              )}
             </form>
           )}
         </div>
