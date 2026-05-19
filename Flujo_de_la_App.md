@@ -73,15 +73,16 @@ Este documento detalla el "Customer Journey" y la arquitectura funcional de la p
 ## 4. Administración Central (God Mode / HQ)
 
 ### El Puesto de Mando (`/hq`)
-*   **Flujo**: Acceso restringido para el Super Administrador (Tú).
+*   **Flujo**: Acceso restringido con RLS y validación de rol del lado del servidor para el Super Administrador (Tú).
 *   **Acciones**: 
-    *   **Fábrica de Pases**: Generar links VIP para nuevos Fundadores.
-    *   **Sync Agent**: Inyectar resultados reales o simulados a la base de datos global.
+    *   **Control de Pasarela (Modo Test)**: Switch interactivo con Optimistic UI para alternar el valor del Founder Pass en caliente entre $20 (Sandbox) y $50.000 (Producción) guardado en la tabla `app_settings` de Supabase.
+    *   **Censo Global de Ventas**: Conexión nativa con la API de Mercado Pago (`/v1/payments/search`) para buscar, listar y conciliar cobros reales en producción de forma instantánea.
+    *   **Sync Agent**: Inyectar resultados de fase de grupos simulados a la base de datos global.
     *   **Control de Eliminatorias**: Decidir quién avanza en el bracket oficial.
 *   **Archivos Clave**:
-    *   `src/app/hq/page.tsx` (Panel central).
-    *   `src/app/actions/admin.ts` (Funciones de generación de tokens).
-    *   `src/app/actions/sync.ts` (Motor de sincronización con la API).
+    *   `src/app/hq/page.tsx` (Panel central rediseñado sin tokens obsoletos).
+    *   `src/app/actions/admin.ts` (Lectura/escritura de settings y fetch en vivo de Mercado Pago).
+    *   `src/app/actions/sync.ts` (Motor de sincronización y simulación de partidos).
 
 ---
 
@@ -117,9 +118,10 @@ Este documento detalla el "Customer Journey" y la arquitectura funcional de la p
 ---
 
 ## 8. Backlog & Siguientes Pasos
-1.  **Motor de Duelos Privados (Peer-to-Peer) ⚔️**: El coliseo interactivo para apostar cara a cara con amigos en partidos individuales de la Copa del Mundo.
-2.  **Chat en Tiempo Real de Liga 💬**: Canal de Supabase Realtime para dinamizar la interacción social entre gladiadores de la misma liga.
-3.  **Social Sharing Kit**: Generar y compartir capturas estéticas de la tabla de posiciones directamente en redes sociales.
+1.  **Fase de Pruebas Masivas y Estrés 🧪**: Ejecutar el plan de pruebas de concurrencia usando el Switch a $20 ARS en el HQ para testear el funnel con beta-testers reales.
+2.  **Motor de Duelos Privados (Peer-to-Peer) ⚔️**: El coliseo interactivo para apostar cara a cara con amigos en partidos individuales de la Copa del Mundo.
+3.  **Chat en Tiempo Real de Liga 💬**: Canal de Supabase Realtime para dinamizar la interacción social entre gladiadores de la misma liga.
+4.  **Social Sharing Kit**: Generar y compartir capturas estéticas de la tabla de posiciones directamente en redes sociales.
 
 ---
 **Documento actualizado por Antigravity Engine - 2026**

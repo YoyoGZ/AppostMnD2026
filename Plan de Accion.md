@@ -48,13 +48,21 @@
   - [x] Integración final del Webhook de Mercado Pago para procesar pagos reales.
   - [x] Reemplazar íconos PWA con versión SVG definitiva.
   - [x] **HQ Redesign & Control de Pasarela**: Remoción de la fábrica de tokens obsoleta, integración del Switch de cambio de precio en caliente ($20 vs. $50.000 ARS) y automatización del Censo Global conectado a la API de Mercado Pago en tiempo real.
+  - [x] **Estabilización de Flujo (LT-5)**: Eliminar el bucle infinito de redirecciones al retornar del pago fallido y hacer el paywall dinámico (soporte a url limpia + creación directa a founders activos).
+
+- [ ] **Hito 10: Pruebas de Estrés & Beta Testing Masivo** 🧪 *(Próximo Sprint)*
+  - [ ] **Simulación Concurrente de Pagos**: Activar el Switch a $20 ARS en el HQ y lanzar una convocatoria privada con 15-20 beta-testers reales. Evaluar velocidad del Webhook, creación automática de ligas y despliegue del historial en el Censo Global en vivo.
+  - [ ] **Stress Test de Tabla de Posiciones**: Forzar la inyección masiva de resultados (a través de "Sync Agent" en el HQ) con 50+ usuarios conectados de forma concurrente en `/dashboard` para verificar cálculo y ordenamiento de grupos.
+  - [ ] **Control de Colisión SSR Lock**: Evaluar que no existan bloqueos de sesión en Supabase (validando las lecciones del incidente del candado SSR Lock Collision) durante el guardado intensivo de predicciones en listas de partidos activos.
+  - [ ] **Despliegue Masivo Push**: Lanzar alertas de goles y cambio de estado de partidos en background desde el HQ hacia todos los dispositivos suscritos para verificar la reactividad y retención del Service Worker.
 
 ## Current Trajectory
-**Status**: Fase de Conversión y Pasarela de Pagos (Hito 9) COMPLETADA AL 100%. La pasarela de Mercado Pago Checkout Pro fue testeada exitosamente en Producción con dinero real. El Webhook Callback activa automáticamente la membresía "Founder" y crea la Liga en la base de datos sin fricción.
+**Status**: Fase de Conversión y Pasarela de Pagos (Hito 9) COMPLETADA AL 100%. Se ha rediseñado exitosamente el HQ, integrando control en caliente de precios para pruebas en vivo y monitoreo de cobros reales desde Mercado Pago. El sistema está listo para entrar a la fase de pruebas masivas controladas.
 
 **Próximos Pasos:**
-1. Desarrollo del Motor de Duelos Privados (Apuestas Peer-to-Peer).
-2. Chat de Liga Realtime (Backlog).
+1. **Sesión de Pruebas de Estrés y Beta Testing Masivo** (Hito 10) utilizando el valor de prueba a $20 ARS.
+2. Desarrollo del Motor de Duelos Privados (Apuestas Peer-to-Peer).
+3. Chat de Liga Realtime (Backlog).
 
 ## Squad Status
 | Agent | Task | Status |

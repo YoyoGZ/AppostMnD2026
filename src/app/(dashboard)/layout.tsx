@@ -26,9 +26,8 @@ export default async function DashboardLayout({
   const isSuperAdmin = user.user_metadata?.role === 'super_admin';
 
   if (myLeagues.length === 0 && !isSuperAdmin) {
-    // permanentRedirect reemplaza la entrada actual en el historial (no apila).
-    // Evita que el botón "atrás" en mobile regrese al dashboard vacío.
-    redirect("/login?mode=register");
+    // Redirige al usuario al paywall/onboarding para activar su liga o crearla si ya pagó
+    redirect("/paywall");
   }
 
   // 2. Identificar la liga activa desde los metadatos

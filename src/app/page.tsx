@@ -4,6 +4,7 @@ import { LandingWrapper } from "@/components/landing/LandingWrapper";
 import { Shield, LayoutDashboard, Users, Ticket, Zap, ChevronRight, Play, Swords } from "lucide-react";
 import Link from "next/link";
 import { getLeagueByInvite } from "@/app/actions/leagues";
+import { createClient } from "@/utils/supabase/server";
 
 /**
  * Landing Page Premium - MundiApp26
@@ -23,6 +24,23 @@ export default async function Home(props: PageProps) {
     if (res && !('error' in res)) {
       leagueInfo = res;
     }
+  }
+
+  // Comprobación de sesión para adaptar la interfaz
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  let hasLeague = false;
+  let isSuperAdmin = false;
+  
+  if (user) {
+    isSuperAdmin = user.user_metadata?.role === 'super_admin';
+    const { data: membership } = await supabase
+      .from('league_members')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    hasLeague = !!membership;
   }
 
   return (
@@ -51,9 +69,18 @@ export default async function Home(props: PageProps) {
           <span className="font-black tracking-[0.2em] text-sm uppercase hidden sm:block">MundiApp26</span>
         </div>
         <div className="flex items-center gap-2 sm:gap-4">
-            <Link href="/login" className="px-4 py-2 bg-transparent border border-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-white/5 hover:border-white/40 transition-colors">
-              Ya estoy Registrado
-            </Link>
+            {user ? (
+              <Link 
+                href={isSuperAdmin ? "/hq" : (hasLeague ? "/dashboard" : "/paywall")} 
+                className="px-4 py-2 bg-primary hover:bg-primary/95 text-black text-[10px] font-black uppercase tracking-widest rounded-lg transition-all shadow-[0_0_15px_rgba(251,191,36,0.25)] hover:scale-[1.02] active:scale-[0.98]"
+              >
+                {isSuperAdmin ? "Cuartel General" : (hasLeague ? "Mi Dashboard" : "Activar mi Liga")}
+              </Link>
+            ) : (
+              <Link href="/login" className="px-4 py-2 bg-transparent border border-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-white/5 hover:border-white/40 transition-colors">
+                Ya estoy Registrado
+              </Link>
+            )}
         </div>
       </nav>
 
@@ -95,10 +122,20 @@ export default async function Home(props: PageProps) {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/login?mode=register" className="px-8 py-4 bg-primary text-black font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center gap-3 shadow-[0_10px_40px_rgba(251,191,36,0.3)] hover:translate-y-[-2px] transition-all group w-full sm:w-auto justify-center">
-                  Armá tu Liga
+              {user ? (
+                <Link 
+                  href={isSuperAdmin ? "/hq" : (hasLeague ? "/dashboard" : "/paywall")} 
+                  className="px-8 py-4 bg-primary text-black font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center gap-3 shadow-[0_10px_40px_rgba(251,191,36,0.3)] hover:translate-y-[-2px] hover:shadow-[0_15px_45px_rgba(251,191,36,0.45)] hover:scale-[1.02] transition-all group w-full sm:w-auto justify-center"
+                >
+                  {isSuperAdmin ? "Entrar al HQ" : (hasLeague ? "Entrar a mi Liga" : "Activar mi Liga")}
                   <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
+                </Link>
+              ) : (
+                <Link href="/login?mode=register" className="px-8 py-4 bg-primary text-black font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center gap-3 shadow-[0_10px_40px_rgba(251,191,36,0.3)] hover:translate-y-[-2px] hover:shadow-[0_15px_45px_rgba(251,191,36,0.45)] hover:scale-[1.02] transition-all group w-full sm:w-auto justify-center">
+                    Armá tu Liga
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              )}
               <Link href="/demo" className="px-8 py-4 bg-white/5 border border-white/10 text-white font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center gap-3 backdrop-blur-md hover:bg-white/10 transition-all w-full sm:w-auto justify-center">
                   <Play className="w-4 h-4 fill-white" />
                   Explorar Demo

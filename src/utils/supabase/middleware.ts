@@ -74,19 +74,21 @@ export async function updateSession(request: NextRequest) {
 
   // 3. Verificación de membresía básica (solo para el Dashboard principal)
   if (user && request.nextUrl.pathname.startsWith('/dashboard') && request.nextUrl.pathname !== '/login') {
-    const { data: membership } = await supabase
-      .from('league_members')
-      .select('id')
-      .eq('user_id', user.id)
-      .maybeSingle()
+    const role = user.user_metadata?.role;
+    if (role !== 'super_admin') {
+      const { data: membership } = await supabase
+        .from('league_members')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle()
 
-    if (!membership) {
-      // REWRITE en lugar de REDIRECT: muestra /onboarding sin agregar entrada al historial del browser.
-      // Esto evita que el botón "atrás" en mobile regrese a esta pantalla inesperadamente.
-      const url = request.nextUrl.clone()
-      url.pathname = '/login'
-      url.searchParams.set('mode', 'register')
-      return NextResponse.rewrite(url)
+      if (!membership) {
+        // Redirigimos al paywall para resolver el flujo (comprar pass o crear liga)
+        // en lugar de mandar a login?mode=register que causa bucles infinitos.
+        const url = request.nextUrl.clone()
+        url.pathname = '/paywall'
+        return NextResponse.redirect(url)
+      }
     }
   }
 

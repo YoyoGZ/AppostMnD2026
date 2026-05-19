@@ -157,3 +157,43 @@ La librería `sharp` y el renderizador SVG subyacente (librsvg) en entornos Node
    - Se copió la versión vectorial limpia del escudo provisorio con estrella dorada (`src/app/icon.svg`) como el logo oficial provisional (`public/logo.svg`).
    - Se ejecutó `node scripts/generate-icons.mjs` regenerando de manera exitosa y nítida todos los iconos PWA y favicons, confirmando su estabilidad y renderizado correcto en `localhost:3000`.
 
+## 2026-05-18: Gestión de Cambios Dinámicos de Precios y Restricciones de Copyright (LT-4)
+
+### Síntoma
+1. **Riesgo Legal (Copyright)**: El uso de marcas y términos de torneos oficiales (ej: "Mundial 2026", "Copa Mundial FIFA") genera riesgos de infracción de propiedad intelectual.
+2. **Fricción en Entornos de Pruebas**: Cambiar los valores de los productos en la pasarela de pagos (de $50.000 para producción a $20 para pruebas) requería alterar variables de entorno de Next.js, forzando redespliegues lentos en Vercel.
+
+### Diagnóstico
+1. **Unificación de Marca**: La app debe usar nombres propios y exclusivos (ej: **MundiApp26**). Esto elimina la necesidad de usar marcas comerciales registradas en títulos de páginas, metadatos y documentación.
+2. **Rigidez en Compilación**: Las variables de entorno de Next.js se inyectan en build-time. La única forma de alternar precios en caliente de forma instantánea es leer configuraciones en tiempo real desde la base de datos de Supabase en un Server Action.
+
+### Resolución (The House Way)
+1. **Unificación a MundiApp26**: Se sustituyeron todas las menciones del torneo oficial en el código y la PWA para consolidar la marca protegida y legal de la App.
+2. **Tabla de Hot-Settings (`app_settings`)**:
+   - Se diseñó una tabla centralizada de configuraciones generales en la base de datos de Supabase.
+   - Se implementó un **Switch de Pasarela** dinámico en el HQ de administración (God Mode) que altera la clave `founder_pass_test_mode`.
+   - **Mecanismo de Resiliencia (Zero Crash)**: El Server Action que crea la preferencia en Mercado Pago consulta esta clave. Si la consulta falla (ej: tabla ausente o error de red), se intercepta el error silenciosamente y aplica el precio oficial final ($50.000 ARS) como fallback por defecto, blindando los cobros de producción de cualquier error lógico.
+   - **Censo de Pagos Integrado**: En lugar de placeholders inactivos, se conectó el panel a la API en vivo de Mercado Pago (`/v1/payments/search`) con filtrados de metadatos, cruzando instantáneamente transacciones reales con perfiles de usuarios.
+
+## 2026-05-19: El Callejón sin Salida del Flujo de Registro (Bucle de Redirecciones) (LT-5)
+
+### Síntoma
+Un usuario ya registrado en la plataforma (cuya cuenta en Supabase ya fue creada) pero que no llegó a completar el pago de Mercado Pago (o canceló/abandonó el flujo de pago) quedaba atrapado en un bucle infinito ("callejón sin salida") al intentar regresar:
+1. Al acceder a `/dashboard`, el middleware y el `DashboardLayout` detectaban que el usuario no pertenecía a ninguna liga (`myLeagues.length === 0`), reescribiéndolo o redirigiéndolo incondicionalmente a la pantalla de registro (`/login?mode=register`).
+2. Al ingresar en la pantalla de registro con su cuenta creada, el `LoginShield` detectaba la sesión activa. Si intentaba loguearse con su clave, lo enviaba a `/dashboard`, lo que volvía a disparar la redirección a `/login?mode=register`.
+3. Si intentaba registrarse nuevamente con su email, la base de datos arrojaba un error de que el correo ya estaba registrado, imposibilitando por completo continuar.
+
+### Diagnóstico
+1. **Falta de Redirección Inteligente por Autenticación**: El middleware y `DashboardLayout` asumían erróneamente que la ausencia de membresía significaba que el usuario era un visitante anónimo que requería registrarse, en lugar de identificar que ya era un usuario logueado con pago pendiente.
+2. **URL de Pago Frágil**: La página de `/paywall` requería obligatoriamente recibir el nombre de la liga por query param (`leagueName`). Si el usuario volvía de forma directa al sitio sin ese query string en la URL, el componente arrojaba un alert y lo expulsaba de vuelta al inicio, impidiéndole completar la compra.
+3. **Pérdida de Transaccionalidad de Pago Activo**: Si el usuario ya era `founder` en la tabla `profiles` (porque el pago se procesó exitosamente pero la creación de la liga falló o fue cancelada), la aplicación le seguía exigiendo ingresar a Mercado Pago y abonar nuevamente en vez de proveerle una forma directa de fundar su arena.
+
+### Resolución (The House Way)
+1. **Redirección de Membresía a Paywall**: Se modificó `src/utils/supabase/middleware.ts` y `src/app/(dashboard)/layout.tsx` para que si un usuario autenticado no posee membresía de liga (y no es `super_admin`), sea redirigido de forma segura a `/paywall` en lugar de a `/login?mode=register`.
+2. **Paywall Adaptativo e Inteligente**: Se reescribió `src/app/paywall/page.tsx` para:
+   - Consultar el rol del usuario directamente en la fuente de verdad (tabla `profiles` en Supabase) al montarse.
+   - Si el usuario **ya pagó (es `founder` o `super_admin`)**, ocultar el botón de cobro y proveer una interfaz premium "Crear mi Arena Gratis" para bautizar su liga e insertarla directamente mediante la Server Action `createLeagueAction`.
+   - Si el usuario **no ha pagado**, y el query string `leagueName` está vacío, desplegar un input estético dentro de la card de pago que le permite bautizar su liga antes de proceder al Checkout de Mercado Pago, eliminando la alerta y la obtención de fallos en el flujo.
+3. **Landing Dinámica**: Se adaptaron los Server Components de `src/app/page.tsx` para detectar si el usuario posee sesión activa, transformando los botones de "Armá tu Liga" y "Ya estoy Registrado" en accesos directos al Dashboard, HQ o Paywall en caliente de acuerdo a su estado y rol, puliendo el "Customer Journey" al máximo estándar del mercado.
+
+
