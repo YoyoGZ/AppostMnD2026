@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ token: st
     openGraph: {
       title: '🎟️ LICENCIA DE CAPITÁN - MundiApp26',
       description: 'Acceso seguro y exclusivo. Toca aquí para ver tu entrada digital.',
-      images: ['/logo.svg'], 
+      images: ['/assets/logo_oficial.png'], 
     },
   };
 }

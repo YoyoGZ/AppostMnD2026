@@ -1,10 +1,11 @@
-import React from "react";
+import React, { Suspense } from "react";
 import Image from "next/image";
 import { LandingWrapper } from "@/components/landing/LandingWrapper";
 import { Shield, LayoutDashboard, Users, Ticket, Zap, ChevronRight, Play, Swords } from "lucide-react";
 import Link from "next/link";
 import { getLeagueByInvite } from "@/app/actions/leagues";
-import { createClient } from "@/utils/supabase/server";
+import { LandingNavActions, LandingNavActionsFallback } from "@/components/landing/LandingNavActions";
+import { LandingHeroActions, LandingHeroActionsFallback } from "@/components/landing/LandingHeroActions";
 
 /**
  * Landing Page Premium - MundiApp26
@@ -26,22 +27,7 @@ export default async function Home(props: PageProps) {
     }
   }
 
-  // Comprobación de sesión para adaptar la interfaz
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  let hasLeague = false;
-  let isSuperAdmin = false;
-  
-  if (user) {
-    isSuperAdmin = user.user_metadata?.role === 'super_admin';
-    const { data: membership } = await supabase
-      .from('league_members')
-      .select('id')
-      .eq('user_id', user.id)
-      .maybeSingle();
-    hasLeague = !!membership;
-  }
+
 
   return (
     <LandingWrapper>
@@ -58,7 +44,7 @@ export default async function Home(props: PageProps) {
         <div className="flex items-center gap-3">
           <Link href="/" className="w-12 h-12 rounded-xl flex items-center justify-center hover:scale-105 transition-transform cursor-pointer overflow-hidden shadow-[0_0_20px_rgba(251,191,36,0.2)]">
             <Image
-              src="/logo.svg"
+              src="/assets/logo_oficial.png"
               alt="MundiApp 2026"
               width={48}
               height={48}
@@ -68,20 +54,9 @@ export default async function Home(props: PageProps) {
           </Link>
           <span className="font-black tracking-[0.2em] text-sm uppercase hidden sm:block">MundiApp26</span>
         </div>
-        <div className="flex items-center gap-2 sm:gap-4">
-            {user ? (
-              <Link 
-                href={isSuperAdmin ? "/hq" : (hasLeague ? "/dashboard" : "/paywall")} 
-                className="px-4 py-2 bg-primary hover:bg-primary/95 text-black text-[10px] font-black uppercase tracking-widest rounded-lg transition-all shadow-[0_0_15px_rgba(251,191,36,0.25)] hover:scale-[1.02] active:scale-[0.98]"
-              >
-                {isSuperAdmin ? "Cuartel General" : (hasLeague ? "Mi Dashboard" : "Activar mi Liga")}
-              </Link>
-            ) : (
-              <Link href="/login" className="px-4 py-2 bg-transparent border border-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-white/5 hover:border-white/40 transition-colors">
-                Ya estoy Registrado
-              </Link>
-            )}
-        </div>
+        <Suspense fallback={<LandingNavActionsFallback />}>
+          <LandingNavActions />
+        </Suspense>
       </nav>
 
       {/* --- HERO SECTION --- full-width para permitir pill al borde real */}
@@ -121,26 +96,9 @@ export default async function Home(props: PageProps) {
               Generá tu Liga, desafía a tus amigos y viví toda la competencia con datos en tiempo real y una interfaz diseñada para la victoria.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              {user ? (
-                <Link 
-                  href={isSuperAdmin ? "/hq" : (hasLeague ? "/dashboard" : "/paywall")} 
-                  className="px-8 py-4 bg-primary text-black font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center gap-3 shadow-[0_10px_40px_rgba(251,191,36,0.3)] hover:translate-y-[-2px] hover:shadow-[0_15px_45px_rgba(251,191,36,0.45)] hover:scale-[1.02] transition-all group w-full sm:w-auto justify-center"
-                >
-                  {isSuperAdmin ? "Entrar al HQ" : (hasLeague ? "Entrar a mi Liga" : "Activar mi Liga")}
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              ) : (
-                <Link href="/login?mode=register" className="px-8 py-4 bg-primary text-black font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center gap-3 shadow-[0_10px_40px_rgba(251,191,36,0.3)] hover:translate-y-[-2px] hover:shadow-[0_15px_45px_rgba(251,191,36,0.45)] hover:scale-[1.02] transition-all group w-full sm:w-auto justify-center">
-                    Armá tu Liga
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              )}
-              <Link href="/demo" className="px-8 py-4 bg-white/5 border border-white/10 text-white font-black uppercase tracking-[0.2em] text-xs rounded-2xl flex items-center gap-3 backdrop-blur-md hover:bg-white/10 transition-all w-full sm:w-auto justify-center">
-                  <Play className="w-4 h-4 fill-white" />
-                  Explorar Demo
-              </Link>
-          </div>
+          <Suspense fallback={<LandingHeroActionsFallback />}>
+            <LandingHeroActions />
+          </Suspense>
         </div>
 
       </section>
@@ -209,7 +167,6 @@ export default async function Home(props: PageProps) {
         {/* Advertencia / Disclaimer */}
         <div className="p-6 bg-primary/5 border border-primary/20 rounded-3xl mb-16 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
-            <Image src="/logo.svg" alt="Mundial App" width={48} height={48} className="mx-auto mb-4 opacity-90 object-contain" />
             <h4 className="text-primary font-black uppercase tracking-widest text-sm mb-2">Aviso Importante</h4>
             <p className="text-white/70 text-sm leading-relaxed max-w-2xl mx-auto">
                 Incentivamos una competencia entre amigos, estratégica y orientada a crear experiencias memorables. Nuestra Plataforma <strong className="text-white">NO</strong> está diseñada para apuestas con dinero real u otros activos.

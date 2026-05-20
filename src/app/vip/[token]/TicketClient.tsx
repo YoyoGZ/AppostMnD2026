@@ -76,7 +76,7 @@ export default function TicketClient({ token }: { token: string }) {
           {/* Top Section */}
           <div className="text-center pb-10">
             <h3 className="text-yellow-500 font-black tracking-[0.3em] uppercase text-[10px] mb-4">Golden Pass</h3>
-            <img src="/logo.svg" alt="Mundial Logo" className="w-20 h-20 mx-auto mb-4 drop-shadow-[0_0_15px_rgba(234,179,8,0.4)]" />
+            <img src="/assets/logo_oficial.png" alt="Mundial Logo" className="w-20 h-20 mx-auto mb-4 drop-shadow-[0_0_15px_rgba(234,179,8,0.4)]" />
             <h1 className="text-3xl font-black text-white uppercase tracking-tighter">LICENCIA<br/><span className="text-white/40">DE CAPITÁN</span></h1>
           </div>
 

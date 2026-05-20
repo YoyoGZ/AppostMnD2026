@@ -11,16 +11,19 @@ import {
   RefreshCw, 
   CheckCircle2, 
   XCircle, 
-  AlertTriangle 
+  AlertTriangle,
+  QrCode
 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { LiveMatchTestModal } from './LiveMatchTestModal';
+import { RaffleModule } from '@/components/admin/RaffleModule';
 import { 
   getTestModeAction, 
   toggleTestModeAction, 
   fetchMpPaymentsAction 
 } from '@/app/actions/admin';
+
 
 export default function HQPage() {
   const router = useRouter();
@@ -270,8 +273,12 @@ export default function HQPage() {
             </div>
           </div>
 
+          {/* Módulo de Censo & Sorteo de la Camiseta Oficial */}
+          <RaffleModule />
+
           {/* Censo Global de Transacciones Reales (Mercado Pago) */}
           <div className="bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-3xl p-6 relative overflow-hidden">
+
             <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl -z-10" />
             
             <div className="flex items-center justify-between mb-6">
@@ -390,6 +397,48 @@ export default function HQPage() {
         </div>
 
       </main>
+
+      {/* SECCIÓN DEL CODIGO QR PARA FLYER (TEMPORAL) */}
+      <footer className="mt-12 pb-12 pt-8 border-t border-white/10 flex flex-col items-center">
+        <div className="w-full max-w-md bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-3xl p-6 relative overflow-hidden group text-center shadow-[0_0_50px_rgba(255,255,255,0.02)]">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl -z-10" />
+          
+          <div className="flex flex-col items-center gap-3 mb-4">
+            <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
+              <QrCode className="w-6 h-6 text-amber-500" />
+            </div>
+            <div>
+              <h2 className="text-lg font-black uppercase tracking-wider text-white">Generador de QR Oficial</h2>
+              <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">Escaneable en vivo para Publicidad</p>
+            </div>
+          </div>
+
+          <p className="text-white/60 text-xs mb-6 max-w-sm mx-auto leading-relaxed">
+            Código QR de alta definición (5cm x 5cm) generado para <span className="text-amber-500 font-bold">www.mundiapp26.com</span>. Sacale una captura de pantalla e instalalo en tu Word para el flyer impreso.
+          </p>
+
+          {/* Contenedor del QR con caja blanca y bordes suaves */}
+          <div className="flex justify-center mb-5">
+            <div className="bg-white p-4 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-transform duration-300 hover:scale-105">
+              <img 
+                src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://www.mundiapp26.com" 
+                alt="QR Code Oficial MundiApp26" 
+                className="w-48 h-48 object-contain"
+                style={{ imageRendering: 'pixelated' }}
+              />
+            </div>
+          </div>
+
+          <div className="inline-flex flex-col items-center">
+            <span className="text-[11px] font-mono text-white/50 bg-black/40 px-3 py-1 rounded-md border border-white/5">
+              https://www.mundiapp26.com
+            </span>
+            <span className="text-[9px] text-white/30 mt-2 italic font-bold">
+              Tamaño aproximado en pantalla: ~5cm x 5cm (192px)
+            </span>
+          </div>
+        </div>
+      </footer>
 
       {isLiveMatchTestOpen && (
         <LiveMatchTestModal onClose={() => setIsLiveMatchTestOpen(false)} />
