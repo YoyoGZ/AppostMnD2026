@@ -52,9 +52,10 @@ export function LeagueChat({ leagueId, currentUserId, onClose }: LeagueChatProps
           table: 'league_messages',
           filter: `league_id=eq.${leagueId}`
         },
-        (payload) => {
+        (payload: any) => {
           setMessages((prev) => [...prev, payload.new as Message]);
         }
+
       )
       .subscribe();
 

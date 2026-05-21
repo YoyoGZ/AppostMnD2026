@@ -11,23 +11,26 @@ import { createClient } from "@/utils/supabase/client";
 import { InstallAppButton } from "@/components/pwa/InstallAppButton";
 import { PushOptInButton } from "@/components/pwa/PushOptInButton";
 import { getStandingsAction } from "@/app/actions/sync";
+import { CorporateBentoHeader } from "@/components/dashboard/CorporateBentoHeader";
+import { useSidebar } from "@/context/SidebarContext";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Dashboard() {
+  const { brandTheme } = useSidebar();
+  const { user } = useAuth();
   const [activeGroup, setActiveGroup] = useState("A");
   const [showRules, setShowRules] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
   const [standings, setStandings] = useState<any[]>([]);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id || null));
-    
     getStandingsAction().then((res) => {
       if (res.success && res.standings) {
         setStandings(res.standings);
       }
     });
   }, []);
+
+  const userId = user?.id || null;
 
   // 1. Organizar grupos en orden alfabético
   const groupedTeams = worldCupData.equipos.reduce((acc: any, team: any) => {
@@ -102,6 +105,9 @@ export default function Dashboard() {
           </div>
         </div>
       </header>
+
+      {/* Banner Corporativo Bento Desmontable */}
+      <CorporateBentoHeader brandTheme={brandTheme} />
 
       <Modal 
         isOpen={showRules} 

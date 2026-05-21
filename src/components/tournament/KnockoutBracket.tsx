@@ -47,10 +47,11 @@ export default function KnockoutBracket() {
         .select('id, home_team_id, away_team_id, status');
       
       if (data) {
-        const mapping = data.reduce((acc: any, curr) => {
+        const mapping = data.reduce((acc: any, curr: any) => {
           acc[curr.id.toString()] = curr;
           return acc;
         }, {});
+
         setDbResults(mapping);
       }
       setIsLoading(false);

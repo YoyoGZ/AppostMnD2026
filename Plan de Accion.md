@@ -32,6 +32,9 @@
   - [x] **Formulario Mejorado**: Campo email + alias/apodo (solo registro) + sugerencia de clave DNI + validaciones + Eye toggles en ambos campos de clave.
   - [x] **Tabla `profiles`**: Creada en Supabase con campos `id`, `email`, `display_name`, `role` (`super_admin` / `founder` / `member`), RLS activo.
   - [x] **Trigger Auto-Provisioning**: `on_auth_user_created` crea perfil automáticamente en cada nuevo registro.
+  - [x] **Control de Claves Extraviadas (HQ)**: Implementación del restablecimiento manual de claves temporales mediante Supabase Auth Admin API (`updateUserById`). Módulo de control visual interactivo en `/hq` con búsqueda en caliente y copia de claves provisorias.
+  - [x] **Validación de Apodos Únicos**: Verificación en tiempo de registro que evita la colisión de alias (`display_name`) duplicados en el leaderboard global y salas de chat.
+
 - [x] **Hito 7: Infraestructura & Seguridad (Shield Protocol)** 🛡️
   - [x] **`requireRole()` Helper**: Validación de roles centralizada en `src/utils/auth/requireRole.ts`.
   - [x] **Supabase Keep-Alive**: Cron Job en `vercel.json` llama `/api/keep-alive` cada 3 días. Protegido con `CRON_SECRET`.
@@ -50,6 +53,17 @@
   - [x] **HQ Redesign & Control de Pasarela**: Remoción de la fábrica de tokens obsoleta, integración del Switch de cambio de precio en caliente ($20 vs. $50.000 ARS) y automatización del Censo Global conectado a la API de Mercado Pago en tiempo real.
   - [x] **Estabilización de Flujo (LT-5)**: Eliminar el bucle infinito de redirecciones al retornar del pago fallido y hacer el paywall dinámico (soporte a url limpia + creación directa a founders activos).
 
+- [x] **Hito 9.5: Gamificación & Social Core (Duelos & Chat Realtime)** ⚔️💬
+  - [x] **Motor de Duelos Privados (Apuestas Peer-to-Peer)**: Diseño de tablas `league_duels` y `duel_participants`, RLS robustas y resolución segura a través del Oráculo sin fallos N+1.
+  - [x] **El Coliseo de Duelos**: Bento Grid estético en `/standings` con soporte offline y visualización de ganadores en tiempo real.
+  - [x] **Chat de Liga en Tiempo Real**: Panel lateral Drawer en el Shell integrado a los canales de Supabase Realtime para interacción instantánea y trash-talk.
+
+- [x] **Hito 9.7: Purificación del Censo de Ventas & Saneamiento TypeScript** 🛡️💸
+  - [x] **Cruce Atómico de Ventas**: Conexión cruzada en caliente entre la API de Mercado Pago y la tabla `profiles` en Supabase para erradicar el 100% de transacciones fantasmas ajenas a la app.
+  - [x] **Filtros Temporales y de Producto**: Descarte de cobros huérfanos anteriores al lanzamiento del proyecto (`2026-05-01`) y validación de descripciones de producto.
+  - [x] **Saneamiento TypeScript**: Limpieza exhaustiva de errores de tipado implícito (`noImplicitAny`) en el componente de login y flujo de onboarding.
+  - [x] **Manual de Operaciones del HQ**: Compilación de la guía oficial de administración del HQ en `/docs/hq-admin-manual.md` con diagramas de flujo y bypass.
+
 - [ ] **Hito 10: Pruebas de Estrés & Beta Testing Masivo** 🧪 *(Próximo Sprint)*
   - [ ] **Simulación Concurrente de Pagos**: Activar el Switch a $20 ARS en el HQ y lanzar una convocatoria privada con 15-20 beta-testers reales. Evaluar velocidad del Webhook, creación automática de ligas y despliegue del historial en el Censo Global en vivo.
   - [ ] **Stress Test de Tabla de Posiciones**: Forzar la inyección masiva de resultados (a través de "Sync Agent" en el HQ) con 50+ usuarios conectados de forma concurrente en `/dashboard` para verificar cálculo y ordenamiento de grupos.
@@ -57,17 +71,21 @@
   - [ ] **Despliegue Masivo Push**: Lanzar alertas de goles y cambio de estado de partidos en background desde el HQ hacia todos los dispositivos suscritos para verificar la reactividad y retención del Service Worker.
 
 ## Current Trajectory
-**Status**: Fase de Conversión y Pasarela de Pagos (Hito 9) COMPLETADA AL 100%. Se ha rediseñado exitosamente el HQ, integrando control en caliente de precios para pruebas en vivo y monitoreo de cobros reales desde Mercado Pago. El sistema está listo para entrar a la fase de pruebas masivas controladas.
+**Status**: Co-Branding y Purificación del Censo de Ventas (Hito 9.6 & 9.7) **VERIFIED & POLISHED**. El Censo Global de Ventas del HQ ahora es 100% puro y seguro, cruzando en tiempo real con la base de datos de usuarios legítimos y aplicando filtros de fecha y descripción estrictos. El tipado TypeScript en la pantalla de ingreso ha sido saneado por completo y toda la lógica del HQ de administración ha sido consolidada en el manual del administrador en `/docs/hq-admin-manual.md`.
 
 **Próximos Pasos:**
-1. **Sesión de Pruebas de Estrés y Beta Testing Masivo** (Hito 10) utilizando el valor de prueba a $20 ARS.
-2. Desarrollo del Motor de Duelos Privados (Apuestas Peer-to-Peer).
-3. Chat de Liga Realtime (Backlog).
+1. **Sesión de Pruebas de Estrés y Beta Testing Masivo** (Hito 10) utilizando el valor de prueba a $20 ARS en Mercado Pago.
+2. Desplegar logos definitivos de marcas en `public/assets/brands/`.
 
 ## Squad Status
 | Agent | Task | Status |
 | :--- | :--- | :--- |
-| Builder | One-Shot Onboarding & Guest Auth | ✅ VERIFIED & POLISHED |
-| Design Lead | Demo Mode Interceptor UX | ✅ VERIFIED & POLISHED |
+| Builder | Co-Branding Bypass & Onboarding | ✅ VERIFIED & POLISHED |
+| Design Lead | Mobile Navbar Colors & Welcome Toast | ✅ VERIFIED & POLISHED |
+| Infrastructure | Context Proviser Global & SSR Lock Resolution | ✅ VERIFIED & POLISHED |
+| Product | Purificación de Ventas & Censo Cruzado | ✅ VERIFIED & POLISHED |
+| Builder | Saneamiento TypeScript & Manual HQ | ✅ VERIFIED & POLISHED |
 | Infrastructure | Web Push Service Worker | ✅ COMPLETED |
 | Product | Webhook MP & Checkout Flow | ✅ VERIFIED & POLISHED |
+| Builder | Peer-to-Peer Duelos Motor & UI | ✅ VERIFIED & POLISHED |
+| Design Lead | Chat de Liga Realtime Panel | ✅ VERIFIED & POLISHED |

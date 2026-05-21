@@ -32,9 +32,10 @@ export default function KnockoutManager({ isAdmin = false }: KnockoutManagerProp
 
       // Verificar qué partidos ya están en la DB
       const { data } = await supabase.from('match_results').select('id').gte('id', 73);
-      if (data) setDeployedMatches(data.map(m => m.id));
+      if (data) setDeployedMatches(data.map((m: any) => m.id));
       
       setIsLoading(false);
+
     }
     loadData();
   }, [supabase]);

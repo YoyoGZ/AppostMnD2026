@@ -18,6 +18,9 @@ import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { LiveMatchTestModal } from './LiveMatchTestModal';
 import { RaffleModule } from '@/components/admin/RaffleModule';
+import { UserControlModule } from '@/components/admin/UserControlModule';
+import { CorporateBrandingModule } from '@/components/admin/CorporateBrandingModule';
+
 import { 
   getTestModeAction, 
   toggleTestModeAction, 
@@ -198,6 +201,9 @@ export default function HQPage() {
             </button>
           </div>
 
+          {/* Co-Branding Manager (Gestión de Bypass de Pago & Marca Blanca) */}
+          <CorporateBrandingModule />
+
           {/* Motor de Eliminatorias */}
           <div className="bg-gradient-to-b from-primary/5 to-transparent border border-primary/20 rounded-3xl p-6 relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -z-10 transition-transform group-hover:scale-150" />
@@ -275,6 +281,9 @@ export default function HQPage() {
 
           {/* Módulo de Censo & Sorteo de la Camiseta Oficial */}
           <RaffleModule />
+
+          {/* Módulo de Control de Jugadores & Claves Extraviadas */}
+          <UserControlModule />
 
           {/* Censo Global de Transacciones Reales (Mercado Pago) */}
           <div className="bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-3xl p-6 relative overflow-hidden">

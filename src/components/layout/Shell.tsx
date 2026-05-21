@@ -3,34 +3,27 @@
 import { useSidebar } from "@/context/SidebarContext";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
 import { LeagueChat } from "@/components/dashboard/LeagueChat";
-import { MessageSquare, X } from "lucide-react";
-import { createClient } from "@/utils/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 
 export function Shell({ 
   children, 
   activeLeague, 
-  allLeagues 
+  allLeagues
 }: { 
   children: React.ReactNode, 
   activeLeague?: { id: string, name: string, isCaptain: boolean },
   allLeagues?: { id: string, name: string, isCaptain: boolean }[]
 }) {
   const { isCollapsed, isChatOpen, setIsChatOpen } = useSidebar();
-  const [userId, setUserId] = useState<string | null>(null);
-  const supabase = createClient();
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUserId(data.user?.id || null);
-    });
-  }, []);
+  const { user } = useAuth();
+  const userId = user?.id || null;
 
   return (
     <div className="flex min-h-screen">
       <div className="bg-stadium" />
       <Sidebar activeLeague={activeLeague} allLeagues={allLeagues} />
+
       
       <main 
         className={cn(

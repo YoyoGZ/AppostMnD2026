@@ -7,11 +7,18 @@ type SidebarContextType = {
   setIsCollapsed: (value: boolean) => void;
   isChatOpen: boolean;
   setIsChatOpen: (value: boolean) => void;
+  brandTheme: any;
 };
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
-export function SidebarProvider({ children }: { children: React.ReactNode }) {
+export function SidebarProvider({ 
+  children,
+  brandTheme = null
+}: { 
+  children: React.ReactNode;
+  brandTheme?: any;
+}) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isChatOpen, setIsChatOpenState] = useState(false);
 
@@ -54,7 +61,8 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
       isCollapsed, 
       setIsCollapsed, 
       isChatOpen, 
-      setIsChatOpen 
+      setIsChatOpen,
+      brandTheme
     }}>
       {children}
     </SidebarContext.Provider>

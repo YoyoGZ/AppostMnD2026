@@ -3,6 +3,7 @@ import { Shell } from "@/components/layout/Shell";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { getMyLeagues } from "@/app/actions/leagues";
+import { resolveBrandThemeAction } from "@/app/actions/payments";
 
 /**
  * Layout exclusivo para rutas protegidas del dashboard.
@@ -46,8 +47,11 @@ export default async function DashboardLayout({
     });
   }
 
+  // 4. Resolver el tema de marca corporativa en caliente
+  const { brandTheme } = await resolveBrandThemeAction();
+
   return (
-    <SidebarProvider>
+    <SidebarProvider brandTheme={brandTheme}>
       <Shell 
         activeLeague={activeLeague} 
         allLeagues={myLeagues}
@@ -57,3 +61,4 @@ export default async function DashboardLayout({
     </SidebarProvider>
   );
 }
+

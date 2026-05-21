@@ -1,22 +1,19 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import worldCupData from "@/data/world-cup-2026.json";
 import { MatchPredictionCard } from "@/components/tournament/MatchPredictionCard";
 import { MatchInfo } from "@/types/tournament";
-import { createClient } from "@/utils/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 
 const GROUPS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
 
 export default function MatchesPage() {
   const { equipos, partidos } = worldCupData;
+  const { user } = useAuth();
   const [selectedGroup, setSelectedGroup] = useState("A");
-  const [userId, setUserId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id || null));
-  }, []);
+  const userId = user?.id || null;
 
   // Mapa de equipos para acceso rápido por ID
   const teamsMap = equipos.reduce((acc, team) => {

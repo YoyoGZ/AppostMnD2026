@@ -76,9 +76,33 @@ export async function fetchMpPaymentsAction() {
   }
 
   try {
-    // Consultar los cobros directamente a la API de Mercado Pago
-    // Buscamos ordenados por fecha de creación descendente, limitando a las últimas 30 transacciones
-    const mpUrl = "https://api.mercadopago.com/v1/payments/search?sort=date_created&criteria=desc&limit=30";
+    const supabaseAdmin = createAdminClient();
+
+    // 1. Obtener la lista de usuarios (profiles) reales en Supabase para el cruce atómico
+    const { data: profiles, error: profilesError } = await supabaseAdmin
+      .from('profiles')
+      .select('id, email');
+
+    if (profilesError) {
+      console.error("Error al obtener perfiles para censo cruzado:", profilesError);
+      return { success: false, error: "Error de base de datos al realizar el censo cruzado" };
+    }
+
+    // Crear sets para búsquedas eficientes en memoria
+    const registeredEmails = new Set(
+      (profiles || [])
+        .map(u => u.email?.toLowerCase().trim())
+        .filter(Boolean)
+    );
+    const registeredIds = new Set(
+      (profiles || [])
+        .map(u => u.id)
+        .filter(Boolean)
+    );
+
+    // 2. Consultar los cobros directamente a la API de Mercado Pago
+    // Buscamos ordenados por fecha de creación descendente, limitando a las últimas 50 transacciones para mayor cobertura
+    const mpUrl = "https://api.mercadopago.com/v1/payments/search?sort=date_created&criteria=desc&limit=50";
     
     const response = await fetch(mpUrl, {
       method: 'GET',
@@ -97,21 +121,43 @@ export async function fetchMpPaymentsAction() {
 
     const data = await response.json();
     
-    // Mapear los datos de Mercado Pago a una estructura premium y segura
-    const payments = (data.results || []).map((p: any) => ({
-      id: p.id,
-      status: p.status, // approved, pending, rejected, in_process, cancelled
-      status_detail: p.status_detail,
-      amount: p.transaction_amount,
-      currency: p.currency_id,
-      date: p.date_created,
-      email: p.payer?.email || "Sin Email",
-      league_name: p.metadata?.league_name || "Desconocida",
-      user_id: p.metadata?.user_id || null,
-      payment_method: p.payment_method_id
-    }));
+    // 3. Mapear y purificar los datos con filtros atómicos (email en DB, metadata, y fecha límite)
+    const payments = (data.results || [])
+      .map((p: any) => {
+        const userId = p.metadata?.user_id || null;
+        
+        return {
+          id: p.id,
+          status: p.status, // approved, pending, rejected, in_process, cancelled
+          status_detail: p.status_detail,
+          amount: p.transaction_amount,
+          currency: p.currency_id,
+          date: p.date_created,
+          email: p.payer?.email || "Sin Email",
+          league_name: p.metadata?.league_name || null,
+          user_id: userId,
+          payment_method: p.payment_method_id,
+          description: p.description || ""
+        };
+      })
+      .filter((p: any) => {
+        // Regla 1: El correo o el user_id de la transacción debe pertenecer a un usuario registrado en Supabase
+        const emailLower = p.email.toLowerCase().trim();
+        const isRegistered = registeredEmails.has(emailLower) || (p.user_id && registeredIds.has(p.user_id));
+        
+        // Regla 2: El cobro debe ser del proyecto MundiApp26 (tener metadata de liga o mencionar la app)
+        const isMundiApp = p.league_name !== null || p.description.toLowerCase().includes("mundiapp26");
+        
+        // Regla 3: El cobro debe ser posterior al lanzamiento del proyecto (1 de mayo de 2026)
+        const paymentDate = new Date(p.date);
+        const releaseDate = new Date('2026-05-01T00:00:00Z');
+        const isValidDate = paymentDate >= releaseDate;
+
+        return isRegistered && isMundiApp && isValidDate;
+      });
 
     return { success: true, payments };
+
   } catch (err: any) {
     console.error("Error en fetchMpPaymentsAction:", err);
     return { success: false, error: err.message || "Error de conexión con Mercado Pago" };
@@ -314,3 +360,224 @@ export async function resetRaffleAction() {
     return { success: false, error: err.message || "Error inesperado" };
   }
 }
+
+/**
+ * Obtiene todos los perfiles de usuario registrados
+ */
+export async function getAllProfilesAction(searchQuery?: string) {
+  try {
+    await requireRole('super_admin');
+  } catch {
+    return { success: false, error: "No autorizado" };
+  }
+
+  try {
+    const supabaseAdmin = createAdminClient();
+    let query = supabaseAdmin
+      .from('profiles')
+      .select('id, email, display_name, role, created_at');
+
+    if (searchQuery && searchQuery.trim() !== '') {
+      const cleanSearch = searchQuery.trim();
+      query = query.or(`display_name.ilike.%${cleanSearch}%,email.ilike.%${cleanSearch}%`);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+
+    if (error) {
+      console.error("Error al obtener perfiles:", error);
+      return { success: false, error: "Error consultando base de datos" };
+    }
+
+    return { success: true, users: data };
+  } catch (err: any) {
+    console.error("Error en getAllProfilesAction:", err);
+    return { success: false, error: err.message || "Error inesperado" };
+  }
+}
+
+/**
+ * Resetear la clave de un jugador en Supabase Auth mediante Admin API
+ */
+export async function resetUserPasswordAction(userId: string, newPassword?: string) {
+  try {
+    await requireRole('super_admin');
+  } catch {
+    return { success: false, error: "No autorizado" };
+  }
+
+  if (!userId) {
+    return { success: false, error: "ID de usuario inválido" };
+  }
+
+  const targetPassword = newPassword && newPassword.trim() !== '' ? newPassword.trim() : '123456';
+
+  try {
+    const supabaseAdmin = createAdminClient();
+    
+    // Forzamos el cambio de contraseña en Supabase Auth
+    const { data, error } = await supabaseAdmin.auth.admin.updateUserById(
+      userId,
+      { password: targetPassword }
+    );
+
+    if (error) {
+      console.error("Error de Supabase Auth Admin al resetear contraseña:", error);
+      return { success: false, error: `Error en Supabase Auth: ${error.message}` };
+    }
+
+    return { success: true, newPassword: targetPassword };
+  } catch (err: any) {
+    console.error("Error en resetUserPasswordAction:", err);
+    return { success: false, error: err.message || "Error inesperado restableciendo contraseña" };
+  }
+}
+
+/**
+ * Verifica si un alias de jugador ya está registrado en la base de datos (pública)
+ */
+export async function checkAliasAvailabilityAction(alias: string) {
+  if (!alias || alias.trim().length < 2) {
+    return { success: true, available: false, error: "El apodo debe tener al menos 2 caracteres." };
+  }
+
+  try {
+    const supabase = await createClient(); // Cliente normal
+    const cleanAlias = alias.trim();
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id')
+      .ilike('display_name', cleanAlias)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error al consultar disponibilidad de alias:", error);
+      return { success: true, available: true }; // Fallback seguro
+    }
+
+    return { success: true, available: !data };
+  } catch (err) {
+    console.error("Error en checkAliasAvailabilityAction:", err);
+    return { success: true, available: true };
+  }
+}
+
+/**
+ * Obtiene todas las relaciones corporativas (para el panel Co-Branding en HQ)
+ */
+export async function getCorporateRelationsAction() {
+  try {
+    await requireRole('super_admin');
+  } catch {
+    return { success: false, error: "No autorizado" };
+  }
+
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from('corporate_relations')
+      .select('email, brand_id, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error("Error al obtener relaciones corporativas:", error);
+      return { success: false, error: "Error consultando base de datos" };
+    }
+
+    return { success: true, relations: data };
+  } catch (err: any) {
+    console.error("Error en getCorporateRelationsAction:", err);
+    return { success: false, error: err.message || "Error inesperado" };
+  }
+}
+
+/**
+ * Agrega una nueva relación corporativa en caliente (Bypass de Pago)
+ */
+export async function addCorporateRelationAction(email: string, brandId: string) {
+  try {
+    await requireRole('super_admin');
+  } catch {
+    return { success: false, error: "No autorizado" };
+  }
+
+  if (!email || !brandId) {
+    return { success: false, error: "Email y Marca son campos obligatorios." };
+  }
+
+  const emailLower = email.trim().toLowerCase();
+  const brandClean = brandId.trim().toLowerCase();
+
+  try {
+    const supabase = await createClient();
+
+    // 1. Validar si ya existe
+    const { data: existing } = await supabase
+      .from('corporate_relations')
+      .select('email')
+      .eq('email', emailLower)
+      .maybeSingle();
+
+    if (existing) {
+      return { success: false, error: `El correo '${emailLower}' ya está registrado con una marca.` };
+    }
+
+    // 2. Insertar nueva relación
+    const { error } = await supabase
+      .from('corporate_relations')
+      .insert({
+        email: emailLower,
+        brand_id: brandClean
+      });
+
+    if (error) {
+      console.error("Error al insertar relación corporativa:", error);
+      return { success: false, error: "Error de base de datos al asociar la marca." };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    console.error("Error en addCorporateRelationAction:", err);
+    return { success: false, error: err.message || "Error inesperado" };
+  }
+}
+
+/**
+ * Elimina una relación corporativa en caliente
+ */
+export async function deleteCorporateRelationAction(email: string) {
+  try {
+    await requireRole('super_admin');
+  } catch {
+    return { success: false, error: "No autorizado" };
+  }
+
+  if (!email) {
+    return { success: false, error: "Email requerido para eliminar." };
+  }
+
+  const emailLower = email.trim().toLowerCase();
+
+  try {
+    const supabase = await createClient();
+
+    const { error } = await supabase
+      .from('corporate_relations')
+      .delete()
+      .eq('email', emailLower);
+
+    if (error) {
+      console.error("Error al eliminar relación corporativa:", error);
+      return { success: false, error: "Error de base de datos al desvincular." };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    console.error("Error en deleteCorporateRelationAction:", err);
+    return { success: false, error: err.message || "Error inesperado" };
+  }
+}
+
+
+

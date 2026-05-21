@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { Shield, CreditCard, CheckCircle2, ChevronRight, Zap, Loader2, Trophy, ArrowRight, Star } from "lucide-react";
-import { createPaymentPreferenceAction } from "@/app/actions/payments";
+import { createPaymentPreferenceAction, checkAndPromoteCorporateUserAction } from "@/app/actions/payments";
 import { createLeagueAction } from "@/app/actions/leagues";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -31,7 +31,10 @@ function PaywallContent() {
         if (supabaseUser) {
           setUser(supabaseUser);
           
-          // Consultar la fuente de verdad en la base de datos (tabla profiles)
+          // 1. Ejecutar bypass de marca blanca en el servidor para auto-ascender si aplica
+          const corpRes = await checkAndPromoteCorporateUserAction();
+          
+          // 2. Consultar la fuente de verdad en la base de datos (tabla profiles)
           const { data: profile } = await supabase
             .from('profiles')
             .select('role')
@@ -57,6 +60,7 @@ function PaywallContent() {
 
     checkUserRole();
   }, [router]);
+
 
   // Manejar el checkout de Mercado Pago para los que deben comprar
   const handleMercadoPagoPayment = async () => {

@@ -102,3 +102,147 @@ export async function createPaymentPreferenceAction(leagueName: string) {
     return { error: "No pudimos conectar con Mercado Pago. Intentá en unos minutos." };
   }
 }
+
+/**
+ * Verifica si el correo del usuario activo está pre-aprobado como Founder corporativo.
+ * Si es así, lo promueve a rol 'founder' en profiles saltando el RLS en el servidor.
+ */
+export async function checkAndPromoteCorporateUserAction() {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user || !user.email) {
+      return { error: "No autenticado o sin correo electrónico." };
+    }
+
+    const emailLower = user.email.trim().toLowerCase();
+
+    // 1. Buscar en la tabla corporate_relations
+    const { data: relation, error: relError } = await supabase
+      .from('corporate_relations')
+      .select('brand_id')
+      .eq('email', emailLower)
+      .maybeSingle();
+
+    if (relError) {
+      console.error("Error al buscar relación corporativa:", relError);
+      return { error: "Error al validar relación corporativa en la base de datos." };
+    }
+
+    if (!relation) {
+      // No es un email corporativo pre-aprobado
+      return { success: true, isCorporate: false };
+    }
+
+    // 2. Si es corporativo, ascenderlo a 'founder' en profiles usando el admin client
+    const supabaseAdmin = createAdminClient();
+    const { error: updateError } = await supabaseAdmin
+      .from('profiles')
+      .update({ role: 'founder' })
+      .eq('id', user.id);
+
+    if (updateError) {
+      console.error("Error al ascender a founder corporativo:", updateError);
+      return { error: "No se pudo actualizar tu perfil corporativo." };
+    }
+
+    console.log(`🏢 [MARCA BLANCA] Usuario ${emailLower} promovido a FOUNDER para la marca ${relation.brand_id}`);
+    return { success: true, isCorporate: true, brandId: relation.brand_id };
+
+  } catch (err) {
+    console.error("Error en checkAndPromoteCorporateUserAction:", err);
+    return { error: "Error interno del servidor al procesar el bypass corporativo." };
+  }
+}
+
+/**
+ * Resuelve el tema corporativo activo para el usuario actual.
+ * Aplica el algoritmo de resolución dinámica basándose en la liga a la que pertenece.
+ */
+export async function resolveBrandThemeAction() {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user || !user.email) {
+      return { brandTheme: null };
+    }
+
+    let brandId: string | null = null;
+
+    // 1. Obtener la primera membresía de liga activa del usuario
+    const { data: membership } = await supabase
+      .from('league_members')
+      .select('league_id')
+      .eq('user_id', user.id)
+      .limit(1)
+      .maybeSingle();
+
+    if (membership) {
+      // 2. Obtener el creador de esa liga
+      const { data: league } = await supabase
+        .from('leagues')
+        .select('created_by')
+        .eq('id', membership.league_id)
+        .maybeSingle();
+
+      if (league) {
+        // 3. Buscar el email del creador en profiles
+        const { data: creator } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('id', league.created_by)
+          .maybeSingle();
+
+        if (creator && creator.email) {
+          // 4. Buscar relación corporativa para el email del creador
+          const { data: relation } = await supabase
+            .from('corporate_relations')
+            .select('brand_id')
+            .eq('email', creator.email.trim().toLowerCase())
+            .maybeSingle();
+
+          if (relation) {
+            brandId = relation.brand_id;
+          }
+        }
+      }
+    }
+
+    // 5. Fallback: Si no tiene liga pero el usuario mismo es un founder corporativo pre-aprobado,
+    // resolvemos su propia marca (útil para el onboarding/paywall y primer render)
+    if (!brandId) {
+      const { data: userRelation } = await supabase
+        .from('corporate_relations')
+        .select('brand_id')
+        .eq('email', user.email.trim().toLowerCase())
+        .maybeSingle();
+
+      if (userRelation) {
+        brandId = userRelation.brand_id;
+      }
+    }
+
+    if (!brandId) {
+      return { brandTheme: null };
+    }
+
+    // 6. Cargar diccionario de temas estático
+    const brandThemes = require('@/data/brand-themes.json');
+    const theme = brandThemes[brandId];
+
+    if (!theme) {
+      console.warn(`⚠️ [MARCA BLANCA] brand_id '${brandId}' no tiene tema visual definido en brand-themes.json.`);
+      return { brandTheme: null };
+    }
+
+    return { brandTheme: { ...theme, id: brandId } };
+
+  } catch (err) {
+    console.error("❌ Error en resolveBrandThemeAction:", err);
+    return { brandTheme: null };
+  }
+}
+
+

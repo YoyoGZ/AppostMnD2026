@@ -196,4 +196,43 @@ Un usuario ya registrado en la plataforma (cuya cuenta en Supabase ya fue creada
    - Si el usuario **no ha pagado**, y el query string `leagueName` está vacío, desplegar un input estético dentro de la card de pago que le permite bautizar su liga antes de proceder al Checkout de Mercado Pago, eliminando la alerta y la obtención de fallos en el flujo.
 3. **Landing Dinámica**: Se adaptaron los Server Components de `src/app/page.tsx` para detectar si el usuario posee sesión activa, transformando los botones de "Armá tu Liga" y "Ya estoy Registrado" en accesos directos al Dashboard, HQ o Paywall en caliente de acuerdo a su estado y rol, puliendo el "Customer Journey" al máximo estándar del mercado.
 
+## 2026-05-21: Error de Schema Cache de Supabase en Despliegues Dinámicos (LL-3)
+
+### Síntoma
+Al ejecutar el script de sembrado de relaciones corporativas `scratch/seed-corporate.js` contra Supabase, el backend retornaba:
+`Could not find the table 'public.corporate_relations' in the schema cache`.
+
+### Diagnóstico
+1. **Falta de DDL Inicial en Producción/Desarrollo**: A diferencia de bases de datos tradicionales administradas por ORMs con migraciones automáticas, Supabase no autogenera tablas a partir de consultas `upsert` o `select` de JS/TS si no se ha ejecutado explícitamente el DDL en el SQL Editor o a través del Supabase CLI.
+2. **Schema Cache Stale**: Cuando se crea una nueva tabla de manera manual en Supabase, el PostgREST (el motor de API REST) necesita regenerar su cache de esquemas. Las consultas inmediatas hechas mediante el cliente JS (`@supabase/supabase-js`) fallarán hasta que el PostgREST detecte los cambios o se refresque el esquema.
+
+### Resolución (The House Way)
+1. **SQL Editor como Único Origen de Verdad DDL**: Todo cambio estructural debe pasar de forma mandatoria por un script `.sql` dentro de `/docs/sql-migrations/`.
+2. **Guía de Migración**: Documentar explícitamente al desarrollador o administrador (Yoyo) que ejecute el DDL del archivo `docs/sql-migrations/corporate-branding.sql` en el SQL Editor de Supabase antes de probar la integración de Marca Blanca.
+3. **Mecanismo de Resiliencia Visual**: El código de la Server Action `resolveBrandThemeAction()` posee un fallback por diseño que retorna `null` y el tema de MundiApp26 clásico (Oro y Negro) si la tabla no existe o la consulta falla, previniendo que la aplicación entera caiga (Circuit Breaker Visual).
+
+## 2026-05-21: Conflicto de Lock de Auth Token en el Dashboard ("Lock Stolen" por llamadas paralelas)
+
+### Síntoma
+Al cargar el Dashboard (`/dashboard`), la aplicación crasheaba aleatoriamente con el error de Next.js:
+`Lock "lock:sb-xcrluwxxvyqjyhvbimyn-auth-token" was released because another request stole it`.
+
+### Diagnóstico
+La página del Dashboard (`dashboard/page.tsx`) es un componente de cliente que realizaba en paralelo dos llamadas asíncronas al montarse:
+1. `supabase.auth.getUser()` en el cliente para obtener la sesión del usuario local.
+2. La Server Action `resolveBrandThemeAction()` para resolver el tema de marca de la liga, la cual, internamente en el servidor, también llamaba a `supabase.auth.getUser()`.
+Al dispararse ambas peticiones concurrentemente, competían en el mismo milisegundo por leer y actualizar las cookies de sesión y el estado de la autenticación de Supabase (que sincroniza cookies cliente-servidor). Esto provocaba que un proceso "robara" el lock del token al otro, gatillando el error fatal de runtime de Supabase.
+
+### Resolución (The House Way)
+**Centralización de Datos a Nivel de Layout y Context Provider Global**. La secuencialización en el `useEffect` ayudaba pero era vulnerable a carreras entre el Server Component (`layout.tsx`) y el Client Component (`page.tsx`) al hidratarse.
+
+La **solución definitiva y robusta** implementada fue:
+1. **Evitar Llamar a Server Actions de Autenticación en el Cliente**: Eliminar por completo el llamado a `resolveBrandThemeAction()` dentro de `page.tsx` (Dashboard).
+2. **Elevación de Estado en el Layout**: El Server Component de Next.js (`layout.tsx`) resuelve el `brandTheme` de manera segura y atómica en el servidor.
+3. **Proveer a través de Contexto de React**: Se inyectó el `brandTheme` en el `SidebarProvider` a nivel global.
+4. **Consumo Síncrono e Instantáneo**: Tanto el `Dashboard`, como el `Sidebar` y la barra de navegación móvil consumen la marca síncronamente vía `useSidebar()`.
+5. **Migración a `AuthContext` (`useAuth`)**: Se eliminó la inicialización local del cliente de Supabase y las llamadas redundantes a `supabase.auth.getUser()` en `Dashboard`, `Shell` y `MatchesPage`, consumiendo en su lugar la sesión ya establecida en el contexto central de autenticación de la aplicación.
+6. **Patrón Singleton en el Cliente de Navegador (`utils/supabase/client.ts`)**: Para blindar de forma absoluta toda la app ante inicializaciones distribuidas de clientes (ej: en el Chat en tiempo real, predicciones y onboarding), se transformó el cliente de navegador en un **Singleton**. Esto garantiza que no importa cuántas veces se invoque `createClient()` en el navegador, siempre retornará la mismísima instancia única global, compartiendo sockets, tokens y listeners, erradicando al 100% cualquier colisión de `navigator.locks` o robo de tokens concurrentes.
+
+Esto elimina de raíz cualquier llamada concurrente a Supabase Auth en el cliente, erradicando el error "Lock stolen" de forma absoluta y acelerando la UI al no requerir viajes de red redundantes.
 

@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Lock, Mail, User, ArrowRight, ShieldAlert, Eye, EyeOff } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { joinLeagueAction } from "@/app/actions/leagues";
+import { checkAliasAvailabilityAction } from "@/app/actions/admin";
 
 type LoginShieldProps = {
   inviteCode?: string;
@@ -37,10 +38,12 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
 
   // Detectar sesión activa para flujo de "Unión Rápida"
   React.useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({ data }: any) => {
+      const user = data?.user;
       if (user) setCurrentUser(user);
     });
   }, [supabase.auth]);
+
 
   // Validación de email: debe tener @ y un dominio con .
   const isValidEmail = (value: string) => {
@@ -85,6 +88,20 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
       setError("Las claves secretas no coinciden.");
       setIsLoading(false);
       return;
+    }
+
+    // Validar disponibilidad de alias para evitar duplicados en leaderboards y chat
+    if (isNewUser) {
+      try {
+        const checkAlias = await checkAliasAvailabilityAction(alias);
+        if (checkAlias.success && !checkAlias.available) {
+          setError(`El apodo "${alias.trim()}" ya está registrado por otro gladiador. Elegí otro para diferenciarte.`);
+          setIsLoading(false);
+          return;
+        }
+      } catch (e) {
+        console.error("Error al validar disponibilidad del apodo:", e);
+      }
     }
 
     try {
