@@ -236,3 +236,21 @@ La **solución definitiva y robusta** implementada fue:
 
 Esto elimina de raíz cualquier llamada concurrente a Supabase Auth en el cliente, erradicando el error "Lock stolen" de forma absoluta y acelerando la UI al no requerir viajes de red redundantes.
 
+## 2026-05-23: Rediseño Táctico de Landing (Fusión Bento, Unificación MundiAPP26 y Enfoque Argentino)
+
+### Síntoma
+1. **Riesgo Legal de Copyright**: Mención esporádica de "MundialApp2026", la cual incluye términos registrados y protegidos ("Mundial 2026"), generando riesgos de reclamos marcarios.
+2. **Pesadez en la Lectura (Fricción en Mobile)**: La landing page contenía una estructura Bento Grid de 4 tarjetas seguida de una sección de "¿Cómo funciona?" de más de 6 tarjetas de texto largo, lo que hacía que el acceso y la comprensión general de la app se sintieran lentos y tediosos.
+3. **Poca Presencia de Marca**: El isotipo oficial de la app en la navbar era muy pequeño (48px) y no causaba impacto visual al ingresar mediante códigos QR en eventos locales.
+
+### Diagnóstico
+1. **Nombre Oficial**: La app debe llamarse estrictamente **MundiAPP26**. Esto unifica la marca, respeta la propiedad intelectual y simplifica el dominio.
+2. **Falta de Síntesis**: El usuario final, especialmente bajo una mentalidad móvil y de uso casual en Argentina, requiere información escaneable en 3 segundos sobre cómo acceder y jugar, sin bloques extensos de texto.
+3. **Ubicación Estratégica del Logo**: Alinear la marca como el elemento central del Hero genera mayor confianza y anclaje visual (Endowment Effect) que los banners de características dispersos.
+
+### Resolución (The House Way)
+1. **Unificación Absoluta de Marca**: Todo rastro de nombres alternativos fue purgado, unificando la landing page bajo **MundiAPP26**.
+2. **Logo Hero Foco**: Se aumentó el logo de la navbar a `w-16 h-16` y se inyectó un gran Isotipo central de `w-28` (móvil) / `w-36` (desktop) sobre el Hero, acompañado de sombras doradas Stadium Gold.
+3. **Fusión Bento Minimalista**: Se eliminaron las secciones duplicadas, unificándolas en una sola arena de pronósticos minimalista de 4 tarjetas bento con un toque de degradado dorado radial sutil (`bg-gradient-to-br from-[#0d0d0d] via-[#16130d]/30 to-black`) y un gran Banner horizontal inferior de Fair Play.
+4. **Respeto a las Reglas de Negocio**: Se mantuvo y destacó la integración de **API-Football** para certificar la calidad y automatización en tiempo real frente a plantillas o excels tradicionales, consolidando la superioridad tecnológica de la App.
+5. **Comportamiento del Código**: Se respetaron al 100% las funciones asíncronas de servidor y los Server Components hidratados para garantizar que el compilador no sufriera advertencias.

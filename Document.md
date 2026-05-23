@@ -99,3 +99,24 @@ El diseño se aleja del blanco y negro básico para adoptar una estética de "Es
 - Los colores se gestionan a través de variables CSS en `globals.css` bajo la capa `@layer base`.
 - Se han registrado como utilidades de Tailwind en el bloque `@theme` (`bg-card-header`, `bg-sidebar`, etc.).
 - Se implementó la clase `.bg-stadium` como un overlay fijo que prepara la interfaz para la futura imagen de fondo.
+
+---
+
+## 7. Rediseño de Landing Page & Identidad Corporativa (Fusión Bento & Unificación)
+**Fecha de Implementación**: 2026-05-23  
+**Responsable**: UX/UI Design Architect & Product Engineer (Antigravity Squad)
+
+### Contexto de Negocio
+Con el objetivo de agilizar el acceso de usuarios finales en Argentina y mitigar riesgos asociados a derechos de propiedad intelectual por términos registrados de terceros, se reformuló la landing page unificando estrictamente toda identidad bajo el nombre oficial de **MundiAPP26**. Se eliminaron las secciones largas y redundantes para dar paso a un embudo (funnel) minimalista y directo.
+
+### Cambios Clave Realizados
+1. **Unificación de Marca**: Reemplazo absoluto de toda marca registrada alternativa por la denominación lícita y protegida **MundiAPP26**.
+2. **Logotipo Focalizado**: Rediseño de la barra de navegación (incrementando el logo a `w-16 h-16`) e inyección de un gran Isotipo de la marca (`w-28` móvil / `w-36` desktop) con resplandor Stadium Gold en el Hero para captación instantánea de atención (escaneo QR en 1 segundo).
+3. **Fusión Bento Minimalista**: Consolidación del Bento Grid original de características y el manual de funcionamiento en un solo bloque estructurado de 4 tarjetas bento estilizadas con degradados radiales dorados tenues (`bg-gradient-to-br from-[#0d0d0d] via-[#16130d]/30 to-black`):
+   - *Card 1 (Founder Pass VIP)*: El ticket de entrada, capitanes y ligas privadas.
+   - *Card 2 (Data en Tiempo Real)*: Destacando la conexión directa y de alta fidelidad con **API-Football** para automatizar resultados.
+   - *Card 3 (Oráculo Sella el Destino)*: Explicación de pronósticos cerrados y sellados inmutablemente.
+   - *Card 4 (Coliseo de Duelos)*: Reglas de enfrentamiento directo y medallas de perfil.
+4. **Resaltado de Fair Play & Apuestas Externas**:
+   - Reubicación del Disclaimer de Fair Play al Hero para mayor transparencia inicial.
+   - Creación de un Banner horizontal inferior dedicado a las apuestas de ligas externas (pizza, asado, fernet) aclarando que la aplicación es 100% gratuita y ajena a la intermediación de activos reales.

@@ -22,6 +22,7 @@
   - [x] **Sección Sorteo Camiseta Argentina**: Nuevo bloque con 2 cards (imagen placeholder + texto del sorteo) antes del footer. Ancla `#sorteo` con scroll-mt.
   - [x] **Scroll Pill Desktop**: Cápsula "SORTEO 🇦🇷" pegada al borde derecho de la pantalla (Hero full-width). Solo visible en desktop (`md:`).
   - [x] **Mobile Sorteo Banner**: Mini banner `¡Hay Sorteo! ↓` visible solo en mobile (`md:hidden`), debajo del Hero.
+  - [x] **Rediseño Táctico & Minimalismo**: Fusión Bento de 'Cómo Jugar', logotipo focalizado en Hero y unificación absoluta a **MundiAPP26**.
 - [x] **Hito 6: Integración Realtime API** (CONEXIÓN ESTABLECIDA) 📡
   - [x] Conexión con API-Football verificada (League ID: 1).
   - [x] Sincronización de marcadores en tiempo real (Supabase).
@@ -71,7 +72,7 @@
   - [ ] **Despliegue Masivo Push**: Lanzar alertas de goles y cambio de estado de partidos en background desde el HQ hacia todos los dispositivos suscritos para verificar la reactividad y retención del Service Worker.
 
 ## Current Trajectory
-**Status**: Co-Branding y Purificación del Censo de Ventas (Hito 9.6 & 9.7) **VERIFIED & POLISHED**. El Censo Global de Ventas del HQ ahora es 100% puro y seguro, cruzando en tiempo real con la base de datos de usuarios legítimos y aplicando filtros de fecha y descripción estrictos. El tipado TypeScript en la pantalla de ingreso ha sido saneado por completo y toda la lógica del HQ de administración ha sido consolidada en el manual del administrador en `/docs/hq-admin-manual.md`.
+**Status**: Rediseño minimalista y unificación de marca en **MundiAPP26** **VERIFIED & POLISHED**. Se concluyó con éxito el Sprint aplicando los últimos refinamientos solicitados: remoción de la quinta tarjeta del Bento Grid ("El Rincón de la Liga") para erradicar redundancias, ampliación del margen vertical del Disclaimer a `mt-16`, y reestructuración del Aviso de Fair Play con su título enmarcado y centrado en la parte superior, conservando intactos los copys coloquiales argentinos editados por el usuario.
 
 **Próximos Pasos:**
 1. **Sesión de Pruebas de Estrés y Beta Testing Masivo** (Hito 10) utilizando el valor de prueba a $20 ARS en Mercado Pago.
@@ -80,6 +81,7 @@
 ## Squad Status
 | Agent | Task | Status |
 | :--- | :--- | :--- |
+| Builder | Refinamientos de Fair Play y remoción de 5ª card Bento | ✅ VERIFIED & POLISHED |
 | Builder | Co-Branding Bypass & Onboarding | ✅ VERIFIED & POLISHED |
 | Design Lead | Mobile Navbar Colors & Welcome Toast | ✅ VERIFIED & POLISHED |
 | Infrastructure | Context Proviser Global & SSR Lock Resolution | ✅ VERIFIED & POLISHED |
