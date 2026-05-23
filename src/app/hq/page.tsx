@@ -20,6 +20,7 @@ import { LiveMatchTestModal } from './LiveMatchTestModal';
 import { RaffleModule } from '@/components/admin/RaffleModule';
 import { UserControlModule } from '@/components/admin/UserControlModule';
 import { CorporateBrandingModule } from '@/components/admin/CorporateBrandingModule';
+import { PromoControlModule } from '@/components/admin/PromoControlModule';
 
 import { 
   getTestModeAction, 
@@ -203,6 +204,9 @@ export default function HQPage() {
 
           {/* Co-Branding Manager (Gestión de Bypass de Pago & Marca Blanca) */}
           <CorporateBrandingModule />
+
+          {/* Módulo de Gestión de Códigos Promocionales */}
+          <PromoControlModule />
 
           {/* Motor de Eliminatorias */}
           <div className="bg-gradient-to-b from-primary/5 to-transparent border border-primary/20 rounded-3xl p-6 relative overflow-hidden group">

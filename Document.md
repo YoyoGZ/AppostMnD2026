@@ -120,3 +120,26 @@ Con el objetivo de agilizar el acceso de usuarios finales en Argentina y mitigar
 4. **Resaltado de Fair Play & Apuestas Externas**:
    - Reubicación del Disclaimer de Fair Play al Hero para mayor transparencia inicial.
    - Creación de un Banner horizontal inferior dedicado a las apuestas de ligas externas (pizza, asado, fernet) aclarando que la aplicación es 100% gratuita y ajena a la intermediación de activos reales.
+
+---
+
+## 8. Sistema de Códigos Promocionales & Afiliados
+**Fecha de Implementación**: 2026-05-23  
+**Responsable**: Infrastructure Lead & Builder (Antigravity Squad)
+
+### Arquitectura de Negocio y UX
+Con el objetivo de incentivar el crecimiento de usuarios a través de relaciones orgánicas de afinidad, se introdujo un sistema de afiliación de alto impacto y de muy bajo roce.
+
+### Especificaciones Técnicas y de Persistencia
+1. **Esquema Relacional**:
+   - Tabla `promo_codes`: Almacena de manera atómica el par `code` (8 caracteres alfanuméricos únicos generados aleatoriamente) y `owner_name` (el nombre del amigo/compañero administrador).
+   - Columna `profiles.referred_by_code` (relación de clave foránea débil): Guarda el código promocional con el que el usuario se registró en la aplicación.
+2. **Validación Reactiva con Debounce**:
+   - En el Paywall de Onboarding (`/paywall`), se integró un input de código de promoción estilizado con Glassmorphism.
+   - Cuenta con una validación **debounced en caliente de 600ms** en el cliente, evitando consultas excesivas al servidor en cada pulsación de tecla.
+   - **Persistencia en Caliente Síncrona**: En el momento exacto de la validación exitosa, se ejecuta la acción `savePromoCodeToProfileAction(code)` para asociar inmediatamente el código promocional al perfil del usuario. Esto previene la pérdida de referencias de afiliación ante interrupciones, abandonos o reintentos posteriores en Mercado Pago.
+3. **Fábrica de Promociones y Analíticas en HQ (God Mode)**:
+   - Se añadió un módulo Bento interactivo (`PromoControlModule.tsx`) en el `/hq`.
+   - Permite la creación atómica de códigos promocionales únicos excluyendo caracteres ambiguos (`I`, `O`, `0`, `1`) para garantizar un Trust UX impecable.
+   - **Cruce en Memoria Libre de N+1**: La Server Action `getPromoAnalyticsAction` realiza un bulk fetch de perfiles afiliados y códigos, cruzando la información en memoria del servidor antes de retornar. Esto mitiga latencias extremas.
+   - **Acordeón Auditor de Referidos**: Permite desplegar de forma muy elegante el listado exacto de Alias (`display_name`) y correos electrónicos de los usuarios registrados con cada código en vivo.

@@ -65,6 +65,12 @@
   - [x] **Saneamiento TypeScript**: Limpieza exhaustiva de errores de tipado implícito (`noImplicitAny`) en el componente de login y flujo de onboarding.
   - [x] **Manual de Operaciones del HQ**: Compilación de la guía oficial de administración del HQ en `/docs/hq-admin-manual.md` con diagramas de flujo y bypass.
 
+- [x] **Hito 9.9: Sistema de Códigos Promocionales & Afiliados** 🎁📈
+  - [x] **Esquema de Base de Datos**: Migración SQL (`promo-codes.sql`) ejecutada con RLS activado y permisos restringidos.
+  - [x] **Server Actions**: Validación reactiva (`validatePromoCodeAction`), persistencia en caliente (`savePromoCodeToProfileAction`), fábrica de 8 dígitos únicos (`generatePromoCodeAction`) y agregación analítica grupal en memoria libre de bucles N+1.
+  - [x] **Funnel del Paywall**: Campo sutil con debounce de 600ms, validación interactiva sin término "Embajador" de cara al usuario final y guardado inmediato a prueba de fallos de pasarela.
+  - [x] **Centro de Mando (HQ)**: Módulo Bento interactivo con control del promotor, copiado veloz y visor acordeón de correos/alias referidos.
+
 - [ ] **Hito 10: Pruebas de Estrés & Beta Testing Masivo** 🧪 *(Próximo Sprint)*
   - [ ] **Simulación Concurrente de Pagos**: Activar el Switch a $20 ARS en el HQ y lanzar una convocatoria privada con 15-20 beta-testers reales. Evaluar velocidad del Webhook, creación automática de ligas y despliegue del historial en el Censo Global en vivo.
   - [ ] **Stress Test de Tabla de Posiciones**: Forzar la inyección masiva de resultados (a través de "Sync Agent" en el HQ) con 50+ usuarios conectados de forma concurrente en `/dashboard` para verificar cálculo y ordenamiento de grupos.
@@ -72,15 +78,17 @@
   - [ ] **Despliegue Masivo Push**: Lanzar alertas de goles y cambio de estado de partidos en background desde el HQ hacia todos los dispositivos suscritos para verificar la reactividad y retención del Service Worker.
 
 ## Current Trajectory
-**Status**: Rediseño minimalista y unificación de marca en **MundiAPP26** **VERIFIED & POLISHED**. Se concluyó con éxito el Sprint aplicando los últimos refinamientos solicitados: remoción de la quinta tarjeta del Bento Grid ("El Rincón de la Liga") para erradicar redundancias, ampliación del margen vertical del Disclaimer a `mt-16`, y reestructuración del Aviso de Fair Play con su título enmarcado y centrado en la parte superior, conservando intactos los copys coloquiales argentinos editados por el usuario.
+**Status**: Sistema de Códigos Promocionales y Afiliados para **MundiAPP26** **VERIFIED & POLISHED** localmente en el workspace. Se consolidaron con total éxito todas las especificaciones de diseño y lógica de backend: persistencia síncrona en caliente del código al perfil del usuario autenticado, debounce de 600ms en la validación reactiva del Paywall bajo español coloquial argentino ("Acá ingresás el código"), fábrica atómica de generación de códigos únicos de 8 dígitos libre de caracteres confusos, e inspector de auditoría detallado en formato acordeón para monitorear Alias y correos electrónicos de los referidos directamente en el HQ.
 
 **Próximos Pasos:**
-1. **Sesión de Pruebas de Estrés y Beta Testing Masivo** (Hito 10) utilizando el valor de prueba a $20 ARS en Mercado Pago.
-2. Desplegar logos definitivos de marcas en `public/assets/brands/`.
+1. **Despliegue a Producción**: Realizar el push del código a GitHub para disparar el despliegue automático en Vercel.
+2. **Sesión de Pruebas de Estrés y Beta Testing Masivo** (Hito 10) utilizando el valor de prueba a $20 ARS en Mercado Pago.
+3. Desplegar logos definitivos de marcas en `public/assets/brands/`.
 
 ## Squad Status
 | Agent | Task | Status |
 | :--- | :--- | :--- |
+| Builder | Sistema de Afiliados, Fábrica de Códigos en HQ & Onboarding | ✅ VERIFIED & POLISHED |
 | Builder | Refinamientos de Fair Play y remoción de 5ª card Bento | ✅ VERIFIED & POLISHED |
 | Builder | Co-Branding Bypass & Onboarding | ✅ VERIFIED & POLISHED |
 | Design Lead | Mobile Navbar Colors & Welcome Toast | ✅ VERIFIED & POLISHED |

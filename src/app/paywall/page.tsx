@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { Shield, CreditCard, CheckCircle2, ChevronRight, Zap, Loader2, Trophy, ArrowRight, Star } from "lucide-react";
 import { createPaymentPreferenceAction, checkAndPromoteCorporateUserAction } from "@/app/actions/payments";
 import { createLeagueAction } from "@/app/actions/leagues";
+import { validatePromoCodeAction, savePromoCodeToProfileAction } from "@/app/actions/promo";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -22,6 +23,14 @@ function PaywallContent() {
   const [leagueName, setLeagueName] = useState(urlLeagueName || "");
   const [creatingLeague, setCreatingLeague] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Estados reactivos para la validación de códigos de promoción
+  const [promoCode, setPromoCode] = useState("");
+  const [promoValid, setPromoValid] = useState<boolean | null>(null);
+  const [promoOwner, setPromoOwner] = useState<string | null>(null);
+  const [validatingPromo, setValidatingPromo] = useState(false);
+  const [promoError, setPromoError] = useState<string | null>(null);
+
 
   useEffect(() => {
     const checkUserRole = async () => {
@@ -60,6 +69,40 @@ function PaywallContent() {
 
     checkUserRole();
   }, [router]);
+
+  // Validación debounced en caliente del Código Promocional
+  useEffect(() => {
+    if (!promoCode.trim()) {
+      setPromoValid(null);
+      setPromoOwner(null);
+      setPromoError(null);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      setValidatingPromo(true);
+      setPromoError(null);
+      try {
+        const res = await validatePromoCodeAction(promoCode.trim());
+        if (res.success && res.valid) {
+          setPromoValid(true);
+          setPromoOwner(res.ownerName || null);
+          // Persistencia síncrona inmediata en el perfil del usuario
+          await savePromoCodeToProfileAction(promoCode.trim());
+        } else {
+          setPromoValid(false);
+          setPromoError(res.error || "El código ingresado no es válido.");
+        }
+      } catch (err) {
+        console.error("Error al validar código promocional:", err);
+        setPromoValid(false);
+      } finally {
+        setValidatingPromo(false);
+      }
+    }, 600);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [promoCode]);
 
 
   // Manejar el checkout de Mercado Pago para los que deben comprar
@@ -185,7 +228,7 @@ function PaywallContent() {
           <ul className="space-y-4 mt-8">
             {[
               "Creación de 1 Liga Privada (10 cupos totales).",
-              "Invitados entran 100% gratis con tu enlace exclusivo.",
+              "Tus amigos entran gratis con el link que les pasas.( 5K por pera para jugar en el Mundial!)",
               "Panel de Control de Liga, Duelos y estadísticas.",
               "Acceso al Sorteo de la Camiseta Oficial de Argentina."
             ].map((item, i) => (
@@ -289,6 +332,44 @@ function PaywallContent() {
                   {urlLeagueName && (
                     <p className="text-[9px] text-white/40 italic">
                       Precargamos el nombre ingresado al registrarte, pero podés cambiarlo si querés.
+                    </p>
+                  )}
+                </div>
+
+                {/* Campo de Código de Promoción minimalista */}
+                <div className="space-y-2 pt-2 border-t border-white/5">
+                  <label className="text-[10px] text-white/50 font-black uppercase tracking-wider block">
+                    Si tenés un Código de Promoción, tenés que ingresarlo aquí mismo:
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value)}
+                      placeholder="Acá ingresás el código"
+                      className={`w-full px-4 py-3 border rounded-xl bg-black/40 text-white placeholder-white/30 font-bold focus:outline-none transition-all uppercase ${
+                        promoValid === true 
+                          ? "border-primary/50 focus:ring-2 focus:ring-primary shadow-[0_0_15px_rgba(251,191,36,0.15)]" 
+                          : promoValid === false 
+                            ? "border-red-500/50 focus:ring-2 focus:ring-red-500" 
+                            : "border-white/10 focus:ring-2 focus:ring-primary"
+                      }`}
+                      disabled={loading}
+                    />
+                    {validatingPromo && (
+                      <div className="absolute right-3 top-3">
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      </div>
+                    )}
+                  </div>
+                  {promoValid === true && (
+                    <p className="text-[10px] text-primary font-black uppercase tracking-wide flex items-center gap-1 animate-pulse">
+                      ✓ Codigo de Promoción Aceptado !
+                    </p>
+                  )}
+                  {promoValid === false && promoError && (
+                    <p className="text-[10px] text-red-400 font-bold uppercase tracking-wide">
+                      ⚠️ {promoError}
                     </p>
                   )}
                 </div>

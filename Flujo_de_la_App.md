@@ -27,6 +27,13 @@ Este documento detalla el "Customer Journey" y la arquitectura funcional de la p
     - `src/app/actions/payments.ts` (Generación de preferencia de pago con URL dinámica de Vercel).
     - `src/app/api/webhooks/mercadopago/route.ts` (Procesador del Webhook).
 
+### Sistema de Códigos Promocionales (Afiliados)
+
+- **Flujo**: Durante el Paywall, el usuario final cuenta con un campo opcional y minimalista para ingresar un Código de Promoción. El sistema valida el código en caliente mediante un **debounce de 600ms** contra Supabase. Al ser validado con éxito, se muestra un mensaje interactivo en español coloquial (`✓ Codigo de Promoción Aceptado !`) y **se asocia inmediatamente en caliente** el código al perfil del usuario (`profiles.referred_by_code`) de forma síncrona. Esto blindará la referencia contra cancelaciones o fallos de pago en Mercado Pago.
+- **Archivos Clave**:
+    - `src/app/actions/promo.ts` (Validación y guardado síncrono).
+    - `src/app/paywall/page.tsx` (Campo minimalista integrado al Checkout).
+
 ### El Sistema de Invitación
 
 - **Flujo**: Si el usuario llega con un link de invitación dedicado (`/join/[code]`), el sistema lo identifica, personaliza el onboarding mostrando el nombre de la liga anfitriona y automatiza su ingreso como `member` tras registrarse con su correo real.
@@ -83,13 +90,17 @@ Este documento detalla el "Customer Journey" y la arquitectura funcional de la p
 - **Flujo**: Acceso restringido con RLS y validación de rol del lado del servidor para el Super Administrador (Tú).
 - **Acciones**:
     - **Control de Pasarela (Modo Test)**: Switch interactivo con Optimistic UI para alternar el valor del Founder Pass en caliente entre $20 (Sandbox) y $50.000 (Producción) guardado en la tabla `app_settings` de Supabase.
+    - **Fábrica de Promociones**: Formulario Bento para generar atómicamente códigos promocionales de 8 caracteres alfanuméricos únicos asignados a un promotor (amigo/compañero) con copia veloz a portapapeles.
+    - **Censo y Auditoría de Referidos**: Tabla analítica en tiempo real que reporta los códigos activos, sus creadores y la cantidad de usos en caliente en el Paywall. Incluye un acordeón interactivo (inspector desplegable) para listar los Alias y correos de las personas que usaron cada código.
     - **Censo Global de Ventas**: Conexión nativa con la API de Mercado Pago (`/v1/payments/search`) para buscar, listar y conciliar cobros reales en producción de forma instantánea.
     - **Sync Agent**: Inyectar resultados de fase de grupos simulados a la base de datos global.
     - **Control de Eliminatorias**: Decidir quién avanza en el bracket oficial.
 - **Archivos Clave**:
     - `src/app/hq/page.tsx` (Panel central rediseñado sin tokens obsoletos).
+    - `src/components/admin/PromoControlModule.tsx` (Componente de control de promociones).
     - `src/app/actions/admin.ts` (Lectura/escritura de settings y fetch en vivo de Mercado Pago).
-    - `src/app/actions/sync.ts` (Motor de sincronización y simulación de partidos).
+    - `src/app/actions/promo.ts` (Lógica e inyección de datos de afiliados).
+    - `src/app/actions/sync.ts` (Motor de Sincronización y simulación de partidos).
 
 ---
 

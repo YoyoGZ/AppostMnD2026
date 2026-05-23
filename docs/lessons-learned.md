@@ -253,4 +253,19 @@ Esto elimina de raíz cualquier llamada concurrente a Supabase Auth en el client
 2. **Logo Hero Foco**: Se aumentó el logo de la navbar a `w-16 h-16` y se inyectó un gran Isotipo central de `w-28` (móvil) / `w-36` (desktop) sobre el Hero, acompañado de sombras doradas Stadium Gold.
 3. **Fusión Bento Minimalista**: Se eliminaron las secciones duplicadas, unificándolas en una sola arena de pronósticos minimalista de 4 tarjetas bento con un toque de degradado dorado radial sutil (`bg-gradient-to-br from-[#0d0d0d] via-[#16130d]/30 to-black`) y un gran Banner horizontal inferior de Fair Play.
 4. **Respeto a las Reglas de Negocio**: Se mantuvo y destacó la integración de **API-Football** para certificar la calidad y automatización en tiempo real frente a plantillas o excels tradicionales, consolidando la superioridad tecnológica de la App.
-5. **Comportamiento del Código**: Se respetaron al 100% las funciones asíncronas de servidor y los Server Components hidratados para garantizar que el compilador no sufriera advertencias.
+5: **Comportamiento del Código**: Se respetaron al 100% las funciones asíncronas de servidor y los Server Components hidratados para garantizar que el compilador no sufriera advertencias.
+
+## 2026-05-23: Sistema de Códigos Promocionales y Afiliaciones (Resiliencia Onboarding & Anti-N+1)
+
+### Síntoma
+1. **Riesgo de Pérdida de Afiliación (Paywall)**: Si el usuario ingresa un código promocional en el Paywall y luego es redirigido a la pasarela externa de Mercado Pago, cualquier caída de red o abandono del webhook provocaría que la referencia del promotor se perdiera, imposibilitando la auditoría de ventas.
+2. **Consultas Distribuidas Lentas (N+1)**: El HQ requiere auditar la conversión de cada código promocional. Hacer una consulta separada para contar los referidos y otra para traer los alias y correos de cada código en un bucle iterativo provocaría bloqueos de red y latencias severas en el servidor de analíticas.
+
+### Diagnóstico
+1. **Persistencia Síncrona Inmediata**: La afiliación debe registrarse en la tabla de perfiles en el mismo instante en que el usuario valida el código con éxito en el Paywall. Al ser opcional, el registro síncrono blinda la referencia de cualquier interrupción o cancelación de pago posterior.
+2. **Agregación Analítica en Memoria (Singleton/Map)**: Para evitar cuellos de botella e ineficiencias de red en consultas multi-usuario del HQ, es obligatorio realizar un **bulk fetch** masivo de todos los perfiles asociados y resolver las relaciones en memoria utilizando un mapa agregador.
+
+### Resolución (The House Way)
+1. **Validación y Persistencia Reactiva**: Implementamos una Server Action síncrona (`savePromoCodeToProfileAction`) que actualiza la columna `referred_by_code` en `profiles` inmediatamente después de la validación debounced en caliente.
+2. **Bulk Analytic Fetch**: Redactamos la Server Action `getPromoAnalyticsAction` de forma que haga una sola query a `promo_codes` y otra única query de bulk a `profiles`, cruzando y agrupando las relaciones en memoria.
+3. **Estética del HQ**: Añadimos el componente modular `PromoControlModule.tsx` con capacidad de copiar códigos con 1 clic al portapapeles e inspectores desplegables dinámicos de gladiadores registrados.
