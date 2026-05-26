@@ -37,7 +37,7 @@ export async function processFinishedMatches(leagueId?: string) {
         if (!match || typeof match.goles_local !== 'number') return null;
         const { puntos } = calculatePoints(pred.equipo_a_goles, pred.equipo_b_goles, match.goles_local, match.goles_visitante);
         return { id: pred.id, points_earned: puntos };
-      }).filter(Boolean);
+      }).filter((item): item is { id: string; points_earned: number } => item !== null);
 
       if (predictionUpdates.length > 0) {
         await supabase.from('predictions').upsert(predictionUpdates);

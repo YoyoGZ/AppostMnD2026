@@ -270,6 +270,32 @@ Esto elimina de raíz cualquier llamada concurrente a Supabase Auth en el client
 2. **Bulk Analytic Fetch**: Redactamos la Server Action `getPromoAnalyticsAction` de forma que haga una sola query a `promo_codes` y otra única query de bulk a `profiles`, cruzando y agrupando las relaciones en memoria.
 3. **Estética del HQ**: Añadimos el componente modular `PromoControlModule.tsx` con capacidad de copiar códigos con 1 clic al portapapeles e inspectores desplegables dinámicos de gladiadores registrados.
 
+## 2026-05-25: Glitch de Módulo No Encontrado por Dependencias Modificadas Directamente (LL-4)
+
+### Síntoma
+Al ejecutar `npm run dev` localmente tras agregar `@vercel/analytics` al proyecto, el servidor de Next.js crasheaba en caliente con el error: `Module not found: Can't resolve '@vercel/analytics/react'`.
+
+### Diagnóstico
+Cuando el asistente de IA o un desarrollador edita el archivo `package.json` directamente de forma textual para registrar una nueva dependencia (como `"@vercel/analytics": "^1.4.0"`), la base de datos de paquetes del entorno de desarrollo local (`node_modules`) no se actualiza automáticamente. Next.js intenta importar el paquete durante la compilación local y, al no encontrar los binarios físicos en disco, rompe el runtime del servidor.
+
+### Resolución (The House Way)
+**Regla de Sincronización Local**: Cada vez que se modifique o inserte una línea de dependencia en `package.json` de manera directa por texto, es **estrictamente obligatorio** ejecutar `npm install` (o `npm i`) en la terminal local de Visual Studio Code antes de correr `npm run dev`. Esto descarga y compila los paquetes físicos requeridos en `node_modules` y sincroniza el archivo `package-lock.json` de forma robusta.
+
+## 2026-05-25: Vulnerabilidades Críticas de Seguridad (DoS, XSS, SSRF) en Next.js 16 (LL-5)
+
+### Síntoma
+Al ejecutar `npm audit` tras la instalación de dependencias, el gestor de paquetes de Node reporta vulnerabilidades de severidad **high** en Next.js en el rango de versiones `9.3.4-canary.0` a `16.3.0-canary.5`, incluyendo riesgo de Denegación de Servicio (DoS) con Server Components, inyecciones XSS y derivaciones del Proxy de enrutamiento (`GHSA-q4gf-8mx6-v5v3`, etc.).
+
+### Diagnóstico
+La versión del core `"next": "16.2.2"` registrada inicialmente en el proyecto posee fallas lógicas conocidas en la deserialización de Server Components de App Router. Aunque la actualización a `16.2.3` mitiga el DoS primario, deja otras vulnerabilidades secundarias activas debido a las particularidades del rango acumulado. La rama estable de Next.js 16 solucionó la totalidad de estos reportes de seguridad en su versión final estable **`16.2.6`**.
+
+### Resolución (The House Way)
+**Actualización Proactiva de Seguridad**:
+1. **Identificación de Parches**: Se constató que el equipo de Next.js consolidó y cerró el 100% de estas fallas en la versión final **`16.2.6`** para la rama 16.x.
+2. **Upgrade de Dependencias**: Se modificaron de forma mandatoria en `package.json` las versiones de `"next"` y de `"eslint-config-next"` elevándolas estrictamente a **`16.2.6`**.
+3. **Sincronización de Entorno**: Correr `npm install` en local para actualizar la carpeta `node_modules` física y re-escribir el árbol de dependencias seguro de producción.
+4. **Overrides Quirúrgicos para Dependencias Anidadas**: Para resolver vulnerabilidades "high" en paquetes anidados de desarrollo (como `brace-expansion` dentro de ESLint/TypeScript), se implementó la propiedad `"overrides": { "brace-expansion": "^2.0.3" }` en `package.json`. Esto fuerza de forma determinista y segura a npm a instalar la versión parcheada sin alterar la compatibilidad ni requerir actualizaciones masivas de compiladores.
+
 ## 2026-05-25: Accesibilidad Outdoor y Prevención de Reflejo Solar en Celulares (LT-6)
 
 ### Síntoma
@@ -290,3 +316,22 @@ Los gladiadores reportan dificultades extremas para leer textos, placeholders e 
    - Modificar las horas de mensajes de `text-[8px] text-white/20` a un visible `text-[10px] text-slate-300 font-bold`.
    - Reemplazar leyendas vacías apagadas por avisos animados brillantes (`text-slate-300/80 font-bold`).
 5. **Links e Indicadores**: Los links complementarios de alternancia (toggle login/registro) se subieron a `text-slate-200 font-bold hover:text-white` y el texto interactivo directo a `text-primary font-black underline ml-1`.
+
+## 2026-05-26: Rigidez de Tipados en Supabase SDK tras Actualización de Dependencias (LL-6)
+
+### Síntoma
+Al correr `npm run build` localmente tras reconstruir el entorno con dependencias actualizadas, el compilador de Next.js fallaba con el error de TypeScript:
+`Type error: Argument of type '({ id: any; points_earned: number; } | null)[]' is not assignable to parameter of type...` en `src/app/actions/oracle.ts:43:51`.
+
+### Diagnóstico
+En la versión del Oráculo, el mapeo de predicciones retornaba un array que contenía elementos válidos y posibles valores `null` para ítems no procesados. Aunque el código filtraba los nulos mediante `.filter(Boolean)`, el compilador de TypeScript no es capaz de inferir que este método reduce el tipo y elimina los valores nulos, por lo que seguía tipando el array como `(Type | null)[]`. 
+
+Al actualizar las dependencias de Supabase (`@supabase/supabase-js`) a las versiones estables y tipadas de forma ultra-estricta con Next.js 16.2.6, el método `.upsert()` requiere obligatoriamente una firma libre de valores nulos, sacando a la luz este error estático que antes pasaba desapercibido por las validaciones de tipo laxas de las librerías viejas en caché.
+
+### Resolución (The House Way)
+**Uso Mandatorio de Type Guards en TypeScript**:
+Para corregir la inferencia estática de arrays filtrados, es obligatorio sustituir el filtro genérico `.filter(Boolean)` por un **Type Guard explícito** que certifique a TypeScript que el elemento ya no puede ser nulo:
+```typescript
+.filter((item): item is { id: string; points_earned: number } => item !== null)
+```
+Esto resuelve la firma del tipo del array de forma 100% Type-Safe a nivel de compilación y permite que el build local y en la nube se complete con éxito de forma limpia.
