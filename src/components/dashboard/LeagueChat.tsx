@@ -94,7 +94,7 @@ export function LeagueChat({ leagueId, currentUserId, onClose }: LeagueChatProps
           </div>
           <div>
             <h3 className="text-sm font-black uppercase tracking-widest text-white">Chat de Liga</h3>
-            <p className="text-[10px] text-white/40 font-medium">Jugadores en línea</p>
+            <p className="text-[10px] text-slate-300 font-bold uppercase tracking-wider">Jugadores en línea</p>
           </div>
         </div>
         {onClose && (
@@ -113,9 +113,9 @@ export function LeagueChat({ leagueId, currentUserId, onClose }: LeagueChatProps
         className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar scroll-smooth"
       >
         {messages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center opacity-30">
-            <MessageSquare className="w-12 h-12 mb-4" />
-            <p className="text-sm italic">No hay mensajes todavía. ¡Sé vos el primero en picantearla!</p>
+          <div className="h-full flex flex-col items-center justify-center text-center text-slate-300/80">
+            <MessageSquare className="w-12 h-12 mb-4 text-primary animate-bounce" />
+            <p className="text-sm italic font-bold">No hay mensajes todavía. ¡Sé vos el primero en picantearla!</p>
           </div>
         ) : (
           messages.map((msg) => {
@@ -126,12 +126,12 @@ export function LeagueChat({ leagueId, currentUserId, onClose }: LeagueChatProps
                 className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}
               >
                 <div className="flex items-center gap-2 mb-1 px-1">
-                  {!isMe && <span className="text-[9px] font-black uppercase tracking-widest text-primary">{msg.sender_alias}</span>}
-                  <span className="text-[8px] text-white/20">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  {!isMe && <span className="text-[10px] font-black uppercase tracking-widest text-primary drop-shadow">{msg.sender_alias}</span>}
+                  <span className="text-[10px] text-slate-300 font-bold">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
                 <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${isMe
-                    ? 'bg-primary text-black font-medium rounded-tr-none shadow-[0_4px_15px_rgba(251,191,36,0.2)]'
-                    : 'bg-white/5 border border-white/10 text-white/90 rounded-tl-none'
+                    ? 'bg-primary text-black font-bold rounded-tr-none shadow-[0_4px_15px_rgba(251,191,36,0.2)]'
+                    : 'bg-slate-900/80 border border-white/20 text-white font-semibold rounded-tl-none'
                   }`}>
                   {msg.content}
                 </div>
@@ -149,7 +149,7 @@ export function LeagueChat({ leagueId, currentUserId, onClose }: LeagueChatProps
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Escribe un mensaje..."
-            className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 pr-16 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 transition-all shadow-inner"
+            className="w-full bg-black/60 border border-white/20 rounded-2xl px-6 py-4 pr-16 text-sm text-white placeholder:text-slate-300 font-semibold focus:outline-none focus:border-primary/50 transition-all shadow-inner"
           />
           <button
             type="submit"

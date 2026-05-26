@@ -410,7 +410,7 @@ export async function resetUserPasswordAction(userId: string, newPassword?: stri
     return { success: false, error: "ID de usuario inválido" };
   }
 
-  const targetPassword = newPassword && newPassword.trim() !== '' ? newPassword.trim() : '123456';
+  const targetPassword = newPassword && newPassword.trim() !== '' ? newPassword.trim() : 'ABCD1234';
 
   try {
     const supabaseAdmin = createAdminClient();

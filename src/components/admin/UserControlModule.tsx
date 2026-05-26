@@ -31,7 +31,7 @@ export function UserControlModule() {
 
   // Estados para restablecer contraseña
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
-  const [customPassword, setCustomPassword] = useState('123456');
+  const [customPassword, setCustomPassword] = useState('ABCD1234');
   const [isResetting, setIsResetting] = useState(false);
   const [resetResult, setResetResult] = useState<{
     success: boolean;
@@ -215,7 +215,7 @@ export function UserControlModule() {
                         onClick={() => {
                           setSelectedUser(u);
                           setResetResult(null);
-                          setCustomPassword('123456');
+                          setCustomPassword('ABCD1234');
                         }}
                         className="bg-white/5 border border-white/10 hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400 p-2 rounded-xl text-white/60 transition-all active:scale-95 inline-flex items-center gap-1.5"
                         title="Restablecer Contraseña"
@@ -274,7 +274,7 @@ export function UserControlModule() {
                     className="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-red-500/60 transition-colors font-mono"
                   />
                   <span className="text-[9px] text-white/30 mt-1.5 block">
-                    Por defecto se sugiere <strong>123456</strong>. Puedes cambiarla por otra clave genérica.
+                    Por defecto se sugiere <strong>ABCD1234</strong>. Puedes cambiarla por otra clave genérica.
                   </span>
                 </div>
 

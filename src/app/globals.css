@@ -66,7 +66,7 @@
     --secondary: #0f1115; /* Sidebar & Subtle surfaces */
     --secondary-foreground: #f1f5f9;
     --muted: #0f1117;
-    --muted-foreground: #94a3b8; /* Increased brightness for dark bg */
+    --muted-foreground: #cbd5e1; /* Increased brightness (Slate 300) for high outdoor contrast */
     --accent: #1e293b;
     --accent-foreground: #f1f5f9;
     --destructive: #ef4444;
@@ -119,7 +119,7 @@
     @media (min-width: 1024px) {
        background-size: 150%; /* Zoom in on desktop */
        background-position: center 75%; /* Lower the camera to focus on the ball */
-    }
+     }
     /* Optimización para móviles */
     @media (max-width: 768px) {
       background-position: center 80%; /* Prioritize ball on mobile */
@@ -173,9 +173,21 @@
   .text-sm { font-size: 16px !important; }
   .text-base { font-size: 18px !important; }
 
+  /* Forzar visibilidad y grosor en placeholders de inputs móviles para contrarrestar luz solar */
+  input::placeholder, textarea::placeholder {
+    font-weight: 600 !important;
+    color: rgba(226, 232, 240, 0.8) !important; /* Slate 200 con 80% de brillo */
+  }
+
+  /* Asegurar que los inputs tengan textos gruesos y legibles */
+  input, textarea, select {
+    font-weight: 600 !important;
+  }
+
   /* Mejorar legibilidad de textos de apoyo */
   p, li {
     line-height: 1.6;
+    font-weight: 500 !important; /* Aumentar grosor base de textos informativos */
   }
 }
 

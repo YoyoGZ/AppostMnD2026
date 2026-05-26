@@ -193,13 +193,13 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                   Bienvenido a <span className="text-primary">{leagueInfo.name}</span>
                 </h1>
                 <p className="text-white/50 text-[10px] mt-2 font-bold uppercase tracking-widest">
-                  Liga fundada por <span className="text-primary/80">{leagueInfo.captainAlias}</span>
+                  Liga fundada por <span className="text-primary font-black underline">{leagueInfo.captainAlias}</span>
                 </p>
               </>
             ) : (
               <>
                 <h1 className="text-3xl font-black text-white tracking-tighter drop-shadow-md">IDENTITY<span className="text-primary">SHIELD</span></h1>
-                <p className="text-white/50 text-sm mt-2 font-medium">Acceso reservado a los participantes de la liga</p>
+                <p className="text-slate-200 text-sm mt-2 font-semibold">Acceso reservado a los participantes de la liga</p>
               </>
             )}
           </div>
@@ -242,7 +242,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                     value={leagueName}
                     onChange={(e) => setLeagueName(e.target.value)}
                     placeholder="Bautizá tu Liga (Ej: Los Pibes)"
-                    className="block w-full pl-12 pr-4 py-3.5 border-2 border-primary/50 rounded-xl bg-primary/5 text-white placeholder-white/50 font-black focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                    className="block w-full pl-12 pr-4 py-3.5 border-2 border-primary/60 rounded-xl bg-primary/10 text-white placeholder-slate-300 font-black focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                     required={isNewUser && !inviteCode}
                   />
                 </div>
@@ -259,7 +259,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@correo.com"
                   autoComplete="email"
-                  className="block w-full pl-12 pr-4 py-3.5 border border-white/10 rounded-xl bg-black/40 text-white placeholder-white/50 font-medium focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+                  className="block w-full pl-12 pr-4 py-3.5 border border-white/20 rounded-xl bg-black/60 text-white placeholder-slate-300 font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
                   required
                 />
               </div>
@@ -276,7 +276,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                     onChange={(e) => setAlias(e.target.value)}
                     placeholder="Tu apodo en la app (ej: El Pibe)"
                     autoComplete="username"
-                    className="block w-full pl-12 pr-4 py-3.5 border border-white/10 rounded-xl bg-black/40 text-white placeholder-white/50 font-medium focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+                    className="block w-full pl-12 pr-4 py-3.5 border border-white/20 rounded-xl bg-black/60 text-white placeholder-slate-300 font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
                     required={isNewUser}
                   />
                 </div>
@@ -298,9 +298,9 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
               {isNewUser && (
                 <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 animate-in fade-in duration-300">
                   <p className="text-primary text-[11px] font-black uppercase tracking-widest mb-1">💡 Sugerencia para no olvidarla</p>
-                  <p className="text-white/60 text-[11px] leading-snug">
+                  <p className="text-slate-200 text-[11px] leading-snug font-semibold">
                     Usá <strong className="text-white">2 letras + los 6 últimos dígitos de tu DNI</strong>.<br/>
-                    Ejemplo: <span className="text-primary font-mono">AB123456</span>
+                    Ejemplo: <span className="text-primary font-mono font-black">AB123456</span>
                   </p>
                 </div>
               )}
@@ -316,7 +316,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Clave Secreta (mín. 8 caracteres)"
                   autoComplete={isNewUser ? "new-password" : "current-password"}
-                  className="block w-full pl-12 pr-12 py-3.5 border border-white/10 rounded-xl bg-black/40 text-white placeholder-white/50 font-medium focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+                  className="block w-full pl-12 pr-12 py-3.5 border border-white/20 rounded-xl bg-black/60 text-white placeholder-slate-300 font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
                   required
                 />
                 <button
@@ -340,7 +340,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Repetí la Clave"
                     autoComplete="new-password"
-                    className="block w-full pl-12 pr-12 py-3.5 border border-white/10 rounded-xl bg-primary/5 text-white placeholder-white/50 font-medium focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+                    className="block w-full pl-12 pr-12 py-3.5 border border-white/20 rounded-xl bg-primary/10 text-white placeholder-slate-300 font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
                     required={isNewUser}
                   />
                   <button
@@ -377,12 +377,12 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
               {!inviteCode && (
                 <div className="mt-4 text-center">
                   {isNewUser ? (
-                    <button type="button" onClick={() => { setIsNewUser(false); setError(null); }} className="text-white/40 hover:text-white text-[11px] uppercase font-bold tracking-widest transition-colors">
-                      ¿Ya tenés cuenta? <span className="text-primary">Ingresá acá</span>
+                    <button type="button" onClick={() => { setIsNewUser(false); setError(null); }} className="text-slate-200 hover:text-white text-[12px] uppercase font-bold tracking-widest transition-colors">
+                      ¿Ya tenés cuenta? <span className="text-primary font-black underline ml-1">Ingresá acá</span>
                     </button>
                   ) : (
-                    <button type="button" onClick={() => { setIsNewUser(true); setError(null); }} className="text-white/40 hover:text-white text-[11px] uppercase font-bold tracking-widest transition-colors">
-                      ¿No tenés cuenta? <span className="text-primary">Armá tu Liga acá</span>
+                    <button type="button" onClick={() => { setIsNewUser(true); setError(null); }} className="text-slate-200 hover:text-white text-[12px] uppercase font-bold tracking-widest transition-colors">
+                      ¿No tenés cuenta? <span className="text-primary font-black underline ml-1">Armá tu Liga acá</span>
                     </button>
                   )}
                 </div>

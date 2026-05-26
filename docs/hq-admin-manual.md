@@ -84,7 +84,7 @@ La interfaz está construida mediante un **Bento Grid de Alta Densidad** y visua
 * **Propósito:** Proporcionar soporte técnico inmediato a gerentes y usuarios con problemas de ingreso sin necesidad de flujos de email de recuperación complejos.
 * **Acciones Clínicas:**
   * **Buscador Reactivo:** Filtra en tiempo real a los jugadores registrados tipeando su alias o email.
-  * **Restablecimiento Forzado de Contraseña:** Escribe una contraseña nueva (o déjala vacía para asignar `123456` por defecto) y presiona "Restablecer". El Server Action utiliza las credenciales administrativas de Supabase Auth para sobreescribir la clave del usuario en caliente en menos de 100ms, permitiéndole el ingreso inmediato.
+  * **Restablecimiento Forzado de Contraseña:** Escribe una contraseña nueva (o déjala vacía para asignar `ABCD1234` por defecto) y presiona "Restablecer". El Server Action utiliza las credenciales administrativas de Supabase Auth para sobreescribir la clave del usuario en caliente en menos de 100ms, permitiéndole el ingreso inmediato.
 
 ---
 

@@ -23,18 +23,18 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
       />
 
       {/* Modal Content */}
-      <div className="relative w-full max-w-lg bg-card-body/90 border border-white/10 rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-lg bg-card-body/95 border border-white/20 rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/5 bg-white/[0.02]">
+        <div className="flex items-center justify-between p-6 border-b border-white/10 bg-white/[0.04]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-primary/10 border border-primary/30 rounded-xl flex items-center justify-center">
               <Shield className="w-5 h-5 text-primary" />
             </div>
             <div>
               <h2 className="text-lg font-black uppercase tracking-tight text-white leading-none">
                 Acceso a la App
               </h2>
-              <p className="text-[10px] uppercase font-bold tracking-widest text-primary mt-1">
+              <p className="text-[10px] uppercase font-black tracking-widest text-primary mt-1">
                 Registro de Fundadores
               </p>
             </div>
@@ -49,36 +49,36 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
 
         {/* Body - Scrollable */}
         <div className="p-6 overflow-y-auto custom-scrollbar">
-          <div className="space-y-4 text-white/70 text-sm leading-relaxed font-medium">
-            <h3 className="text-white font-bold text-base mb-2">Protocolo de Admisión</h3>
+          <div className="space-y-4 text-slate-200 text-sm leading-relaxed font-semibold">
+            <h3 className="text-white font-black text-base mb-2">Protocolo de Admisión</h3>
             
             <div className="flex gap-4 items-start">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/10 text-white flex items-center justify-center text-xs font-bold mt-0.5">1</span>
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 text-white flex items-center justify-center text-xs font-black mt-0.5">1</span>
               <p>
-                <strong className="text-white block mb-1">Registro de Identidad</strong>
+                <strong className="text-white font-black block mb-1">Registro de Identidad</strong>
                 Primero vas a tener que validar tu identidad creando tu cuenta segura en la Plataforma.
               </p>
             </div>
             
             <div className="flex gap-4 items-start">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold mt-0.5">2</span>
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-black mt-0.5">2</span>
               <p>
-                <strong className="text-white block mb-1">Adquisición del Founder Pass</strong>
+                <strong className="text-white font-black block mb-1">Adquisición del Founder Pass</strong>
                 Una vez registrado, vas a acceder a la pasarela de pagos segura para activar tu membresía.
               </p>
             </div>
 
             <div className="flex gap-4 items-start">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/10 text-white flex items-center justify-center text-xs font-bold mt-0.5">3</span>
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 text-white flex items-center justify-center text-xs font-black mt-0.5">3</span>
               <p>
-                <strong className="text-white block mb-1">Dominio Total</strong>
-                Con tu pase activo, vas a recibir el rango de <strong className="text-primary">Capitán (Founder)</strong>. Vas a poder armar tu propia Liga, invitar hasta 9 amigos y administrar la competencia.
+                <strong className="text-white font-black block mb-1">Dominio Total</strong>
+                Con tu pase activo, vas a recibir el rango de <strong className="text-primary font-black">Capitán (Founder)</strong>. Vas a poder armar tu propia Liga, invitar hasta 9 amigos y administrar la competencia.
               </p>
             </div>
 
-            <div className="p-4 bg-primary/5 border border-primary/10 rounded-2xl my-6">
-              <p className="text-xs text-primary font-bold uppercase tracking-widest mb-1">Nota del Oráculo</p>
-              <p className="text-white/60 text-xs">
+            <div className="p-4 bg-primary/10 border border-primary/20 rounded-2xl my-6">
+              <p className="text-xs text-primary font-black uppercase tracking-widest mb-1">Nota del Oráculo</p>
+              <p className="text-slate-200 text-xs font-semibold">
                 La gloria es para los pioneros. Solo los Fundadores tendrán acceso al Panel de Gestión y Creación de Duelos. Asegurá el liderazgo del grupo antes del incio oficial !!
               </p>
             </div>

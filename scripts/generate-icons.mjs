@@ -1,9 +1,9 @@
 /**
  * generate-icons.mjs
- * Genera los íconos PWA oficiales desde public/logo.svg de alta fidelidad.
- * - Mantiene los gradientes dorados, sombras y filtros.
- * - Genera icon-512x512.png y icon-192x192.png manteniendo el fondo oscuro premium.
- * - Genera favicon.png recortando la estrella dorada del centro con fondo transparente.
+ * Genera los íconos PWA oficiales y el favicon desde public/assets/logo_oficial.png.
+ * - Mantiene los gradientes, sombras y transparencias del logo definitivo de la App.
+ * - Genera icon-512x512.png y icon-192x192.png centrando el logo en el fondo premium oscuro de la marca (#050505).
+ * - Genera favicon.png con fondo transparente (32x32px).
  */
 
 import sharp from 'sharp';
@@ -13,48 +13,44 @@ import fs from 'fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
-const INPUT = path.join(ROOT, 'public', 'logo.svg');
+const INPUT = path.join(ROOT, 'public', 'assets', 'logo_oficial.png');
 const OUTPUT_DIR = path.join(ROOT, 'public');
 
 async function generateIcons() {
-  console.log('📂 Leyendo SVG fuente de alta fidelidad...');
+  console.log('📂 Leyendo logo oficial PNG de alta fidelidad...');
   
   if (!fs.existsSync(INPUT)) {
     throw new Error(`No se encontró el archivo de entrada: ${INPUT}`);
   }
 
-  // ── PWA icons: renderizar el escudo con fondo oscuro directamente a PNG ──
+  // ── PWA icons: renderizar el logo centrado con fondo oscuro de la marca (#050505) ──
   for (const { name, size } of [
     { name: 'icon-512x512.png', size: 512 },
     { name: 'icon-192x192.png', size: 192 },
   ]) {
     const outputPath = path.join(OUTPUT_DIR, name);
     
-    // Renderizamos el SVG directamente al tamaño de salida.
-    // Esto conserva el escudo con sus degradados oscuros y dorados al 100% de calidad.
-    // Para asegurar que el icono sea cuadrado con fondo negro en la PWA (si se requiere),
-    // creamos un lienzo negro y componemos el escudo centrado y sutilmente más pequeño (92%)
-    // para dar un margen elegante de respiración.
-    const medallionSize = Math.round(size * 0.92);
-    const offset = Math.round((size - medallionSize) / 2);
+    // Dejamos un margen del 90% para que el logo respire elegantemente dentro de la caja de la PWA
+    const logoSize = Math.round(size * 0.90);
+    const offset = Math.round((size - logoSize) / 2);
 
-    // Rasterizar el SVG a un buffer PNG temporal al tamaño del medallón.
-    // Sharp maneja los gradientes perfectamente al redimensionar un SVG directo.
-    const svgRasterized = await sharp(INPUT)
-      .resize(medallionSize, medallionSize)
+    // Redimensionar el logo a la caja contenedora
+    const logoResized = await sharp(INPUT)
+      .resize(logoSize, logoSize, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
       .png()
       .toBuffer();
 
+    // Crear el lienzo con fondo oscuro (#050505) de la marca y superponer el logo
     await sharp({
       create: { 
         width: size, 
         height: size, 
         channels: 4,
-        background: { r: 5, g: 7, b: 10, alpha: 1 } // Fondo azul/negro oscuro de la marca (#05070a)
+        background: { r: 5, g: 5, b: 5, alpha: 1 } // #050505
       }
     })
     .composite([{
-      input: svgRasterized,
+      input: logoResized,
       top: offset, 
       left: offset,
     }])
@@ -64,49 +60,17 @@ async function generateIcons() {
     console.log(`✅ Generado PWA Icon: public/${name} (${size}x${size}px)`);
   }
 
-  // ── Favicon: recortar el balón dorado del centro ──
-  console.log('\n🔵 Generando favicon de alta fidelidad (balón central dorado)...');
+  // ── Favicon: redimensionar el logo oficial con fondo transparente ──
+  console.log('\n🔵 Generando favicon transparente de alta fidelidad...');
   const faviconSize = 32;
   
-  // Renderizamos el SVG original a un buffer de alta resolución (512x512) para recortar con máxima nitidez.
-  const highResBase = await sharp(INPUT)
-    .resize(512, 512)
-    .png()
-    .toBuffer();
-
-  // El balón central dorado ocupa el centro del viewBox de 512x512.
-  // Hacemos un recorte del centro exacto de 220x220px para capturar el balón completo con su brillo
-  const starBoxSize = 220;
-  const starLeft = Math.round((512 - starBoxSize) / 2); // 146
-  const starTop = Math.round((512 - starBoxSize) / 2); // 146 (exactamente centrado)
-
-  const starBuffer = await sharp(highResBase)
-    .extract({ left: starLeft, top: starTop, width: starBoxSize, height: starBoxSize })
-    .toBuffer();
-
-  const iconSize = Math.round(faviconSize * 0.90); // 29px de estrella
-  const iconOffset = Math.round((faviconSize - iconSize) / 2); // 2px offset
-
-  await sharp({
-    create: { 
-      width: faviconSize, 
-      height: faviconSize, 
-      channels: 4,
-      background: { r: 0, g: 0, b: 0, alpha: 0 } // Favicon premium con transparencia
-    }
-  })
-  .composite([{
-    input: await sharp(starBuffer)
-      .resize(iconSize, iconSize, { fit: 'contain' })
-      .toBuffer(),
-    top: iconOffset,
-    left: iconOffset,
-  }])
-  .png({ quality: 100 })
-  .toFile(path.join(OUTPUT_DIR, 'favicon.png'));
+  await sharp(INPUT)
+    .resize(faviconSize, faviconSize, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png({ quality: 100 })
+    .toFile(path.join(OUTPUT_DIR, 'favicon.png'));
 
   console.log(`✅ Generado Favicon: public/favicon.png (${faviconSize}x${faviconSize}px)`);
-  console.log('\n🎯 Todos los iconos regenerados exitosamente con alta fidelidad.');
+  console.log('\n🎯 Todos los iconos de MundiAPP26 regenerados exitosamente a partir del logo oficial.');
 }
 
 generateIcons().catch(err => {

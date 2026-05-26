@@ -77,16 +77,16 @@ export default function TicketClient({ token }: { token: string }) {
           <div className="text-center pb-10">
             <h3 className="text-yellow-500 font-black tracking-[0.3em] uppercase text-[10px] mb-4">Golden Pass</h3>
             <img src="/assets/logo_oficial.png" alt="Mundial Logo" className="w-20 h-20 mx-auto mb-4 drop-shadow-[0_0_15px_rgba(234,179,8,0.4)]" />
-            <h1 className="text-3xl font-black text-white uppercase tracking-tighter">LICENCIA<br/><span className="text-white/40">DE CAPITÁN</span></h1>
+            <h1 className="text-3xl font-black text-white uppercase tracking-tighter">LICENCIA<br/><span className="text-slate-300 font-bold">DE CAPITÁN</span></h1>
           </div>
 
           {/* Bottom Section */}
           <div className="text-center pt-8">
-            <div className="inline-flex items-center gap-1.5 bg-red-500/10 text-red-400 text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border border-red-500/20 mb-6">
-              <AlertTriangle className="w-3 h-3" /> Acceso de Un Solo Uso
+            <div className="inline-flex items-center gap-1.5 bg-red-500/20 text-red-300 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border border-red-500/30 mb-6">
+              <AlertTriangle className="w-3 h-3 text-red-400" /> Acceso de Un Solo Uso
             </div>
             
-            <p className="text-white/40 text-xs font-medium mb-8 px-4 leading-relaxed">
+            <p className="text-slate-200 text-xs font-semibold mb-8 px-4 leading-relaxed">
               Este documento te permite crear una liga privada en la App
             </p>
 
@@ -111,34 +111,34 @@ export default function TicketClient({ token }: { token: string }) {
           <form onSubmit={handleRedeem} className="flex flex-col gap-4">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <User className="h-5 w-5 text-white/30" />
+                <User className="h-5 w-5 text-white/40" />
               </div>
               <input
                 type="text"
                 value={alias}
                 onChange={(e) => setAlias(e.target.value)}
                 placeholder="Elige tu Alias"
-                className="block w-full pl-12 pr-4 py-3.5 border border-white/10 rounded-xl bg-white/5 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all"
+                className="block w-full pl-12 pr-4 py-3.5 border border-white/20 rounded-xl bg-white/5 text-white placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all font-semibold"
                 required
               />
             </div>
 
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-white/30" />
+                <Lock className="h-5 w-5 text-white/40" />
               </div>
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Clave Secreta Fuerte"
-                className="block w-full pl-12 pr-12 py-3.5 border border-white/10 rounded-xl bg-white/5 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all"
+                className="block w-full pl-12 pr-12 py-3.5 border border-white/20 rounded-xl bg-white/5 text-white placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all font-semibold"
                 required
               />
               <button 
                 type="button" 
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-white/30 hover:text-white"
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-white/40 hover:text-white"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -161,7 +161,7 @@ export default function TicketClient({ token }: { token: string }) {
             <button 
               type="button"
               onClick={() => setShowForm(false)}
-              className="mt-2 text-white/30 hover:text-white text-[10px] font-bold uppercase tracking-widest"
+              className="mt-2 text-slate-300 hover:text-white text-[12px] font-black uppercase tracking-widest underline"
             >
               Volver al Ticket
             </button>

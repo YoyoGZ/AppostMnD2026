@@ -56,5 +56,5 @@ Debido a que las contraseñas están hasheadas en `auth.users`, es imposible rec
 
 **Acción en el God Mode:**
 - En la tabla de usuarios del HQ, el Super Admin tendrá un botón **"Resetear Clave de Jugador"**.
-- Al presionarlo, el backend utilizará la **Supabase Admin API** (`supabase.auth.admin.updateUserById`) mediante el `service_role_key` para forzar el cambio de la clave del usuario a una genérica temporal (ej: `123456`).
+- Al presionarlo, el backend utilizará la **Supabase Admin API** (`supabase.auth.admin.updateUserById`) mediante el `service_role_key` para forzar el cambio de la clave del usuario a una genérica temporal (ej: `ABCD1234`).
 - El usuario podrá ingresar nuevamente con esa clave provisoria y mantener intacto su progreso en el torneo.

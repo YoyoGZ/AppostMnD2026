@@ -216,7 +216,7 @@ function PaywallContent() {
             )}
           </h1>
           
-          <p className="text-white/60 text-sm md:text-base font-medium leading-relaxed max-w-md">
+          <p className="text-slate-200 text-sm md:text-base font-semibold leading-relaxed max-w-md">
             {isFounderActive
               ? "Tu Founder Pass VIP está activo en el sistema. Elegí el nombre definitivo para tu Liga e invitá a tus 9 amigos para comenzar la competencia."
               : leagueName 
@@ -234,7 +234,7 @@ function PaywallContent() {
             ].map((item, i) => (
               <li key={i} className="flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
-                <span className="text-sm font-medium text-white/80">{item}</span>
+                <span className="text-sm font-semibold text-slate-100">{item}</span>
               </li>
             ))}
           </ul>
@@ -261,14 +261,14 @@ function PaywallContent() {
                 <h3 className="text-lg font-black uppercase tracking-widest text-white">ARENA DISPONIBLE</h3>
               </div>
               
-              <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4">
-                <p className="text-white/80 text-xs font-medium leading-relaxed">
-                  Ya validamos que tenés acceso de <strong className="text-primary uppercase">Fundador</strong>. Bautizá tu Liga ahora mismo sin necesidad de abonar de nuevo.
+              <div className="bg-primary/10 border border-primary/20 rounded-2xl p-4">
+                <p className="text-slate-100 text-xs font-semibold leading-relaxed">
+                  Ya validamos que tenés acceso de <strong className="text-primary uppercase font-black">Fundador</strong>. Bautizá tu Liga ahora mismo sin necesidad de abonar de nuevo.
                 </p>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] text-white/50 font-black uppercase tracking-wider block">
+                <label className="text-[11px] text-slate-200 font-black uppercase tracking-wider block">
                   Nombre de tu Liga
                 </label>
                 <input
@@ -276,7 +276,7 @@ function PaywallContent() {
                   value={leagueName}
                   onChange={(e) => setLeagueName(e.target.value)}
                   placeholder="Ej: Los Pibes FC, La Scaloneta"
-                  className="w-full px-4 py-3.5 border border-white/10 rounded-xl bg-black/40 text-white placeholder-white/30 font-bold focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  className="w-full px-4 py-3.5 border border-white/20 rounded-xl bg-black/60 text-white placeholder-slate-300 font-bold focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                   required
                   disabled={creatingLeague}
                 />
@@ -312,13 +312,13 @@ function PaywallContent() {
               <h3 className="text-xl font-black uppercase tracking-widest text-white">FOUNDER PASS</h3>
               <div className="flex items-baseline gap-2">
                 <span className="text-4xl font-black tracking-tighter text-primary">$50.000</span>
-                <span className="text-xs text-white/40 font-bold uppercase tracking-widest">ARS</span>
+                <span className="text-xs text-slate-300 font-black uppercase tracking-widest">ARS</span>
               </div>
               
               <div className="space-y-4">
                 {/* Permite definir el nombre de la liga en caliente si no viene en los query params */}
                 <div className="space-y-2">
-                  <label className="text-[10px] text-white/50 font-black uppercase tracking-wider block">
+                  <label className="text-[11px] text-slate-200 font-black uppercase tracking-wider block">
                     Nombre de la Liga a crear
                   </label>
                   <input
@@ -326,19 +326,19 @@ function PaywallContent() {
                     value={leagueName}
                     onChange={(e) => setLeagueName(e.target.value)}
                     placeholder="Ej: Los Pibes FC"
-                    className="w-full px-4 py-3.5 border border-white/10 rounded-xl bg-black/40 text-white placeholder-white/30 font-bold focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                    className="w-full px-4 py-3.5 border border-white/20 rounded-xl bg-black/60 text-white placeholder-slate-300 font-bold focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                     disabled={loading}
                   />
                   {urlLeagueName && (
-                    <p className="text-[9px] text-white/40 italic">
+                    <p className="text-[10px] text-slate-300 font-semibold italic">
                       Precargamos el nombre ingresado al registrarte, pero podés cambiarlo si querés.
                     </p>
                   )}
                 </div>
 
                 {/* Campo de Código de Promoción minimalista */}
-                <div className="space-y-2 pt-2 border-t border-white/5">
-                  <label className="text-[10px] text-white/50 font-black uppercase tracking-wider block">
+                <div className="space-y-2 pt-2 border-t border-white/10">
+                  <label className="text-[11px] text-slate-200 font-black uppercase tracking-wider block">
                     Si tenés un Código de Promoción, tenés que ingresarlo aquí mismo:
                   </label>
                   <div className="relative">
@@ -347,12 +347,12 @@ function PaywallContent() {
                       value={promoCode}
                       onChange={(e) => setPromoCode(e.target.value)}
                       placeholder="Acá ingresás el código"
-                      className={`w-full px-4 py-3 border rounded-xl bg-black/40 text-white placeholder-white/30 font-bold focus:outline-none transition-all uppercase ${
+                      className={`w-full px-4 py-3 border rounded-xl bg-black/60 text-white placeholder-slate-300 font-bold focus:outline-none transition-all uppercase ${
                         promoValid === true 
                           ? "border-primary/50 focus:ring-2 focus:ring-primary shadow-[0_0_15px_rgba(251,191,36,0.15)]" 
                           : promoValid === false 
                             ? "border-red-500/50 focus:ring-2 focus:ring-red-500" 
-                            : "border-white/10 focus:ring-2 focus:ring-primary"
+                            : "border-white/20 focus:ring-2 focus:ring-primary"
                       }`}
                       disabled={loading}
                     />
@@ -398,7 +398,7 @@ function PaywallContent() {
                   )}
                 </button>
                 
-                <p className="text-[10px] text-center text-white/40 uppercase tracking-widest font-bold">
+                <p className="text-[11px] text-center text-slate-300 uppercase tracking-widest font-black">
                   Pagos procesados de forma segura
                 </p>
               </div>
@@ -407,11 +407,11 @@ function PaywallContent() {
           
           <div className="mt-6 pt-6 border-t border-white/10 text-center flex flex-col gap-3">
             {user && (
-              <span className="text-[10px] text-white/40 font-medium">
+              <span className="text-[11px] text-slate-200 font-semibold">
                 Sesión iniciada como: <strong className="text-white">{user.email}</strong>
               </span>
             )}
-            <Link href="/" className="text-xs text-white/50 hover:text-white transition-colors uppercase tracking-widest font-bold">
+            <Link href="/" className="text-xs text-slate-300 hover:text-white transition-colors uppercase tracking-widest font-black underline">
               Volver al Inicio
             </Link>
           </div>

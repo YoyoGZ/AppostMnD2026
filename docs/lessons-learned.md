@@ -269,3 +269,24 @@ Esto elimina de raíz cualquier llamada concurrente a Supabase Auth en el client
 1. **Validación y Persistencia Reactiva**: Implementamos una Server Action síncrona (`savePromoCodeToProfileAction`) que actualiza la columna `referred_by_code` en `profiles` inmediatamente después de la validación debounced en caliente.
 2. **Bulk Analytic Fetch**: Redactamos la Server Action `getPromoAnalyticsAction` de forma que haga una sola query a `promo_codes` y otra única query de bulk a `profiles`, cruzando y agrupando las relaciones en memoria.
 3. **Estética del HQ**: Añadimos el componente modular `PromoControlModule.tsx` con capacidad de copiar códigos con 1 clic al portapapeles e inspectores desplegables dinámicos de gladiadores registrados.
+
+## 2026-05-25: Accesibilidad Outdoor y Prevención de Reflejo Solar en Celulares (LT-6)
+
+### Síntoma
+Los gladiadores reportan dificultades extremas para leer textos, placeholders e inputs al aire libre o con luz solar directa, lo que entorpece severamente el funnel de login/registro, la activación del Paywall y la lectura de mensajes en el chat de la liga.
+
+### Diagnóstico
+1. **Opacidades Críticas Invisibles**: Las opacidades muy bajas (`text-white/40`, `placeholder-white/30`, `placeholder:text-white/20`) en interfaces Dark Glassmorphism translúcidas sufren una atenuación de contraste devastadora bajo la radiación solar exterior, especialmente en pantallas móviles AMOLED/LCD estándar con bajo nivel de nits.
+2. **Textos Delgados**: En celulares al aire libre, los pesos de fuente finos (`font-medium` o menor) para textos pequeños o leyendas no resisten el reflejo de la luz natural ambiental.
+
+### Resolución (The House Way)
+1. **Placeholders de Alto Contraste**: Reemplazar opacidades del 20-30% por colores de contraste explícito (`placeholder-slate-300 font-semibold` o `placeholder-white/70`).
+2. **Fondo y Bordes Premium**: Elevar bordes decorativos a `border-white/20` o inputs a `bg-black/60` para recortar y delimitar con precisión la caja de entrada sobre el fondo del estadio.
+3. **Optimización en Hilo Global (`globals.css`)**:
+   - Inyectar en la sección móvil de `@media (max-width: 768px)` reglas que fuercen que todo `input::placeholder` y `textarea::placeholder` sea `font-weight: 600` y con color brillante `rgba(226, 232, 240, 0.8)` de forma sistemática.
+   - Forzar font-weight en mobile para todo texto informativo base (`p, li`) a `font-weight: 500`.
+4. **Chat Sólido**:
+   - Subir el globo de mensajes ajenos a `bg-slate-900/80 border border-white/20 text-white font-semibold`.
+   - Modificar las horas de mensajes de `text-[8px] text-white/20` a un visible `text-[10px] text-slate-300 font-bold`.
+   - Reemplazar leyendas vacías apagadas por avisos animados brillantes (`text-slate-300/80 font-bold`).
+5. **Links e Indicadores**: Los links complementarios de alternancia (toggle login/registro) se subieron a `text-slate-200 font-bold hover:text-white` y el texto interactivo directo a `text-primary font-black underline ml-1`.

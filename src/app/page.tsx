@@ -43,7 +43,7 @@ export default async function Home(props: PageProps) {
       <nav className="sticky top-0 w-full z-50 px-6 py-3 backdrop-blur-md bg-black/20 border-b border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link href="/" className="hover:scale-105 transition-transform cursor-pointer">
-            <span className="font-black tracking-[0.25em] text-lg md:text-xl uppercase text-primary">MundiAPP26</span>
+            <span className="font-black tracking-[0.25em] text-lg md:text-xl text-primary">MundiApp26</span>
           </Link>
         </div>
         <Suspense fallback={<LandingNavActionsFallback />}>
@@ -344,7 +344,7 @@ export default async function Home(props: PageProps) {
       {/* --- FOOTER --- */}
       <footer className="w-full border-t border-white/5 py-8 px-6 text-center">
         <p className="text-[10px] text-white/30 uppercase font-black tracking-[0.5em] mb-4">
-          Designed by <span className="text-primary">GM/JG TheGame</span>
+          Designed by <span className="text-primary">JG/GM - TheGame</span>
         </p>
         <p className="text-[10px] text-white/30 uppercase font-black tracking-[0.5em] mb-4">
           Powered by <span className="text-primary">Antigravity Engine</span>

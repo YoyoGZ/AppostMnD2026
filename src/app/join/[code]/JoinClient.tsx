@@ -107,26 +107,26 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
         <div className="p-8 flex flex-col gap-6">
           {/* Liga info */}
           <div className="text-center">
-            <p className="text-white/50 text-xs uppercase tracking-widest font-bold mb-2 flex items-center justify-center gap-2">
+            <p className="text-slate-200 text-xs uppercase tracking-widest font-black mb-2 flex items-center justify-center gap-2">
               <Users className="w-3.5 h-3.5 text-primary" />
               Liga Privada
             </p>
             <h2 className="text-2xl font-black text-white tracking-tighter">
               {leagueInfo.name}
             </h2>
-            <p className="text-white/40 text-xs mt-2">
+            <p className="text-slate-300 text-xs mt-2 font-semibold">
               Fundada por{" "}
-              <span className="text-primary font-bold">
+              <span className="text-primary font-black underline">
                 {leagueInfo.captainAlias}
               </span>
             </p>
           </div>
 
           {/* Mensaje al usuario logueado */}
-          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center">
-            <p className="text-white/70 text-xs leading-relaxed">
+          <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-center">
+            <p className="text-slate-100 text-xs leading-relaxed font-semibold">
               Hola,{" "}
-              <strong className="text-primary">{userAlias}</strong>. Fuiste
+              <strong className="text-primary font-black">{userAlias}</strong>. Fuiste
               invitado a unirte a esta Liga. ¿Aceptas el desafío?
             </p>
           </div>
@@ -176,23 +176,23 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
       <div className="p-8 flex flex-col gap-6">
         {/* Liga info */}
         <div className="text-center">
-          <p className="text-white/50 text-xs uppercase tracking-widest font-bold mb-2 flex items-center justify-center gap-2">
+          <p className="text-slate-200 text-xs uppercase tracking-widest font-black mb-2 flex items-center justify-center gap-2">
             <Shield className="w-3.5 h-3.5 text-primary" />
             Tu Liga
           </p>
           <h2 className="text-2xl font-black text-white tracking-tighter">
             {leagueInfo.name}
           </h2>
-          <p className="text-white/40 text-xs mt-2">
+          <p className="text-slate-300 text-xs mt-2 font-semibold">
             Fundada por{" "}
-            <span className="text-primary font-bold">
+            <span className="text-primary font-black underline">
               {leagueInfo.captainAlias}
             </span>
           </p>
         </div>
 
-        <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center">
-          <p className="text-white/60 text-xs leading-relaxed">
+        <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-center">
+          <p className="text-slate-200 text-xs leading-relaxed font-semibold">
             Crea tu identidad de gladiador para unirte. Esta clave es tu única
             llave al campeonato — no se puede recuperar.
           </p>
@@ -202,14 +202,14 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
         <form onSubmit={handleRegisterAndJoin} className="flex flex-col gap-4">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Mail className="h-4 w-4 text-white/30" />
+              <Mail className="h-4 w-4 text-white/40" />
             </div>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Tu correo electrónico"
-              className="block w-full pl-11 pr-4 py-3.5 border border-white/10 rounded-xl bg-black/40 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all text-sm"
+              className="block w-full pl-11 pr-4 py-3.5 border border-white/20 rounded-xl bg-black/60 text-white placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all text-sm font-semibold"
               required
               disabled={isLoading}
             />
@@ -217,14 +217,14 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
 
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <User className="h-4 w-4 text-white/30" />
+              <User className="h-4 w-4 text-white/40" />
             </div>
             <input
               type="text"
               value={alias}
               onChange={(e) => setAlias(e.target.value)}
               placeholder="Tu Alias / Apodo en la Liga"
-              className="block w-full pl-11 pr-4 py-3.5 border border-white/10 rounded-xl bg-black/40 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all text-sm"
+              className="block w-full pl-11 pr-4 py-3.5 border border-white/20 rounded-xl bg-black/60 text-white placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all text-sm font-semibold"
               required
               disabled={isLoading}
             />
@@ -232,14 +232,14 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
 
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Lock className="h-4 w-4 text-white/30" />
+              <Lock className="h-4 w-4 text-white/40" />
             </div>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Clave Secreta"
-              className="block w-full pl-11 pr-4 py-3.5 border border-white/10 rounded-xl bg-black/40 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all text-sm"
+              className="block w-full pl-11 pr-4 py-3.5 border border-white/20 rounded-xl bg-black/60 text-white placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all text-sm font-semibold"
               required
               disabled={isLoading}
             />
@@ -247,14 +247,14 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
 
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Lock className="h-4 w-4 text-primary/40" />
+              <Lock className="h-4 w-4 text-primary/60" />
             </div>
             <input
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Repite la Clave"
-              className="block w-full pl-11 pr-4 py-3.5 border border-white/10 rounded-xl bg-primary/5 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all text-sm"
+              className="block w-full pl-11 pr-4 py-3.5 border border-white/20 rounded-xl bg-primary/10 text-white placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all text-sm font-semibold"
               required
               disabled={isLoading}
             />
@@ -284,11 +284,11 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
       </div>
 
       {/* Ya tengo cuenta */}
-      <div className="bg-black/60 px-8 py-4 flex justify-between items-center text-xs font-medium border-t border-white/5">
-        <span className="text-white/40">¿Ya eras de la banda?</span>
+      <div className="bg-black/60 px-8 py-4 flex justify-between items-center text-xs font-semibold border-t border-white/10">
+        <span className="text-slate-200">¿Ya eras de la banda?</span>
         <a
           href={`/?redirect=/join/${code}`}
-          className="text-primary hover:text-white transition-colors uppercase font-black tracking-widest text-[10px]"
+          className="text-primary hover:text-white transition-colors uppercase font-black tracking-widest text-[11px] underline"
         >
           Iniciar Sesión
         </a>
