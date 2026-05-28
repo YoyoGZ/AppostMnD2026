@@ -10,6 +10,7 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   LogOut,
   Crown,
   Swords,
@@ -127,16 +128,34 @@ export function Sidebar({
             <span className="text-[9px] font-black uppercase tracking-widest text-white/40">Tu Liga</span>
             <div className="flex items-center gap-1">
               <span className="text-sm font-bold text-white leading-tight">{activeLeague?.name || "MundiApp26"}</span>
-              {allLeagues.length > 1 && (
+              {allLeagues.length >= 1 && (
                 <select 
                   className="bg-transparent text-primary text-[10px] font-bold uppercase focus:outline-none"
                   style={{ color: brandTheme?.accentColor || '#fbbf24' }}
-                  onChange={(e) => handleSwitchLeague(e.target.value)}
+                  onChange={async (e) => {
+                    const val = e.target.value;
+                    if (val === "__create__") {
+                      router.push("/paywall");
+                    } else if (val === "__join__") {
+                      const code = prompt("Ingresá el Código de Invitación de la Liga a la que querés unirte:");
+                      if (code && code.trim()) {
+                        const { joinLeagueAction } = await import("@/app/actions/leagues");
+                        const res = await joinLeagueAction(code.trim());
+                        if (res && res.error) {
+                          alert(res.error);
+                        }
+                      }
+                    } else {
+                      handleSwitchLeague(val);
+                    }
+                  }}
                   value={activeLeague?.id}
                 >
                   {allLeagues.map(l => (
                     <option key={l.id} value={l.id} className="bg-black text-white">{l.name}</option>
                   ))}
+                  <option value="__create__" className="bg-black text-primary font-bold">➕ Fundar Liga</option>
+                  <option value="__join__" className="bg-black text-white font-bold">⚔️ Unirse a Liga</option>
                 </select>
               )}
             </div>
@@ -249,29 +268,45 @@ export function Sidebar({
                 <span className="text-[9px] font-black uppercase tracking-widest text-white/50" style={brandTheme?.accentText ? undefined : { color: brandTheme?.accentColor || '#fbbf24' }}>
                   {brandTheme?.name ? `Liga ${brandTheme.name}` : "Tu Liga"}
                 </span>
-                <div className="flex items-center justify-between gap-1 group/league cursor-pointer" onClick={() => allLeagues.length > 1 && setShowSelector(!showSelector)}>
-                  <h1 className="text-base font-black tracking-tight text-white truncate">
+                <div 
+                  className={cn(
+                    "flex items-center justify-between gap-2 cursor-pointer w-full mt-2 px-3 py-2 rounded-xl transition-all duration-300 border bg-white/[0.02] shadow-inner",
+                    showSelector 
+                      ? "border-primary/40 bg-primary/5 shadow-[0_0_15px_rgba(250,204,21,0.05)]" 
+                      : "border-white/5 hover:border-white/20 hover:bg-white/[0.06]"
+                  )}
+                  style={showSelector && brandTheme?.accentColor ? { borderColor: `${brandTheme.accentColor}40`, backgroundColor: `${brandTheme.accentColor}08` } : undefined}
+                  onClick={() => setShowSelector(!showSelector)}
+                >
+                  <h1 className="text-sm font-black tracking-tight text-white truncate flex-1">
                     {activeLeague?.name || "MundiApp26"}
                   </h1>
-                  {allLeagues.length > 1 && (
-                    <ChevronRight className={cn("w-4 h-4 text-white/30 transition-transform", showSelector && "rotate-90")} />
-                  )}
+                  <ChevronDown 
+                    className={cn(
+                      "w-4 h-4 transition-all duration-500 ease-out text-primary shrink-0", 
+                      showSelector ? "rotate-180 text-white" : "animate-pulse"
+                    )} 
+                    style={!showSelector ? { 
+                      color: brandTheme?.accentColor || '#facc15',
+                      filter: `drop-shadow(0 0 5px ${brandTheme?.accentColor || '#facc15'}80)` 
+                    } : undefined}
+                  />
                 </div>
               </div>
             )}
           </div>
 
           {/* Selector de Ligas (Desktop Dropdown) */}
-          {!isCollapsed && showSelector && allLeagues.length > 1 && (
+          {!isCollapsed && showSelector && (
             <div className="absolute top-full left-0 w-full px-4 py-2 z-50">
-              <div className="bg-black/80 backdrop-blur-2xl border border-white/10 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
-                {allLeagues.map((league) => (
+              <div className="bg-black/90 backdrop-blur-3xl border border-white/10 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
+                {allLeagues.length > 0 && allLeagues.map((league) => (
                   <button
                     key={league.id}
                     onClick={() => handleSwitchLeague(league.id)}
                     disabled={isChangingLeague}
                     className={cn(
-                      "w-full px-4 py-3 text-left text-xs font-bold transition-all hover:bg-primary/10 flex items-center justify-between",
+                      "w-full px-4 py-3 text-left text-xs font-bold transition-all hover:bg-primary/10 flex items-center justify-between border-b border-white/[0.05]",
                       league.id === activeLeague?.id ? "text-primary" : "text-white/60 hover:text-white"
                     )}
                     style={league.id === activeLeague?.id && brandTheme?.accentColor ? { color: brandTheme.accentColor } : undefined}
@@ -280,6 +315,37 @@ export function Sidebar({
                     {league.isCaptain && <Crown className="w-3 h-3 text-yellow-500" />}
                   </button>
                 ))}
+                
+                {/* Acciones de Liga Bento */}
+                <div className="p-1.5 bg-white/[0.02] flex flex-col gap-1">
+                  <Link
+                    href="/paywall"
+                    onClick={() => setShowSelector(false)}
+                    className="w-full px-3 py-2.5 text-left text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary/10 rounded-lg flex items-center gap-2 transition-all"
+                    style={brandTheme?.accentColor ? { color: brandTheme.accentColor } : undefined}
+                  >
+                    <Trophy className="w-3.5 h-3.5 shrink-0" />
+                    <span>Fundar nueva Liga</span>
+                  </Link>
+                  
+                  <button
+                    onClick={async () => {
+                      setShowSelector(false);
+                      const code = prompt("Ingresá el Código de Invitación de la Liga a la que querés unirte:");
+                      if (code && code.trim()) {
+                        const { joinLeagueAction } = await import("@/app/actions/leagues");
+                        const res = await joinLeagueAction(code.trim());
+                        if (res && res.error) {
+                          alert(res.error);
+                        }
+                      }
+                    }}
+                    className="w-full px-3 py-2.5 text-left text-[10px] font-black uppercase tracking-widest text-slate-300 hover:bg-white/5 rounded-lg flex items-center gap-2 transition-all"
+                  >
+                    <Swords className="w-3.5 h-3.5 shrink-0" />
+                    <span>Unirme a otra Liga</span>
+                  </button>
+                </div>
               </div>
             </div>
           )}

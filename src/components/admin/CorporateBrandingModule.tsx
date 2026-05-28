@@ -34,9 +34,11 @@ export function CorporateBrandingModule() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   // Selector de marcas disponibles
+    // Selector de marcas disponibles
   const availableBrands = [
     { id: "globant", label: "Globant 🟢", color: "text-[#8feb16]" },
-    { id: "accenture", label: "Accenture 🟣", color: "text-[#a100ff]" }
+    { id: "accenture", label: "Accenture 🟣", color: "text-[#a100ff]" },
+    { id: "honesty", label: "Honesty Brokers 🔵", color: "text-[#3A80F5]" } // <-- Añade esta línea
   ];
 
   const loadRelations = async () => {

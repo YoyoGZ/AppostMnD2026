@@ -75,15 +75,19 @@
   - [ ] **Simulación Concurrente de Pagos**: Activar el Switch a $20 ARS en el HQ y lanzar una convocatoria privada con 15-20 beta-testers reales. Evaluar velocidad del Webhook, creación automática de ligas y despliegue del historial en el Censo Global en vivo.
   - [ ] **Stress Test de Tabla de Posiciones**: Forzar la inyección masiva de resultados (a través de "Sync Agent" en el HQ) con 50+ usuarios conectados de forma concurrente en `/dashboard` para verificar cálculo y ordenamiento de grupos.
   - [ ] **Control de Colisión SSR Lock**: Evaluar que no existan bloqueos de sesión en Supabase (validando las lecciones del incidente del candado SSR Lock Collision) durante el guardado intensivo de predicciones en listas de partidos activos.
-  - [ ] **Despliegue Masivo Push**: Lanzar alertas de goles y cambio de estado de partidos en background desde el HQ hacia todos los dispositivos suscritos para verificar la reactividad y retención del Service Worker.
+  - [ ] **Despliegue Masivo Push**: Lanzar alertas- [x] **Hito 11: Cartel de Bienvenida a Founders & Sorteo Camiseta** 🇦🇷 *(Verificado y Pulido)*
+  - [x] Cálculo dinámico de número de liga global y verificación de metadatos en `layout.tsx`.
+  - [x] Creación de componente `WelcomeSorteoModal.tsx` con estética Bento Glassmorphic y botón dorado.
+  - [x] Integración y persistencia en Supabase Auth.
+  - [x] Exclusión corporativa en caliente (Raffle Exclusion) en el onboarding e inmunidad en sorteo del HQ (`runRaffleAction`).
+  - [x] Marca de agua colosal en backdrop con logo difuminado y opacidad ultra-sutil para profundidad 3D.
 
 ## Current Trajectory
-**Status**: Sistema de Códigos Promocionales y Afiliados para **MundiAPP26** **VERIFIED & POLISHED** localmente en el workspace. Se consolidaron con total éxito todas las especificaciones de diseño y lógica de backend: persistencia síncrona en caliente del código al perfil del usuario autenticado, debounce de 600ms en la validación reactiva del Paywall bajo español coloquial argentino ("Acá ingresás el código"), fábrica atómica de generación de códigos únicos de 8 dígitos libre de caracteres confusos, e inspector de auditoría detallado en formato acordeón para monitorear Alias y correos electrónicos de los referidos directamente en el HQ.
+**Status**: Funcionalidad del Hito 11 **VERIFIED & POLISHED** localmente. Se completó el Cartel de Bienvenida obligatorio, resolviendo la exclusión automática de patrocinadores (marcas en `corporate_relations`) para evitar conflictos de interés en el sorteo, y se integró un diseño inmersivo espectacular con el logo oficial difuminado a escala gigante en el fondo para profundidad espacial. Compilación probada con TypeScript limpia y sin fallos.
 
 **Próximos Pasos:**
-1. **Despliegue a Producción**: Realizar el push del código a GitHub para disparar el despliegue automático en Vercel.
-2. **Sesión de Pruebas de Estrés y Beta Testing Masivo** (Hito 10) utilizando el valor de prueba a $20 ARS en Mercado Pago.
-3. Desplegar logos definitivos de marcas en `public/assets/brands/`.
+1. Presentar las pruebas manuales y los detalles visuales de la integración al usuario.
+2. Iniciar el sprint de **Hito 10: Pruebas de Estrés & Beta Testing Masivo** cuando el usuario lo solicite.
 
 ## Squad Status
 | Agent | Task | Status |
@@ -99,3 +103,5 @@
 | Product | Webhook MP & Checkout Flow | ✅ VERIFIED & POLISHED |
 | Builder | Peer-to-Peer Duelos Motor & UI | ✅ VERIFIED & POLISHED |
 | Design Lead | Chat de Liga Realtime Panel | ✅ VERIFIED & POLISHED |
+| Design & Infra | Hito 11: Cartel de Bienvenida & Exclusión de Marcas | ✅ VERIFIED & POLISHED |
+

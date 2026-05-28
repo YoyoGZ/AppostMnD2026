@@ -1,5 +1,10 @@
 # 🧠 Lessons Learned
 
+> [!IMPORTANT]
+> **DOMINIO OFICIAL DE PRODUCCIÓN:**
+> El único dominio real, oficial y definitivo de la aplicación en producción es **`https://mundiapp26.com`**.
+> Cualquier otro dominio terminado en `.vercel.app` (ej. `appost-mn-d2026.vercel.app`) es meramente transitorio para staging de Vercel. Toda documentación, redirección, PWA tunnels y configuración de red DEBE referenciar exclusivamente a `https://mundiapp26.com` para evitar errores del proxy y de Vercel.
+
 Registro obligatorio de conocimiento arquitectónico post-mortem.
 
 ## 2026-04-28: El Agujero Negro de Puntos (LT-1) y Fallos RLS Silenciosos
@@ -335,3 +340,94 @@ Para corregir la inferencia estática de arrays filtrados, es obligatorio sustit
 .filter((item): item is { id: string; points_earned: number } => item !== null)
 ```
 Esto resuelve la firma del tipo del array de forma 100% Type-Safe a nivel de compilación y permite que el build local y en la nube se complete con éxito de forma limpia.
+
+## 2026-05-28: Soporte Multi-Liga, Control Dinámico de Slots y Prevención de Fugas de Marca Blanca (LL-7)
+
+### Síntoma
+1. **Bucle de Identidad Única**: Un usuario invitado como `member` a una liga corporativa (marca blanca) quedaba atrapado en el dashboard de esa liga sin posibilidad alguna de fundar su propia liga personal con amigos ajenos al convenio, ya que no tenía acceso al Paywall.
+2. **Limitación de 1 Liga por Capitán**: La Server Action `createLeagueAction` restringía de forma absoluta la creación a 1 sola liga por `created_by`, impidiendo a un Capitán (`founder`) que deseaba crear una segunda liga pagar y habilitarla.
+3. **Peligro de Fuga Visual de Marca**: Al pertenecer el usuario a una liga corporativa de co-branding, existía el riesgo de que su liga personal independiente heredara los colores y logos de la empresa patrocinadora.
+
+### Diagnóstico
+1. **Inexistencia de Slots en Profiles**: El rol global en profiles (`founder` o `member`) era booleano en esencia. Necesitábamos un control dinámico de slots para trackear cuántas ligas puede fundar cada cuenta de forma independiente (`max_leagues`).
+2. **Resolución Basada en la Liga Activa**: La marca blanca se determina dinámicamente según el creador de la liga que se está visualizando en el momento, y no en el perfil global del usuario. Esto permite que el mismo usuario herede la marca corporativa en la liga de su empresa, pero mantenga el tema estándar de MundiApp26 (Oro y Negro) en su liga personal con amigos.
+3. **Acciones Invisibles del Switcher**: El dropdown del Sidebar solo se renderizaba si `allLeagues.length > 1`, imposibilitando que usuarios con 1 sola liga abrieran las acciones de fundar o unirse en caliente.
+
+### Resolución (The House Way)
+1. **Control de Slots (`max_leagues`)**: Agregamos la columna `max_leagues` a la tabla `profiles` (default 0 para miembros, incrementable en +1 al comprar).
+2. **Server Actions Dinámicas**: Modificamos `createLeagueAction` para validar si `foundedCount < max_leagues`, y las Server Actions de pago (`mockPaymentAction` y `mp-success` callback) para hacer un incremento atómico síncrono.
+3. **Paywall Inteligente de Slots**: Ajustamos `src/app/paywall/page.tsx` para contar ligas en caliente y compararlo contra `max_leagues`. Si quedan slots libres, muestra el formulario de bautismo; de lo contrario, muestra Mercado Pago incondicionalmente.
+4. **Dropdown Interactiva Universal**: Refactorizamos `Sidebar.tsx` para permitir que todos los usuarios abran el selector de ligas y añadimos dos Bento buttons atómicos: `➕ Fundar nueva Liga` y `⚔️ Unirme a otra Liga` tanto en desktop como en dispositivos móviles (select adaptativo).
+
+## 2026-05-28: El Error DEPLOYMENT_NOT_FOUND (Vercel 404) por Redirección de Pasarela Rígida (LL-8)
+
+### Síntoma
+Al cancelar, cerrar o regresar del Checkout de Mercado Pago estando en entorno de desarrollo (`localhost`), la app crasheaba mostrando una pantalla de error de Vercel: `404: NOT_FOUND` con código `DEPLOYMENT_NOT_FOUND`.
+
+### Diagnóstico
+1. **Dominio Fallback Desactualizado**: En la Server Action `createPaymentPreferenceAction` (`src/app/actions/payments.ts`), la URL base (`baseUrl`) para el retorno del checkout poseía un fallback rígido a `https://mundiapp26.vercel.app` en caso de que las variables de entorno de Vercel no estuvieran definidas (lo cual ocurre siempre en `localhost`).
+2. **Despliegue Incorrecto**: El proyecto real en Vercel está registrado bajo el dominio oficial y definitivo `mundiapp26.com`. Al redirigir Mercado Pago al dominio de fallback erróneo, Vercel no encontraba ningún despliegue asociado a este y bloqueaba la pantalla con el 404.
+3. **Rigidez en URLs de Retorno**: Depender únicamente de variables de entorno inyectadas en build-time impide que el checkout reconozca dinámicamente si el usuario está testeando localmente (`localhost`), por IP de Wi-Fi (`192.168.x.x`), en un despliegue de Preview o en Producción.
+
+### Resolución (The House Way)
+**Detección Dinámica de Host por Encabezado (HTTP Header Host Request)**:
+En lugar de fallbacks rígidos, implementamos un mecanismo autodectetable en caliente importando el lector de cabeceras de Next.js:
+```typescript
+const { headers } = await import("next/headers");
+const headerList = await headers();
+const host = headerList.get("host");
+
+let baseUrl = "https://mundiapp26.com"; // Fallback real de producción
+```
+
+if (host) {
+  const protocol = host.includes("localhost") || host.includes("127.0.0.1") || host.startsWith("192.168.") ? "http" : "https";
+  baseUrl = `${protocol}://${host}`;
+}
+```
+Esto garantiza que las `back_urls` enviadas a Mercado Pago coincidan exactamente con la URL que el usuario está utilizando para interactuar en esa milésima de segundo, resolviendo a `http://localhost:3000` si está en local, a la URL de preview de Vercel si está en staging, o a la de producción final de forma 100% elástica, erradicando los bloqueos 404 de raíz.
+
+## 2026-05-28: Cartel de Bienvenida One-Shot Impenetrable y Persistencia por Supabase Auth Metadata (LL-9)
+
+### Síntoma
+Se requiere mostrar una felicitación única en la vida del usuario al crear su primera liga, informando de forma gamificada su posición global de creación ("Creador Nro XX") y habilitando su participación en el sorteo de la camiseta de Argentina. El cartel debe bloquear por completo la interfaz, evitar el descarte accidental (clicks de fondo, Escape) y persistir el "visto" entre múltiples dispositivos sin requerir columnas redundantes en base de datos.
+
+### Diagnóstico
+1. **Evitación de Hydration Mismatches**: Los componentes cliente que manejan modales flotantes basados en flags cargados asíncronamente en caliente desde el servidor pueden renderizar diferencias lógicas entre el primer render estático de Node (SSR) y la posterior hidratación en React, gatillando parpadeos o fallos de renderizado.
+2. **Costo de Consulta Recursiva**: Para un usuario que ya vio y descartó su cartel, volver a realizar un conteo secuencial completo (`SELECT COUNT(*) FROM leagues lte user_league.created_at`) en cada carga del layout protegida del dashboard es un desperdicio severo de recursos de base de datos.
+
+### Resolución (The House Way)
+1. **Bypass de Consulta Server-Side**: En `layout.tsx` comprobamos primero si el flag `welcome_sorteo_shown` existe en la metadata del usuario de Supabase Auth. Si es así, omitimos cualquier consulta de base de datos, garantizando latencia cero.
+2. **Type Safe Dynamic Rank**: Si no se ha mostrado, buscamos el primer registro de liga creada por el usuario, ordenando por `created_at` de forma ascendente. Contamos de forma atómica cuántas ligas existen creadas hasta ese instante exacto.
+3. **Resiliencia de Metadatos de Autenticación**: Al hacer click en el botón de confirmación, invocamos `supabase.auth.updateUser({ data: { welcome_sorteo_shown: true } })` para guardar el estado directamente en Supabase Auth, sincronizándolo en caliente entre PC, móviles y tablets al instante.
+4. **Impenetrabilidad Visual**: Diseñamos el componente cliente `WelcomeSorteoModal.tsx` absteniéndonos de añadir el clásico botón "X" superior derecho e inhabilitando cierres externos o por Escape. El botón de confirmación manual es el único túnel de salida permitido.
+
+## 2026-05-28: Exclusión Corporativa del Sorteo de Camisetas por conflicto de intereses (LL-10)
+
+### Síntoma
+Los fundadores (Founders) de ligas auspiciadas corporativamente (cuyos correos electrónicos se encuentran registrados en la tabla `corporate_relations` para bypass del paywall) no deben participar en el sorteo promocional de la camiseta de la selección Argentina para evitar malentendidos legales o conflictos de interés. Sin embargo, deben seguir recibiendo una felicitación interactiva y calurosa al fundar su arena corporativa.
+
+### Diagnóstico
+1. **Separación de Lógica en Onboarding**: El modal de bienvenida original estaba acoplado a la camiseta. Se requería inyectar una discriminación atómica basada en la pertenencia a auspicios corporativos.
+2. **Seguridad en Sorteos del Admin (HQ)**: El motor del sorteo en el administrador (`runRaffleAction`) no cruzaba perfiles contra relaciones de patrocinio, lo que podía provocar que un founder corporativo saliera seleccionado por azar de forma inválida.
+
+### Resolución (The House Way)
+1. **Resolución en Caliente del Layout**: En `layout.tsx` consultamos en caliente si el email del usuario logueado figura en `corporate_relations`. Si es así, resolvemos el nombre amigable de su marca corporativa desde `brand-themes.json` y pasamos los flags `isCorporate={true}` y `corporateBrandName` al modal.
+2. **Adaptación Contextual Dinámica**: En `WelcomeSorteoModal.tsx`, si el flag `isCorporate` es verdadero, omitimos dinámicamente la tarjeta de sorteo de la camiseta y mostramos en su lugar un bento card de felicitación corporativa personalizada. El botón de CTA muta de forma elegante a `"¡VAMOS POR ESA COPA! ⚽"`.
+3. **Filtro Estricto en Sorteo Backend**: Refactorizamos `runRaffleAction` para cargar todos los emails de `corporate_relations`, convertirlos en un `Set` para búsquedas eficientes O(1), y aumentar el límite de carga de fundadores en base de datos. Filtramos en memoria para excluir a los patrocinados, sliceando los primeros 50 fundadores estrictamente orgánicos (de pago real), garantizando un sorteo 100% auditable y libre de conflictos de interés.
+
+## 2026-05-28: Marca de Agua Visual Colosal en Backdrops Oscuros para Profundidad Tridimensional (LL-11)
+
+### Síntoma
+El modal de bienvenida montado sobre un fondo negro absoluto con blur resultaba visualmente tosco, cortado y monótono. Carecía de la elegancia tridimensional y del pulido característicos de interfaces modernas (como Stripe, Vercel o Apple).
+
+### Diagnóstico
+1. **Falta de Capas de Profundidad (Spatial Layers)**: Colocar una tarjeta Bento oscura sobre un fondo oscuro uniforme anula los beneficios del contraste. Se requiere un elemento intermedio que genere volumen y textura visual de forma sutil.
+
+### Resolución (The House Way)
+1. **Marca de Agua Gigante con Desenfoque de Lente (Lens Blur)**: Inyectamos un elemento absoluto en el fondo con la imagen del logo oficial (`/assets/logo_oficial.png`), escalada al `200vw` en móviles y `75vw` en desktop.
+2. **Estética de Bajísimo Contraste (Quiet UI)**: Aplicamos una opacidad extremadamente sutil (`opacity-[0.035]`), rotación diagonal de `12deg` y un desenfoque severo (`blur-[25px]`), acompañado de una animación pulsante de respiración lenta (`animation-duration: 10s`). Esto crea una textura de fondo que parece un holograma gigante difuminado en la oscuridad, añadiendo volumen físico y una firma visual majestuosa al dashboard sin sobrecargar ni interferir con la legibilidad del texto.
+
+
+
+

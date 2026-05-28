@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Smartphone, Download, X, Zap } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
-const PRODUCTION_URL = "https://appost-mn-d2026.vercel.app";
+const PRODUCTION_URL = "https://mundiapp26.com";
 
 /**
  * PWA Install Button - Túnel de Instalación Universal

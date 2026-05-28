@@ -19,6 +19,10 @@ function PaywallContent() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   
+  // Slots de creación de Ligas
+  const [maxLeagues, setMaxLeagues] = useState(0);
+  const [foundedCount, setFoundedCount] = useState(0);
+  
   // Nombre de liga a crear. Puede venir de URL o ingresarse manualmente
   const [leagueName, setLeagueName] = useState(urlLeagueName || "");
   const [creatingLeague, setCreatingLeague] = useState(false);
@@ -46,15 +50,24 @@ function PaywallContent() {
           // 2. Consultar la fuente de verdad en la base de datos (tabla profiles)
           const { data: profile } = await supabase
             .from('profiles')
-            .select('role')
+            .select('role, max_leagues')
             .eq('id', supabaseUser.id)
             .single();
+
+          // 3. Contar ligas creadas por el usuario en caliente
+          const { count } = await supabase
+            .from('leagues')
+            .select('id', { count: 'exact', head: true })
+            .eq('created_by', supabaseUser.id);
             
           if (profile) {
             setUserRole(profile.role);
+            setMaxLeagues(profile.max_leagues || 0);
           } else {
             setUserRole('player');
+            setMaxLeagues(0);
           }
+          setFoundedCount(count || 0);
         } else {
           // Si por alguna razón no está autenticado, mandarlo al login
           router.push('/login');
@@ -191,7 +204,7 @@ function PaywallContent() {
     );
   }
 
-  const isFounderActive = userRole === 'founder' || userRole === 'super_admin';
+  const isFounderActive = userRole === 'super_admin' || (maxLeagues > foundedCount);
 
   return (
     <div className="min-h-screen w-full bg-[#050505] text-white flex flex-col items-center justify-center relative overflow-hidden px-4">

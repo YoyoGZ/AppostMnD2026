@@ -33,15 +33,15 @@ Para que un convenio corporativo funcione óptimamente en MundiApp26, necesitas 
 ### A. Recursos Gráficos (Logotipos)
 
 Para mantener una UX premium, limpia y adaptativa en celulares y computadoras:
-- **Formato Preferido:** **SVG vectorial** con fondos transparentes. Los gráficos vectoriales garantizan una nitidez absoluta en pantallas de alta densidad (Retina) y pesan menos de 10 KB.
-- **Formato Alternativo:** **PNG en alta definición** con transparencia (canal alfa de 24 o 32 bits).
-- **Dimensiones y Relación de Aspecto:**
-  - **Layout Cuadrado:** `~256x256 píxeles`.
-  - **Layout Rectangular/Horizontal (Recomendado):** `~512x128 píxeles` con márgenes internos proporcionales para evitar recortes bruscos.
-- **Ubicación Física:**
+ **Formato Preferido:** **SVG vectorial** con fondos transparentes. Los gráficos vectoriales garantizan una nitidez absoluta en pantallas de alta densidad (Retina) y pesan menos de 10 KB.
+  **Formato Alternativo:** **PNG en alta definición** con transparencia (canal alfa de 24 o 32 bits).
+  **Dimensiones y Relación de Aspecto:**
+    **Layout Cuadrado:** `~256x256 píxeles`.
+    **Layout Rectangular/Horizontal (Recomendado):** `~512x128 píxeles` con márgenes internos proporcionales para evitar recortes bruscos.
+**Ubicación Física:**
   Los logotipos estáticos de la marca deben subirse en la subcarpeta dedicada a marcas:
   `public/assets/brands/`
-- **Nomenclatura Estándar:**
+  **Nomenclatura Estándar:**
   Identificar el archivo usando el identificador único de la marca (`brand_id`) en minúsculas y sin espacios:
   `[brand_id]-logo.svg` o `[brand_id]-logo.png`
   *(Ejemplo para Globant:* `public/assets/brands/globant-logo.png`*)*

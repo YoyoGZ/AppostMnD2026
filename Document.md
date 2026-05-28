@@ -143,3 +143,71 @@ Con el objetivo de incentivar el crecimiento de usuarios a través de relaciones
    - Permite la creación atómica de códigos promocionales únicos excluyendo caracteres ambiguos (`I`, `O`, `0`, `1`) para garantizar un Trust UX impecable.
    - **Cruce en Memoria Libre de N+1**: La Server Action `getPromoAnalyticsAction` realiza un bulk fetch de perfiles afiliados y códigos, cruzando la información en memoria del servidor antes de retornar. Esto mitiga latencias extremas.
    - **Acordeón Auditor de Referidos**: Permite desplegar de forma muy elegante el listado exacto de Alias (`display_name`) y correos electrónicos de los usuarios registrados con cada código en vivo.
+
+---
+
+## 9. Arquitectura Multi-Liga, Gestión de Slots y Prevención de Fugas de Branding
+**Fecha de Implementación**: 2026-05-28  
+**Responsable**: Infrastructure Lead & Builder (Antigravity Squad)
+
+### Especificaciones Técnicas e Implementación
+Con el objetivo de flexibilizar el modelo de negocio y resolver el callejón sin salida de los usuarios invitados que quieren fundar su propia liga personal sin fricciones ni pérdidas de seguridad, se re-diseñó la lógica relacional:
+
+1. **Gestión de Slots (`profiles.max_leagues`)**:
+   - Se añadió la columna `max_leagues` (entero, default `0` para miembros invitados) en Supabase.
+   - Cada pago aprobado incrementa síncronamente el valor en `+1`, permitiendo a los capitanes adquirir múltiples arenas.
+   - En `createLeagueAction`, se limita la creación comparando las ligas fundadas (`created_by = user.id`) contra `max_leagues`.
+
+2. **Paywall Inteligente de Slots**:
+   - La pantalla `/paywall` evalúa en tiempo real si el usuario logueado posee slots disponibles (`max_leagues > foundedCount`).
+   - Si tiene slots libres, renderiza el formulario de creación directa para bautizar la liga gratis; en caso contrario, redirige al Checkout de Mercado Pago de manera obligatoria.
+
+3. **Prevención de Fugas de Marca Blanca**:
+   - La resolución de temas visuales (`resolveBrandThemeAction`) opera a nivel de la liga activa y no del perfil.
+   - Si un empleado juega en la liga corporativa (creada por un Gerente pre-aprobado en `corporate_relations`), ve los logos y colores de su empresa.
+   - Si ese mismo empleado compra un pase y crea una liga personal para amigos, la liga se asocia a su ID (no corporativo) y se renderiza con el tema estándar de MundiApp26 (Oro y Negro), blindando la exclusividad del patrocinio corporativo de forma automática.
+
+4. **Navegación e Interacción Mobile-First**:
+   - Se habilitó la apertura del selector de ligas del Sidebar a todos los usuarios.
+   - Se inyectó en móviles y escritorio un bloque Bento con acciones directas: `➕ Fundar nueva Liga` y `⚔️ Unirme a otra Liga` en caliente, acelerando la conversión.
+
+---
+
+## 10. Cartel de Bienvenida a Capitanes & Sorteo de Camiseta
+**Fecha de Implementación**: 2026-05-28  
+**Responsable**: Design Lead & Infrastructure (Antigravity Squad)
+
+### Especificaciones Técnicas e Implementación
+Con el objetivo de incrementar la retención y celebrar la conversión de los usuarios Capitanes (Founders) de forma gamificada, se diseñó e integró un cartel interactivo de bienvenida y reconocimiento:
+
+1. **Cálculo de Posición Dinámica Atómico**:
+   - En el Server Component `layout.tsx`, si el usuario posee ligas fundadas, se busca la fecha de creación de su primera liga y se cuenta cuántas ligas existen creadas hasta ese instante. Esto nos devuelve su posición secuencial exacta de manera dinámica (ej: Creador de Liga Nro 15).
+   - **Optimización de Rendimiento**: Si el usuario ya descartó el cartel (`welcome_sorteo_shown` es true en metadatos), el servidor omite cualquier consulta DDL de conteo, garantizando latencia cero en cargas posteriores del dashboard.
+
+2. **WelcomeSorteoModal (`src/components/dashboard/WelcomeSorteoModal.tsx`)**:
+   - Un componente cliente de alta fidelidad con un backdrop de desenfoque absoluto (`backdrop-blur-3xl bg-black/95`) que inhabilita el cierre accidental por tecla `Escape` o clicks externos.
+   - Presenta una tarjeta Bento glassmórfica con bordes brillantes y un resplandor dorado holográfico que alberga la leyenda literal de honor:
+     `"Sos el Creador de Liga Nro XX, estate atento al sorteo de la camiseta, te lo comunicaremos a tu email"`
+
+3. **Cierre Obligatorio y Persistencia**:
+   - Para desbloquear la interfaz, el usuario debe dar click al gran botón dorado `¡VAMOS POR ESA CAMISETA! 🇦🇷` (con animación de pulso).
+   - El evento invoca síncronamente `supabase.auth.updateUser({ data: { welcome_sorteo_shown: true } })` para persistir el visto directamente en los metadatos de Supabase Auth, sincronizando el estado entre dispositivos de forma instantánea.
+
+---
+
+## 11. Exclusión de Patrocinadores & Marca de Agua Visual Premium (Fondo Inmersivo)
+**Fecha de Implementación**: 2026-05-28  
+**Responsable**: Design Lead & Infrastructure (Antigravity Squad)
+
+### Exclusión de Patrocinadores (Raffle Exclusion)
+Para evitar conflictos de interés, los Founders que son auspiciados por marcas corporativas pre-aprobadas son discriminados dinámicamente:
+1. **Detección en el Servidor**: En `layout.tsx`, si el correo del usuario logueado coincide con un email registrado en la tabla `corporate_relations`, se marcan los flags `isCorporate={true}` y se recupera su nombre de marca amigable desde `brand-themes.json`.
+2. **Onboarding Contextualizado**: Si el usuario es corporativo, el modal de bienvenida oculta toda mención al sorteo de la camiseta promocional de Argentina. En su lugar, despliega una tarjeta Bento de felicitación corporativa dedicada: `"Sos el Creador de la Liga Nro XX de tu Empresa, estate atento al fixture interno y competí con tus colegas."`, mutando el CTA final de forma épica e integradora a: `"¡VAMOS POR ESA COPA! ⚽"`.
+3. **Impenetrabilidad en el Sorteo de Admin (HQ)**: La Server Action `runRaffleAction` (`src/app/actions/admin.ts`) del panel administrativo fue modificada para consultar y excluir atómicamente todos los emails provenientes de la tabla `corporate_relations` usando una estructura `Set` ultra-rápida. Carga un pool extendido de 200 fundadores y toma los primeros 50 netamente orgánicos, blindando al 100% el sorteo ante conflictos marcarios.
+
+### Marca de Agua Visual Colosal (Visual Polish)
+Para romper la tosquedad del fondo negro plano e inyectar profundidad espacial tridimensional digna de una startup de clase mundial:
+1. **Logo Colosal en Backdrop**: Se integró una marca de agua gigante del logo oficial de la app (`/assets/logo_oficial.png`), escalada al `200vw` en pantallas móviles y `75vw` en computadoras de escritorio.
+2. **Lens Blur de Bajo Contraste**: El logo se diseñó con una opacidad extremadamente sutil (`opacity-[0.035]`), rotado a `12deg` y con un desenfoque profundo (`blur-[25px]`). Adicionalmente, cuenta con un gradiente radial dorado (`bg-primary/5`) detrás de la tarjeta y una animación pulsante de respiración lenta. Esto crea volumen físico, texturiza el espacio vacío y genera una atmósfera inmersiva de estadio nocturno sin interferir en la legibilidad.
+
+

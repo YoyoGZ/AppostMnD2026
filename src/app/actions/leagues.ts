@@ -18,7 +18,7 @@ export async function createLeagueAction(formData: FormData) {
   // 1. Validar que el usuario tenga el pase (Rol: founder o super_admin)
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, max_leagues')
     .eq('id', user.id)
     .single();
 
@@ -26,15 +26,16 @@ export async function createLeagueAction(formData: FormData) {
     return { error: "PAYWALL_REQUIRED" }; 
   }
 
-  // 2. Regla de negocio: un usuario solo puede fundar UNA liga (ser Capitán)
-  const { data: existingLeague } = await supabase
+  // 2. Regla de negocio: contar cuántas ligas ha fundado ya el usuario
+  const { count: foundedCount } = await supabase
     .from('leagues')
-    .select('id')
-    .eq('created_by', user.id)
-    .maybeSingle();
+    .select('id', { count: 'exact', head: true })
+    .eq('created_by', user.id);
 
-  if (existingLeague) {
-    return { error: "Ya eres Capitán de una Liga. Solo puedes fundar una liga por torneo." };
+  const maxAllowed = profile.max_leagues || 0;
+
+  if (profile.role !== 'super_admin' && (foundedCount !== null && foundedCount >= maxAllowed)) {
+    return { error: "Ya fundaste todas las ligas permitidas por tus pases activos. ¡Adquiere otro Founder Pass para abrir una nueva arena!" };
   }
 
   let rawName = formData.get("name")?.toString()?.trim();

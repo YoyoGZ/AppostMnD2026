@@ -25,9 +25,22 @@ export async function GET(request: NextRequest) {
     
     // 1. Instanciar cliente Admin para saltar el RLS y ascenderlo
     const supabaseAdmin = createAdminClient();
+
+    // Obtener max_leagues actual para incrementarlo
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('max_leagues')
+      .eq('id', user.id)
+      .single();
+
+    const currentMax = profile?.max_leagues || 0;
+
     const { error: roleError } = await supabaseAdmin
       .from('profiles')
-      .update({ role: 'founder' })
+      .update({ 
+        role: 'founder',
+        max_leagues: currentMax + 1
+      })
       .eq('id', user.id);
 
     if (roleError) throw roleError;

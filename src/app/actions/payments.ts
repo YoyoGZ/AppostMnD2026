@@ -22,10 +22,22 @@ export async function mockPaymentAction() {
   // Instanciar Admin Client para saltar RLS
   const supabaseAdmin = createAdminClient();
 
-  // MOCK: Ascender a founder en la base de datos saltando el escudo RLS
+  // Obtener max_leagues actual para incrementarlo
+  const { data: profile } = await supabaseAdmin
+    .from('profiles')
+    .select('max_leagues')
+    .eq('id', user.id)
+    .single();
+
+  const currentMax = profile?.max_leagues || 0;
+
+  // MOCK: Ascender a founder en la base de datos saltando el escudo RLS e incrementar slots
   const { error } = await supabaseAdmin
     .from('profiles')
-    .update({ role: 'founder' })
+    .update({ 
+      role: 'founder',
+      max_leagues: currentMax + 1
+    })
     .eq('id', user.id);
 
   if (error) {
@@ -46,12 +58,21 @@ export async function createPaymentPreferenceAction(leagueName: string) {
       return { error: "Sesión no encontrada. Por favor volvé a ingresar." };
     }
 
-    // URL Base exclusiva para Producción en Vercel
-    const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL 
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` 
-      : process.env.VERCEL_URL 
-        ? `https://${process.env.VERCEL_URL}`
-        : 'https://mundiapp26.vercel.app'; // Fallback estricto a Vercel
+    // URL Base dinámica autodetectada en caliente
+    const { headers } = await import("next/headers");
+    const headerList = await headers();
+    const host = headerList.get("host");
+    
+    let baseUrl = "https://mundiapp26.com"; // Fallback oficial y definitivo de Producción
+    
+    if (host) {
+      const protocol = host.includes("localhost") || host.includes("127.0.0.1") || host.startsWith("192.168.") ? "http" : "https";
+      baseUrl = `${protocol}://${host}`;
+    } else if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+      baseUrl = `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+    } else if (process.env.VERCEL_URL) {
+      baseUrl = `https://${process.env.VERCEL_URL}`;
+    }
 
     // Consultar en tiempo real el modo test de precios en la base de datos
     const { getTestModeAction } = await import('@/app/actions/admin');

@@ -6,7 +6,7 @@ Este documento detalla la arquitectura, el flujo de negocio y las especificacion
 
 ## 1. Visión del Producto
 
-La app permite a organizaciones y empresas patrocinadoras (ej: Globant, Accenture, Mercado Libre) contratar ligas privadas premium para sus colaboradores. 
+La app permite a organizaciones y empresas patrocinadoras (ej: Globant, Accenture, Mercado Libre) contratar ligas privadas premium para sus colaboradores.
 Para ofrecer una experiencia exclusiva ("VIP") sin generar fricción en el registro tradicional ni duplicar el código, se ha diseñado una **arquitectura híbrida de herencia visual**:
 
 1. **Branding Dinámico en Caliente:** Los usuarios normales experimentan el diseño estándar premium (dorado y negro) de MundiApp26. Los miembros de ligas corporativas heredan dinámicamente un tema visual personalizado (degradados de fondo en Sidebar, logotipo de co-branding, colores de acento y banners motivacionales).

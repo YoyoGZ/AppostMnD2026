@@ -238,21 +238,47 @@ export async function runRaffleAction() {
       return { success: true, alreadyExists: true, winner: winnerData, candidates: [] };
     }
 
-    // 2. Traer los primeros 50 perfiles con rol founder ordenados por created_at ASC
-    const { data: candidates, error: candidatesError } = await supabaseAdmin
+    // 2. Obtener la lista de correos corporativos pre-aprobados para excluirlos del sorteo
+    const { data: corporateRelations, error: corpError } = await supabaseAdmin
+      .from('corporate_relations')
+      .select('email');
+
+    if (corpError) {
+      console.error("Error cargando relaciones corporativas para exclusión:", corpError);
+    }
+
+    const excludedEmails = new Set(
+      (corporateRelations || []).map(r => r.email.trim().toLowerCase())
+    );
+
+    // 3. Traer un pool más grande de perfiles con rol founder ordenados por created_at ASC
+    // Usamos un límite de 200 para permitir la exclusión en memoria de las cuentas corporativas
+    const { data: rawCandidates, error: candidatesError } = await supabaseAdmin
       .from('profiles')
       .select('id, email, display_name, role, created_at')
       .eq('role', 'founder')
       .order('created_at', { ascending: true })
-      .limit(50);
+      .limit(200);
 
     if (candidatesError) {
       console.error("Error cargando candidatos del sorteo:", candidatesError);
       return { success: false, error: "Error al consultar los fundadores" };
     }
 
-    if (!candidates || candidates.length === 0) {
+    if (!rawCandidates || rawCandidates.length === 0) {
       return { success: false, error: "No hay fundadores registrados en el sistema para realizar el sorteo." };
+    }
+
+    // 4. Filtrar excluyendo atómicamente a los fundadores corporativos patrocinados
+    const candidates = rawCandidates
+      .filter(c => {
+        const email = c.email?.trim().toLowerCase();
+        return email && !excludedEmails.has(email);
+      })
+      .slice(0, 50);
+
+    if (candidates.length === 0) {
+      return { success: false, error: "No hay fundadores no-corporativos válidos para el sorteo." };
     }
 
     // 3. Seleccionar ganador de forma aleatoria
