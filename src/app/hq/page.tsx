@@ -170,7 +170,7 @@ export default function HQPage() {
               <div>
                 <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest block">Valor del Founder Pass</span>
                 <span className={`text-2xl font-black ${isTestModeActive ? 'text-amber-500' : 'text-green-500'} transition-colors`}>
-                  {isTestModeActive ? '$20 ARS' : '$50.000 ARS'}
+                  {isTestModeActive ? '$20 ARS' : '$5.000 ARS'}
                 </span>
               </div>
               <div className="text-right">

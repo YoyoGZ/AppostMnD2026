@@ -251,6 +251,31 @@ export async function runRaffleAction() {
       (corporateRelations || []).map(r => r.email.trim().toLowerCase())
     );
 
+    // 2.5. Obtener ligas y sus miembros de forma masiva (sin bucle N+1) para exigir mínimo 2 invitados
+    const { data: allLeagues } = await supabaseAdmin
+      .from('leagues')
+      .select('id, created_by');
+
+    const { data: allMembers } = await supabaseAdmin
+      .from('league_members')
+      .select('league_id, user_id');
+
+    // Mapear cantidad de invitados por creador
+    const creatorGuestCounts = new Map<string, number>();
+
+    if (allLeagues && allMembers) {
+      allLeagues.forEach(league => {
+        const creatorId = league.created_by;
+        // Miembros de esta liga que no son el creador
+        const guests = allMembers.filter(m => m.league_id === league.id && m.user_id !== creatorId);
+        const guestCount = guests.length;
+        
+        const currentCount = creatorGuestCounts.get(creatorId) || 0;
+        // Guardamos el máximo de invitados que tiene en cualquiera de sus ligas
+        creatorGuestCounts.set(creatorId, Math.max(currentCount, guestCount));
+      });
+    }
+
     // 3. Traer un pool más grande de perfiles con rol founder ordenados por created_at ASC
     // Usamos un límite de 200 para permitir la exclusión en memoria de las cuentas corporativas
     const { data: rawCandidates, error: candidatesError } = await supabaseAdmin
@@ -270,15 +295,21 @@ export async function runRaffleAction() {
     }
 
     // 4. Filtrar excluyendo atómicamente a los fundadores corporativos patrocinados
+    // Y verificando que tengan al menos 2 invitados activos en su liga
     const candidates = rawCandidates
       .filter(c => {
         const email = c.email?.trim().toLowerCase();
-        return email && !excludedEmails.has(email);
+        const isExcluded = email && excludedEmails.has(email);
+        if (isExcluded) return false;
+
+        // Regla: Al menos 2 invitados en su liga
+        const guestCount = creatorGuestCounts.get(c.id) || 0;
+        return guestCount >= 2;
       })
       .slice(0, 50);
 
     if (candidates.length === 0) {
-      return { success: false, error: "No hay fundadores no-corporativos válidos para el sorteo." };
+      return { success: false, error: "No hay fundadores no-corporativos válidos (con al menos 2 invitados) para el sorteo." };
     }
 
     // 3. Seleccionar ganador de forma aleatoria

@@ -26,6 +26,9 @@ Para que un convenio corporativo funcione óptimamente en MundiApp26, necesitas 
 | :--- | :--- | :--- | :--- |
 | **Logotipo Principal** | `.svg` (vectorial transparente) o `.png` (HD transparente, 32-bit) | `public/assets/brands/` | `[brand_id]-logo.svg` (Ej: `globant-logo.png`) |
 | **Configuración de Marca** | Bloque JSON estructurado | `src/data/brand-themes.json` | Clave única coincidente con `brand_id` (Ej: `"globant"`) |
+
+| **Confguración de Marca2** | Agregar Marca en src/components/admin/CorporateBrandingModule.tsx| 
+
 | **Bypass de Paywall** | Registro en Base de Datos | Tabla `corporate_relations` (Supabase) | Clave primaria: `email` del directivo o empleado corporativo |
 
 ---
@@ -114,74 +117,74 @@ Para un escalamiento masivo sin necesidad de redesplegar el código de Next.js n
 
 ---
 
-## 4. Configuración para Pruebas (Email "test")
+## 4. Flujo de Configuración Rápido (Creación de una Nueva Marca)
 
-Para realizar las pruebas de extremo a extremo sin intervenir datos reales, utilizaremos la siguiente configuración en nuestra base de datos:
+Integrar un nuevo convenio corporativo toma exactamente **3 pasos sencillos**:
 
-### A. Estructura de Datos en Supabase
+### Paso 1: Guardar el Logo de la Marca
 
-El sistema se apoya en la tabla `corporate_relations` para identificar a los founders asociados a marcas corporativas.
+Sube el logotipo en la carpeta física de assets con formato transparente:
+`public/assets/brands/[brand_id]-logo.png` (o `.svg`)
 
-```sql
--- Tabla de relaciones corporativas
-CREATE TABLE IF NOT EXISTS public.corporate_relations (
-  email text PRIMARY KEY,
-  brand_id text NOT NULL,
-  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
-);
+### Paso 2: Declarar el Diseño en `brand-themes.json`
 
--- Políticas RLS
-ALTER TABLE public.corporate_relations ENABLE ROW LEVEL SECURITY;
+Define el bloque de colores y textos en `src/data/brand-themes.json` usando el `brand_id` como clave: json
 
-CREATE POLICY "Lectura pública de relaciones corporativas"
-  ON public.corporate_relations FOR SELECT USING (true);
-```
+"mi-marca": {
+  "name": "Mi Marca Premium",
+  "logo": "/assets/brands/mi-marca-logo.png",
+  "accentColor": "#COLOR_HEX",
+  "sidebarBg": "bg-gradient-to-b from-[#111] to-[#000] border-r border-[#COLOR_HEX]/20",
+  "sidebarText": "text-[#COLOR_HEX]",
+  "accentText": "text-[#COLOR_HEX]",
+  "accentBorder": "border-[#COLOR_HEX]/30",
+  "dashboardBanner": {
+    "title": "Liga Mi Marca 🟢",
+    "description": "¡Demostrá tu nivel en el fixture interno y competí con tus colegas!",
+    "accentBg": "bg-[#COLOR_HEX]/10 border-[#COLOR_HEX]/20"
+  }
+}
 
-### B. Registros de Prueba Inyectados
+### Paso 3: Registrar la Marca en el HQ Manager
 
-Para simular el flujo, vinculamos correos de prueba a la marca patrocinadora `'globant'`:
+ 1. Abre CorporateBrandingModule.tsx (/src/components/admin/CorporateBrandingModule.tsx) y agrega tu marca al array `availableBrands` para verla en el selector visual:
 
-1. **Email del Founder Corporativo:** `test.founder@globant.com`
-   - *Rol esperado:* Al ingresar al `/paywall`, el sistema lo promoverá a `'founder'` automáticamente. Podrá crear su Arena Corporativa de forma 100% gratuita.
-2. **Email del Empleado/Miembro Invitado:** `test@globant.com` (o cualquier email que se una a la liga creada por el Founder Corporativo).
-   - *Resultado visual esperado:* Al ingresar a la aplicación, heredará dinámicamente el tema visual de **Globant** (Verde brillante y fondo degradado oscuro).
-
----
-
-## 5. Comprobación Paso a Paso de la Integración
-
-### Paso 1: Inicializar la carpeta de Assets
-
-Crearemos la carpeta `public/assets/brands` para almacenar los logotipos corporativos.
-
-### Paso 2: Modificación del Dashboard (`dashboard/page.tsx`)
-
-Inyectaremos el componente `<CorporateBentoHeader />` de forma dinámica:
-
-- Consultamos en un `useEffect` asíncrono la Server Action `resolveBrandThemeAction()`.
-- Guardamos el tema retornado en el estado local de React.
-- Renderizamos el banner bento bajo el header principal si el tema corporativo está presente.
-
-### Paso 3: Flujo de Pruebas
-
-1. **Paso 3.1: Registro de Cuenta de Prueba**
-   - Registrarse con el correo `test.founder@globant.com`.
-2. **Paso 3.2: Omisión del Paywall**
-   - Ir a la ruta `/paywall`. El sistema detectará que es un email corporativo pre-aprobado y cambiará su rol a `'founder'`. Se habilitará de inmediato la creación de liga gratuita.
-3. **Paso 3.3: Creación de la Liga**
-   - Crear una liga (ej: "Globant Premium Cup"). Esto vincula la liga al ID de este usuario creador.
-4. **Paso 3.4: Verificación Visual**
-   - Entrar al Dashboard. Comprobar que el Sidebar de PC y móvil se tiñe con la identidad corporativa de Globant (verde `#8feb16`).
-   - Comprobar que aparece el Bento Banner: "Copa Globant 2026 🟢".
-   - Probar el botón de colapso `"X"` del Bento Banner y verificar que desaparece con transición y que no se vuelve a mostrar al recargar (gracias a `sessionStorage`).
+{ id: "mi-marca", label: "Mi Marca Premium 🔵", color: "text-[#COLOR_HEX]" }
+2. Entra al panel de administración del **HQ (God Mode)**.
+3. Escribe el correo del founder de pruebas (ej: `test@mi-marca.com`), selecciona la marca en el desplegable y haz clic en **"Asociar Founder Corporativo"**. ¡El sistema inyectará la relación en Supabase automáticamente sin tocar código SQL!
 
 ---
 
-## 6. Control de Calidad Visual (`/audit`)
+## 5. Protocolo de Pruebas de Extremo a Extremo (Test Run)
 
-El sistema debe cumplir con los siguientes estándares de calidad:
+> [!IMPORTANT]
+> **REGLA DE ORO DEL LOGIN:**
+> Por seguridad de Supabase Auth, los correos corporativos creados en el HQ **NO existen en el sistema de claves** hasta que se registran por primera vez. **SIEMPRE debes ingresar por la pestaña "Crear Cuenta" (Registro)** en el formulario de acceso y nunca por "Ingresar" directo.
 
-- **Modularidad:** El banner Bento debe respetar los espacios del grid y no descuadrar la interfaz móvil.
-- **Micro-animaciones:** La transición de salida al hacer clic en la `"X"` debe ser suave y durar exactamente 400ms (`slide-up`).
-- **Mobile First:** El Tab Bar inferior móvil no debe contener logos ruidosos, solo pintar el icono activo del color de la marca.
-- **Rendimiento:** Cero saltos bruscos de diseño al resolver el tema en caliente.
+### Paso 1: Registro Inicial de Pruebas
+
+1. Abre MundiApp26 y ve a la sección de **Crear Cuenta (Registro)**.
+2. Ingresa el nombre de liga de prueba, tu apodo, el correo corporativo registrado en el HQ (ej: `test@mi-marca.com`) y una contraseña de al menos 8 caracteres (ej. `test12345`).
+3. Presiona **"Crear Cuenta"**.
+
+### Paso 2: Validación Automática y Bypass del Paywall
+
+1. Al registrarte, el sistema te redirigirá automáticamente a la vista de `/paywall`.
+2. En microsegundos, la Server Action detectará tu correo corporativo, te auto-ascenderá al rol `'founder'` y te asignará `max_leagues: 1`.
+3. El Paywall se transformará eliminando toda opción de cobro o pasarela de Mercado Pago. Solo verás el formulario de confirmación con el botón **"CREAR MI LIGA"** (sin textos que mencionen palabras como "gratis" o "gratuita").
+4. Bautiza tu liga y haz clic en crear.
+
+### Paso 3: Verificación Visual en Caliente
+
+1. Tras crear tu liga, pasarás por la **Card de Bienvenida** estilizada (donde el logo de fondo es perfectamente visible y las transiciones son fluidas e instantáneas).
+2. Entrarás al **Dashboard**. Comprueba que:
+   - El Sidebar responsivo se tiñe de inmediato con la identidad, logo y colores de tu nueva marca.
+   - El Bento Banner corporativo personalizado se muestra correctamente y se colapsa reteniendo la preferencia en la sesión.
+
+---
+
+## 6. Estándares de Calidad Visual (`/audit`)
+
+- **Legibilidad:** El logo de fondo en modales debe mantener un blur sutil (2px-4px) y opacidad (18%) para acompañar sin interferir con la lectura.
+- **Bypass Limpio:** El paywall de socios corporativos debe mostrar exclusivamente la tarjeta de creación de liga de forma centrada y elegante, omitiendo la columna informativa lateral de usuarios estándar.
+- **Rendimiento:** Cero saltos de diseño abruptos y carga de assets en menos de 100ms.

@@ -65,16 +65,16 @@ export function WelcomeSorteoModal({
   return (
     <div 
       className={cn(
-        "fixed inset-0 z-[200] flex items-center justify-center p-4 transition-all duration-700 ease-in-out select-none",
+        "fixed inset-0 z-[200] flex items-center justify-center p-4 transition-all duration-400 ease-in-out select-none",
         animateIn ? "opacity-100" : "opacity-0 pointer-events-none"
       )}
     >
-      {/* Backdrop de desenfoque ultra-profundo con la marca de agua del logo */}
-      <div className="absolute inset-0 bg-black/95 backdrop-blur-3xl overflow-hidden flex items-center justify-center pointer-events-none">
+      {/* Backdrop de desenfoque con la marca de agua del logo visible */}
+      <div className="absolute inset-0 bg-black/90 backdrop-blur-2xl overflow-hidden flex items-center justify-center pointer-events-none">
         
-        {/* Marca de agua colosal del logo oficial en el fondo */}
+        {/* Marca de agua colosal del logo oficial en el fondo con menor blur y mayor opacidad */}
         <div 
-          className="absolute w-[200vw] md:w-[75vw] h-[200vw] md:h-[75vw] opacity-[0.035] filter blur-[15px] md:blur-[25px] transform rotate-12 transition-all duration-1000 select-none animate-pulse"
+          className="absolute w-[200vw] md:w-[65vw] h-[200vw] md:h-[65vw] opacity-[0.18] filter blur-[2px] md:blur-[4px] transform rotate-12 transition-all duration-300 select-none animate-pulse"
           style={{
             backgroundImage: "url('/assets/logo_oficial.png')",
             backgroundSize: "contain",
@@ -94,7 +94,7 @@ export function WelcomeSorteoModal({
       {/* Tarjeta Bento Glassmorphic Flotante */}
       <div 
         className={cn(
-          "relative w-full max-w-lg bg-[#07090d]/85 border border-white/10 rounded-[36px] p-6 md:p-8 shadow-[0_24px_60px_rgba(0,0,0,0.9)] backdrop-blur-3xl overflow-hidden text-center z-10 transition-all duration-700 ease-out transform",
+          "relative w-full max-w-lg bg-[#07090d]/85 border border-white/10 rounded-[36px] p-6 md:p-8 shadow-[0_24px_60px_rgba(0,0,0,0.9)] backdrop-blur-3xl overflow-hidden text-center z-10 transition-all duration-400 ease-out transform",
           animateIn ? "scale-100 translate-y-0" : "scale-90 translate-y-8"
         )}
         style={{ borderColor: "rgba(250,204,21,0.2)" }}
@@ -115,7 +115,7 @@ export function WelcomeSorteoModal({
 
         {/* Título de Alto Impacto */}
         <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-white mb-3">
-          {isCorporate ? "¡ BIENVENIDO SOCIO CORPORATIVO ! 🏢" : "¡ BIENVENIDO CAPITÁN ! ⚽"}
+          {isCorporate ? "¡ BIENVENIDO ! 🏢" : "¡ BIENVENIDO CAPITÁN ! ⚽"}
         </h2>
         
         <p className="text-white/60 text-xs md:text-sm font-semibold leading-relaxed max-w-sm mx-auto mb-6">
@@ -127,7 +127,7 @@ export function WelcomeSorteoModal({
 
         {/* Elegant Bento Card (Contenido Condicional basado en Rol/Exclusión) */}
         {isCorporate ? (
-          /* Bento Corporativo (Excluye la camiseta de Argentina) */
+          /* Bento Corporativo (Excluye el número de liga y la camiseta de Argentina) */
           <div 
             className="bg-gradient-to-br from-[#121620]/60 via-black/40 to-black border rounded-[24px] p-5 md:p-6 mb-8 text-left relative overflow-hidden shadow-2xl transition-all duration-500 hover:border-primary/30"
             style={{ borderColor: "rgba(250,204,21,0.1)" }}
@@ -141,7 +141,7 @@ export function WelcomeSorteoModal({
             </div>
             
             <p className="text-white text-sm md:text-base font-bold leading-relaxed tracking-wide">
-              Sos el Creador de la Liga Nro <span className="text-primary text-xl md:text-2xl font-black drop-shadow-[0_0_8px_rgba(250,204,21,0.3)]">{leagueNumber}</span> de tu Empresa, estate atento al fixture interno y competí con tus colegas.
+              Sos el Creador de la Liga de tu Empresa, estate atento al fixture interno y competí con tus colegas.
             </p>
           </div>
         ) : (

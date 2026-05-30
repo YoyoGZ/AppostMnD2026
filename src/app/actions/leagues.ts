@@ -136,15 +136,8 @@ export async function joinLeagueAction(inviteCode: string) {
     return { error: "Liga no encontrada. Verifica el enlace de invitación." };
   }
 
-  // Verificar cupos (Máximo 10)
-  const { count } = await supabase
-    .from('league_members')
-    .select('*', { count: 'exact', head: true })
-    .eq('league_id', league.id);
+  // Nota: Se ha removido el límite estricto de 10 participantes para permitir el crecimiento viral infinito de la Liga.
 
-  if (count !== null && count >= 10) {
-    return { error: "Esta Liga ya alcanzó el límite de 10 gladiadores." };
-  }
 
   // Multi-liga: verificar si ya está en ESTA liga específica (no en cualquier liga)
   const { data: alreadyInThisLeague } = await supabase
@@ -180,9 +173,10 @@ export async function joinLeagueAction(inviteCode: string) {
 }
 
 export async function getLeagueByInvite(inviteCode: string) {
-  const supabase = await createClient();
+  const { createAdminClient } = await import("@/utils/supabase/admin");
+  const supabase = createAdminClient();
   
-  console.log(`🔍 [SERVER] Consultando liga con identificador: ${inviteCode}`);
+  console.log(`🔍 [SERVER] Consultando liga con identificador (Bypass RLS): ${inviteCode}`);
   
   // 1. Intentar por código de invitación (Case Insensitive)
   const { data: leagueByCode, error: errorByCode } = await supabase

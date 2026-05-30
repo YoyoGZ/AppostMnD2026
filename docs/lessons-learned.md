@@ -428,6 +428,34 @@ El modal de bienvenida montado sobre un fondo negro absoluto con blur resultaba 
 1. **Marca de Agua Gigante con Desenfoque de Lente (Lens Blur)**: Inyectamos un elemento absoluto en el fondo con la imagen del logo oficial (`/assets/logo_oficial.png`), escalada al `200vw` en móviles y `75vw` en desktop.
 2. **Estética de Bajísimo Contraste (Quiet UI)**: Aplicamos una opacidad extremadamente sutil (`opacity-[0.035]`), rotación diagonal de `12deg` y un desenfoque severo (`blur-[25px]`), acompañado de una animación pulsante de respiración lenta (`animation-duration: 10s`). Esto crea una textura de fondo que parece un holograma gigante difuminado en la oscuridad, añadiendo volumen físico y una firma visual majestuosa al dashboard sin sobrecargar ni interferir con la legibilidad del texto.
 
+## 2026-05-29: Advertencia de Dimensiones en next/image por Resets de CSS Globales (LL-12)
 
+### Síntoma
+Al levantar el proyecto en desarrollo (`npm run dev`), la consola del navegador reporta el warning:
+`Image with src "/assets/logo_oficial.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.`
 
+### Diagnóstico
+1. **Reset Global de CSS de Tailwind**: Por defecto, los frameworks modernos de CSS (incluyendo Tailwind CSS v3 y v4) aplican reglas generales como `img { max-width: 100%; height: auto; }` para asegurar que las imágenes sean responsivas.
+2. **Conflicto con next/image**: Si se instancia un componente `<Image>` de Next.js especificando propiedades numéricas fijas de entrada (ej: `width={24} height={24}`), el validador del cliente de Next.js compara el tamaño del elemento en el DOM con las propiedades declaradas. Al detectar que el navegador aplica `height: auto` por CSS (alterando la dimensión física calculada), pero no una regla proporcional en el otro eje, emite esta alerta de desajuste.
 
+### Resolución (The House Way)
+1. **Especificación Explícita de Escala**: Agregar la clase `h-auto` (`className="object-contain h-auto"`) o la propiedad en línea `style={{ height: 'auto' }}` al componente `<Image>` de Next.js.
+2. **Consolidación en Tarjetas Bento**: Se modificaron las 4 tarjetas bento del dashboard en `src/app/page.tsx` para inyectar `h-auto` a los iconos de 24x24 px, satisfaciendo de inmediato al validador del cliente y eliminando el warning de la consola del desarrollador de forma absoluta.
+
+## 2026-05-30: El Bloqueo del Enlace de Invitación Silencioso por RLS y Pivot Comercial (LL-13)
+
+### Síntoma
+Al hacer click en el enlace de invitación `/join/[código]` sin sesión activa, el usuario era redirigido silenciosamente a la Landing page (`/`), pareciendo que el link no funcionaba en absoluto.
+
+### Diagnóstico
+La Server Action `getLeagueByInvite` consultaba la base de datos de Supabase usando el cliente cliente-servidor tradicional (`createClient()`). Como la tabla `leagues` posee una política RLS que restringe las consultas únicamente a usuarios autenticados (`auth.role() = 'authenticated'`), las consultas de usuarios invitados anónimos retornaban un array vacío o fallaban con error. Al no encontrar la liga en el servidor Next.js, se forzaba una redirección incondicional y silenciosa a la Landing (`/`), generando la sensación de un enlace "roto".
+
+### Resolución (The House Way)
+1. **Bypass de RLS en Enlaces Públicos**: Se corrigió `getLeagueByInvite` en `src/app/actions/leagues.ts` para que resuelva la invitación utilizando el cliente `createAdminClient()`. Esto permite consultar de forma atómica y segura los datos básicos de la liga (nombre del capitán y de la liga) para mostrarlos en el onboarding público del invitado, sin exponer datos sensibles ni debilitar el RLS general del proyecto.
+2. **Tratamiento de Enlaces Rotos con UX Premium (Zero Dead-Ends)**: Modificamos `src/app/join/[code]/page.tsx` para que si el código de invitación realmente no existe en la base de datos local (por ejemplo, si el código local de pruebas cambia), en lugar de redirigir silenciosamente al usuario a la Landing page, renderice una pantalla de error glassmorphic en español muy cuidada. Esta pantalla explica qué pudo pasar (error de tipografía o baja de liga) y ofrece caminos de acción claros como "Crear mi propia Liga" o "Volver al Inicio", evitando la frustración.
+3. **Bento Grid de Invitación**: Rediseñamos el layout de `/join/[code]` como un Bento Grid de alta fidelidad visual que provee contexto completo antes del registro:
+   - Cabecera limpia con el logo oficial (`/assets/logo_oficial.png`).
+   - Bloque 1: Bienvenida a la liga del capitán con su alias destacado.
+   - Bloque 2: Características clave del juego (Oráculo, Chats privados y rankings en vivo).
+   - Bloque 3: Sorteo de la camiseta de Argentina utilizando el asset `/assets/camiseta.png`.
+   - Bloque 4: Formulario de registro rápido/login adaptativo con inputs glassmorphic de alto contraste e iconos de apoyo para legibilidad exterior.

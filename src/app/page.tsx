@@ -164,7 +164,7 @@ export default async function Home(props: PageProps) {
                   alt="MundiAPP26 Icon"
                   width={24}
                   height={24}
-                  className="object-contain"
+                  className="object-contain h-auto"
                 />
               </div>
             </div>
@@ -184,7 +184,7 @@ export default async function Home(props: PageProps) {
                   alt="MundiAPP26 Icon"
                   width={24}
                   height={24}
-                  className="object-contain"
+                  className="object-contain h-auto"
                 />
               </div>
             </div>
@@ -204,7 +204,7 @@ export default async function Home(props: PageProps) {
                   alt="MundiAPP26 Icon"
                   width={24}
                   height={24}
-                  className="object-contain"
+                  className="object-contain h-auto"
                 />
               </div>
             </div>
@@ -224,7 +224,7 @@ export default async function Home(props: PageProps) {
                   alt="MundiAPP26 Icon"
                   width={24}
                   height={24}
-                  className="object-contain"
+                  className="object-contain h-auto"
                 />
               </div>
             </div>

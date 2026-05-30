@@ -49,7 +49,7 @@ export async function mockPaymentAction() {
   return { success: true };
 }
 
-export async function createPaymentPreferenceAction(leagueName: string) {
+export async function createPaymentPreferenceAction(leagueName: string, joinLeagueCode?: string) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -77,7 +77,7 @@ export async function createPaymentPreferenceAction(leagueName: string) {
     // Consultar en tiempo real el modo test de precios en la base de datos
     const { getTestModeAction } = await import('@/app/actions/admin');
     const testModeResult = await getTestModeAction();
-    const finalPrice = testModeResult.active ? 20 : 50000; // $20 en modo test, $50.000 en producción
+    const finalPrice = testModeResult.active ? 20 : 5000; // $20 en modo test, $5.000 en producción
 
     // Crear la preferencia de pago
     const preference = new Preference(client);
@@ -87,7 +87,7 @@ export async function createPaymentPreferenceAction(leagueName: string) {
         items: [
           {
             id: 'founder_pass_2026',
-            title: `Founder Pass - Liga ${leagueName}`,
+            title: joinLeagueCode ? "Acceso a Liga - MundiApp26" : `Founder Pass - Liga ${leagueName}`,
             description: "Licencia de Plataforma - MundiApp26",
             quantity: 1,
             unit_price: finalPrice, // VALOR DINÁMICO ALTERNABLE
@@ -96,12 +96,15 @@ export async function createPaymentPreferenceAction(leagueName: string) {
         ],
         // MUY IMPORTANTE: La metadata oculta que Mercado Pago nos devolverá en el Webhook
         metadata: {
-          league_name: leagueName, // Para poder crearla o activarla
-          user_id: user.id
+          league_name: joinLeagueCode ? null : leagueName, // Para poder crearla o activarla
+          user_id: user.id,
+          join_code: joinLeagueCode || null
         },
         back_urls: {
           // A donde va el usuario DESPUÉS de pagar
-          success: `${baseUrl}/api/callbacks/mp-success?league=${encodeURIComponent(leagueName)}`,
+          success: joinLeagueCode 
+            ? `${baseUrl}/api/callbacks/mp-success?join=${joinLeagueCode}`
+            : `${baseUrl}/api/callbacks/mp-success?league=${encodeURIComponent(leagueName)}`,
           pending: `${baseUrl}/dashboard?status=pending`,
           failure: `${baseUrl}/paywall?status=failure`
         },
@@ -157,10 +160,14 @@ export async function checkAndPromoteCorporateUserAction() {
     }
 
     // 2. Si es corporativo, ascenderlo a 'founder' en profiles usando el admin client
+       // 2. Si es corporativo, ascenderlo a 'founder' en profiles usando el admin client
     const supabaseAdmin = createAdminClient();
     const { error: updateError } = await supabaseAdmin
       .from('profiles')
-      .update({ role: 'founder' })
+      .update({ 
+        role: 'founder',
+        max_leagues: 1 // <-- Agregamos esta línea para habilitarle 1 cupo de creación gratuita
+      })
       .eq('id', user.id);
 
     if (updateError) {

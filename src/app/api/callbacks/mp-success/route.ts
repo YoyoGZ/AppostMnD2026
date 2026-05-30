@@ -2,14 +2,15 @@ import { createAdminClient } from "@/utils/supabase/admin";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
-import { createLeagueAction } from "@/app/actions/leagues";
+import { createLeagueAction, joinLeagueAction } from "@/app/actions/leagues";
 
 // Este endpoint recibe al usuario cuando Mercado Pago lo redirige de vuelta con éxito (back_urls.success)
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const leagueName = searchParams.get('league');
+  const joinLeagueCode = searchParams.get('join');
 
-  if (!leagueName) {
+  if (!leagueName && !joinLeagueCode) {
     return NextResponse.redirect(new URL('/dashboard?error=noleague', request.url));
   }
 
@@ -21,41 +22,51 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    console.log("💳 [MP CALLBACK] Pago aprobado recibido para la liga:", leagueName);
-    
-    // 1. Instanciar cliente Admin para saltar el RLS y ascenderlo
-    const supabaseAdmin = createAdminClient();
+    if (joinLeagueCode) {
+      console.log("💳 [MP CALLBACK] Pago aprobado para UNIRSE a la liga:", joinLeagueCode);
+      const res = await joinLeagueAction(joinLeagueCode);
+      
+      if (res?.error) {
+        console.error("Error uniendo a liga post-pago:", res.error);
+        return NextResponse.redirect(new URL(`/dashboard?error=${encodeURIComponent(res.error)}`, request.url));
+      }
+    } else if (leagueName) {
+      console.log("💳 [MP CALLBACK] Pago aprobado recibido para la liga:", leagueName);
+      
+      // 1. Instanciar cliente Admin para saltar el RLS y ascenderlo
+      const supabaseAdmin = createAdminClient();
 
-    // Obtener max_leagues actual para incrementarlo
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('max_leagues')
-      .eq('id', user.id)
-      .single();
+      // Obtener max_leagues actual para incrementarlo
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('max_leagues')
+        .eq('id', user.id)
+        .single();
 
-    const currentMax = profile?.max_leagues || 0;
+      const currentMax = profile?.max_leagues || 0;
 
-    const { error: roleError } = await supabaseAdmin
-      .from('profiles')
-      .update({ 
-        role: 'founder',
-        max_leagues: currentMax + 1
-      })
-      .eq('id', user.id);
+      const { error: roleError } = await supabaseAdmin
+        .from('profiles')
+        .update({ 
+          role: 'founder',
+          max_leagues: currentMax + 1
+        })
+        .eq('id', user.id);
 
-    if (roleError) throw roleError;
+      if (roleError) throw roleError;
 
-    // 2. Crear la Liga Oficialmente usando la Server Action existente
-    const fd = new FormData();
-    fd.append('name', leagueName);
-    
-    const res = await createLeagueAction(fd);
-    
-    // createLeagueAction lanza un redirect() interno si tiene éxito. 
-    // Si no lo hizo, es porque devolvió un error:
-    if (res?.error) {
-      console.error("Error creando liga post-pago:", res.error);
-      return NextResponse.redirect(new URL(`/dashboard?error=${encodeURIComponent(res.error)}`, request.url));
+      // 2. Crear la Liga Oficialmente usando la Server Action existente
+      const fd = new FormData();
+      fd.append('name', leagueName);
+      
+      const res = await createLeagueAction(fd);
+      
+      // createLeagueAction lanza un redirect() interno si tiene éxito. 
+      // Si no lo hizo, es porque devolvió un error:
+      if (res?.error) {
+        console.error("Error creando liga post-pago:", res.error);
+        return NextResponse.redirect(new URL(`/dashboard?error=${encodeURIComponent(res.error)}`, request.url));
+      }
     }
 
   } catch (error) {

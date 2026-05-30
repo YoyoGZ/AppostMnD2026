@@ -14,18 +14,18 @@
     }
   },
 
-  "hybroker": {
-    "name": "Hy",
-    "logo": "/assets/brands/hy-logo.png",
-    "accentColor": "#8feb16",
-    "sidebarBg": "bg-gradient-to-b from-[#111111] via-[#203316] to-[#0a0a0a]",
-    "sidebarText": "text-[#8feb16]",
-    "accentText": "text-[#8feb16]",
-    "accentBorder": "border-[#8feb16]/30",
+    "honesty": {
+    "name": "Honesty Brokers",
+    "logo": "/assets/brands/honesty-bg.png",
+    "accentColor": "#3A80F5",
+    "sidebarBg": "bg-[url('/assets/brands/honesty-bg.png')] bg-cover bg-center bg-white",
+    "sidebarText": "text-[#3A80F5]",
+    "accentText": "text-[#3A80F5]",
+    "accentBorder": "border-[#3A80F5]/30",
     "dashboardBanner": {
-      "title": "Copa Hy Broker 2026 ",
-      "description": "¡Demostrá tu nivel en el fixture interno, competí con colegas y amigos y ganá premios corporativos de Hy Broker!",
-      "accentBg": "bg-[#8feb16]/10 border-[#8feb16]/20"
+      "title": "Liga Honesty Brokers 📊",
+      "description": "¡Demostrá tu nivel en el fixture del Mundial, competí con tus colegas y ganá premios exclusivos de Hy Broker!",
+      "accentBg": "bg-[#3A80F5]/10 border-[#3A80F5]/20"
     }
   }
 }
