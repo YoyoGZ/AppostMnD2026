@@ -99,7 +99,7 @@ export default async function JoinPage({ params }: Props) {
           </h1>
           
           <p className="text-white/60 text-xs sm:text-sm font-semibold leading-relaxed mt-3 max-w-xl">
-            Para jugar en la app oficial del Mundial y participar por increíbles premios, primero registrate a continuación y luego serás dirigido a Mercado Pago para abonar tu membresía individual de <strong className="text-primary font-black">$5.000 ARS</strong>.
+            Para jugar en MundiApp26, primero tenes que registrarte y despues te llevaremos al Pago Seguro de Mercado Pago, para abonar tu suscripción de membresía de <strong className="text-primary font-black">$5.000 ARS</strong>.
           </p>
         </header>
 
@@ -116,7 +116,7 @@ export default async function JoinPage({ params }: Props) {
 
       <footer className="w-full text-center py-6 opacity-30 hover:opacity-60 transition-opacity shrink-0">
         <p className="text-[10px] uppercase font-bold tracking-widest text-white">
-          Copa del Mundo FIFA 2026 • Desarrollado por Antigravity Engine
+          Desarrollado por Antigravity Engine
         </p>
       </footer>
     </div>

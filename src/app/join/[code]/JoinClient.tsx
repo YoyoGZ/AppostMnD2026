@@ -151,9 +151,6 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
               <span className="bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full text-[10px] uppercase font-black tracking-widest flex items-center gap-1.5 shadow-[0_0_10px_rgba(251,191,36,0.05)]">
                 <Crown className="w-3 h-3 text-primary" /> Invitación Oficial
               </span>
-              <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-[10px] uppercase font-black tracking-widest flex items-center gap-1">
-                <Users className="w-3 h-3" /> Miembros Ilimitados
-              </span>
             </div>
 
             <p className="text-white/40 text-[10px] uppercase tracking-widest font-black mb-1">
@@ -221,38 +218,12 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
               <div>
                 <h4 className="text-xs font-black text-white uppercase tracking-wider mb-1">Tabla de Posiciones al Instante</h4>
                 <p className="text-[11px] text-slate-400 font-semibold leading-relaxed">
-                  Seguí el ranking interactivo de los miembros de tu liga en tiempo real. ¡El Oráculo computa todo al sonar el pitido final!
+                  Seguí el ranking interactivo de los miembros de tu liga en tiempo real. ¡El Oraculo calcula puntos y posiciones de La Liga al final de cada Partido !
                 </p>
               </div>
             </div>
 
           </div>
-        </div>
-
-        {/* Bento 3: Sorteo de la Camiseta Oficial */}
-        <div className="bg-gradient-to-r from-sky-600/15 via-white/5 to-sky-600/15 border border-sky-500/20 p-6 sm:p-7 rounded-2xl relative overflow-hidden flex flex-col sm:flex-row items-center gap-6 shadow-2xl group hover:border-sky-400/30 transition-all duration-300">
-          
-          <div className="flex-1 text-center sm:text-left">
-            <span className="bg-sky-500/20 text-sky-400 border border-sky-400/30 px-3 py-1 rounded-full text-[10px] uppercase font-black tracking-widest w-max mx-auto sm:mx-0 flex items-center gap-1.5 mb-3">
-              🎯 Sorteo de la Camiseta
-            </span>
-            <h3 className="text-lg sm:text-xl font-black text-white tracking-tight leading-tight">
-              ¡Ganá la Camiseta de la Selección Argentina! 🇦🇷
-            </h3>
-            <p className="text-[11px] sm:text-xs text-slate-300 font-medium mt-2 leading-relaxed max-w-sm">
-              Cada jugador invitado que active su pase individual de <strong className="text-primary font-black">$5.000 ARS</strong> ingresará automáticamente en el sorteo oficial de la camiseta albiceleste de la Copa del Mundo 2026.
-            </p>
-          </div>
-
-          <div className="w-24 h-24 sm:w-28 sm:h-28 relative shrink-0 drop-shadow-[0_0_20px_rgba(56,189,248,0.3)] group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-            <Image
-              src="/assets/camiseta.png"
-              alt="Camiseta Argentina Oficial Mundial 2026"
-              fill
-              className="object-contain"
-            />
-          </div>
-
         </div>
 
       </div>
@@ -274,7 +245,7 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
                   <Users className="w-3.5 h-3.5 text-primary" /> Sesión Activa Detectada
                 </p>
                 <h3 className="text-xl font-black text-white tracking-tighter uppercase">
-                  ¿Listo para la Batalla?
+                  Te esperan en la Liga... ¿entrás?
                 </h3>
               </div>
 
