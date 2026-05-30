@@ -50,28 +50,42 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
     setError(null);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      console.log("🚀 [JoinClient] Validando sesión para unión directa...");
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) throw authError;
+
       if (!user) {
         setError("Iniciá sesión para continuar.");
         setIsLoading(false);
         return;
       }
 
+      console.log("🚀 [JoinClient] Verificando membresía en la liga:", leagueInfo.id);
       // Validar si ya es miembro (para no cobrarle doble si refresca la pantalla)
-      const { data: member } = await supabase
+      const { data: member, error: memberError } = await supabase
         .from('league_members')
         .select('id')
         .eq('user_id', user.id)
         .eq('league_id', leagueInfo.id)
         .maybeSingle();
 
+      if (memberError) {
+        console.warn("⚠️ [JoinClient] Error consultando membresía (RFE/RLS):", memberError.message);
+      }
+
+      setIsLoading(false); // ¡Apagar el loader de forma inmediata para liberar el botón antes del redirect!
+
       if (member) {
+        console.log("✅ [JoinClient] Ya es miembro, navegando a Dashboard...");
         router.push("/dashboard");
       } else {
+        console.log("✅ [JoinClient] No es miembro, navegando a Paywall...");
         router.push(`/paywall?join=${code}`);
       }
     } catch (err) {
-      console.error("Error al validar membresía activa:", err);
+      console.error("❌ [JoinClient] Error al validar membresía activa:", err);
+      setIsLoading(false);
+      // Redirección de emergencia resiliente
       router.push(`/paywall?join=${code}`);
     }
   };
@@ -101,25 +115,56 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
     setIsLoading(true);
 
     try {
-      const { error: signUpError } = await supabase.auth.signUp({
+      console.log("🚀 [JoinClient] Registrando usuario:", email.trim());
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: email.trim().toLowerCase(),
         password,
         options: { data: { display_name: alias.trim() } },
       });
-      if (signUpError) throw signUpError;
+      
+      if (signUpError) {
+        const msg = signUpError.message.toLowerCase();
+        // UX de Nivel Start-up: Si el usuario ya está registrado, intentamos loguearlo directamente con la clave provista
+        if (msg.includes("already registered") || msg.includes("already_registered") || msg.includes("existe")) {
+          console.log("ℹ️ [JoinClient] El usuario ya existe, intentando inicio de sesión automático...");
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email: email.trim().toLowerCase(),
+            password,
+          });
+          
+          if (signInError) {
+            throw new Error("Este correo electrónico ya está registrado. Si es tuyo, ingresá la contraseña correcta para continuar.");
+          }
+          
+          console.log("✅ [JoinClient] Autenticación de cuenta existente exitosa. Redirigiendo al Paywall...");
+          router.push(`/paywall?join=${code}`);
+          return;
+        }
+        throw signUpError;
+      }
 
+      // Si el signUp tuvo éxito pero no nos devolvió sesión activa (por confirmación de email local)
+      // intentamos hacer un signIn explícito para forzar la creación de la cookie de sesión local
+      if (!signUpData.session) {
+        console.log("ℹ️ [JoinClient] Sin sesión activa tras signUp, forzando signIn de seguridad...");
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+          email: email.trim().toLowerCase(),
+          password,
+        });
+        
+        if (authError) {
+          console.warn("⚠️ [JoinClient] Falla en signIn automático (requiere confirmación de email):", authError.message);
+          throw new Error("Cuenta creada. Por favor, confirma tu correo o iniciá sesión para continuar.");
+        }
+      }
+
+      console.log("✅ [JoinClient] Autenticación establecida, viajando a Paywall...");
       // Redirigir de inmediato al Paywall de Invitado
       router.push(`/paywall?join=${code}`);
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Ocurrió un error inesperado.";
-      if (msg.includes("already registered") || msg.toLowerCase().includes("already registered")) {
-        setError("Este correo electrónico ya está registrado. ¿Querés iniciar sesión?");
-      } else if (msg.includes("Rate limit")) {
-        setError("Demasiados intentos. Espera un momento.");
-      } else {
-        setError(msg);
-      }
+      console.error("❌ [JoinClient] Error en registro/unión:", err);
+      const msg = err instanceof Error ? err.message : "Ocurrió un error inesperado.";
+      setError(msg);
       setIsLoading(false);
     }
   };
@@ -196,6 +241,20 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
                 </p>
               </div>
             </div>
+
+            {/* Feature 2: Duelos */}
+            <div className="p-4 rounded-xl bg-black/35 border border-white/5 hover:border-white/10 transition-colors flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+                <Trophy className="w-4 h-4 text-blue-400" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-white uppercase tracking-wider mb-1">Los Duelos !!</h4>
+                <p className="text-[11px] text-slate-400 font-semibold leading-relaxed">
+                  Probate en los Duelos contra otros participantes de la Liga y les mostras tus Medallas!.
+                </p>
+              </div>
+            </div>
+
 
             {/* Feature 2: Chicanas */}
             <div className="p-4 rounded-xl bg-black/35 border border-white/5 hover:border-white/10 transition-colors flex items-start gap-3">

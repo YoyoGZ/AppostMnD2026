@@ -20,12 +20,13 @@ Este documento detalla el "Customer Journey" y la arquitectura funcional de la p
 
 ### El Funnel de Conversión One-Shot & Pasarela de Pagos
 
-- **Flujo**: Al registrarse, el usuario define el nombre de su futura Liga y es redirigido de forma atómica a la pasarela de cobro real (**Mercado Pago Checkout Pro**).
-- **Pasarela & Webhook**: Una vez procesado el pago real en producción, un webhook seguro y atómico en el backend (`/api/webhooks/mercadopago`) asciende al usuario al rol de `founder` y activa su arena, evitando fraudes y saltos de paywall.
+- **Flujo**: Al registrarse, el usuario define el nombre de su futura Liga y es redirigido de forma atómica a la pasarela de cobro real (**Mercado Pago Checkout Pro**) para adquirir su **Founder Pass** de **$5.000 ARS** (o $20 ARS en modo test).
+- **Pasarela & Webhook**: Una vez procesado el pago real en producción, un webhook seguro y atómico en el backend (`/api/webhooks/mercadopago`) asciende al usuario al rol de `founder` y activa su arena, incrementando su slot de ligas (`max_leagues`), lo que evita fraudes y saltos de paywall de forma resiliente.
 - **Archivos Clave**:
     - `src/components/auth/LoginShield.tsx` (Intercepción y redirección al Paywall).
-    - `src/app/actions/payments.ts` (Generación de preferencia de pago con URL dinámica de Vercel).
-    - `src/app/api/webhooks/mercadopago/route.ts` (Procesador del Webhook).
+    - `src/app/actions/payments.ts` (Generación de preferencia de pago con URL base autodetectada y parametrización de invitados).
+    - `src/app/paywall/page.tsx` (Checkout de cobro a $5.000 ARS con persistencia de liga y bypass para Founders activos).
+    - `src/app/api/webhooks/mercadopago/route.ts` (Procesador del Webhook transaccional).
 
 ### Sistema de Códigos Promocionales (Afiliados)
 
@@ -34,12 +35,18 @@ Este documento detalla el "Customer Journey" y la arquitectura funcional de la p
     - `src/app/actions/promo.ts` (Validación y guardado síncrono).
     - `src/app/paywall/page.tsx` (Campo minimalista integrado al Checkout).
 
-### El Sistema de Invitación
+### El Sistema de Invitación (Pivot de Invitado de Pago & Bento Grid)
 
-- **Flujo**: Si el usuario llega con un link de invitación dedicado (`/join/[code]`), el sistema lo identifica, personaliza el onboarding mostrando el nombre de la liga anfitriona y automatiza su ingreso como `member` tras registrarse con su correo real.
+- **Flujo**: Si el usuario llega con un link de invitación dedicado (`/join/[code]`), el sistema utiliza un bypass de RLS del lado del servidor para consultar la base de datos de manera anónima y mostrar la tarjeta de bienvenida con el alias del capitán fundador.
+  - **Identificación**: Si el código no existe o es inválido, en lugar de una redirección ciega, se renderiza una pantalla de error glassmorphic en español muy pulida.
+  - **Bento Grid de Captación**: Si el código es válido, se presenta un Bento Grid responsivo de alta fidelidad con el logo oficial (`/assets/logo_oficial.png`), la bienvenida personalizada a la liga del capitán, y las características exclusivas de MundiApp26 (Oráculo en tablas de posiciones, chat en vivo y duelos). La card de sorteo se excluye en este flujo por ser un beneficio exclusivo de Founders.
+  - **Funnel descentralizado**: Al presionar registrarse, el invitado crea su cuenta en Supabase Auth y es redirigido de inmediato al **Paywall de Invitado exclusivo** (`/paywall?join=[code]`) para adquirir su membresía individual de **$5.000 ARS** en Mercado Pago.
+  - **Doble Lógica de Éxito**: Tras el pago exitoso, el callback GET de Mercado Pago procesa la Server Action `joinLeagueAction` para insertar de forma segura al miembro en la liga de su amigo y redireccionarlo al Dashboard listo para jugar.
 - **Archivos Clave**:
-    - `src/app/join/[code]/page.tsx` (Ruta dedicada indestructible contra redirecciones de middleware).
-    - `src/components/landing/JoinClient.tsx` (Formulario unificado para invitados).
+    - `src/app/join/[code]/page.tsx` (Ruta protegida, render de cabecera con logo, error glassmorphic e inyección de datos de invitación).
+    - `src/app/join/[code]/JoinClient.tsx` (Bento Grid responsivo e interactivo del onboarding y formulario de registro rápido).
+    - `src/app/actions/leagues.ts` (Bypass RLS `getLeagueByInvite` y unión de liga `joinLeagueAction` sin límites de 10 participantes).
+    - `src/app/api/callbacks/mp-success/route.ts` (Callback transaccional que recibe el parámetro `join` e inscribe al gladiador tras el cobro).
 
 ---
 
@@ -70,16 +77,19 @@ Este documento detalla el "Customer Journey" y la arquitectura funcional de la p
 
 ## 3. El Rol del Fundador (Capitán de Liga)
 
-### Gestión de Liga
+### Gestión de Liga & Crecimiento Viral Ilimitado
 
-- **Flujo**: Un usuario que entró vía **VIP Pass** tiene privilegios de "Owner".
-- **Acciones**:
-    - Personalizar el nombre de su Liga.
-    - Generar invitaciones para sus amigos.
+- **Flujo**: Un usuario que activó su arena vía **Founder Pass** (comprado en Mercado Pago) tiene privilegios de "Capitán/Owner".
+- **Acciones & Reglas**:
+    - **Capacidad Infinita**: Se eliminó el límite de 10 participantes por liga; ahora la liga admite participantes de forma **infinita y sin topes** para potenciar la viralidad del juego.
+    - **Regla del Sorteo de la Camiseta 🇦🇷**: Para calificar de forma válida al sorteo de la camiseta oficial de la selección argentina (confeccionado en el HQ), el Founder debe reclutar de forma activa a **al menos 2 invitados activos (pagados)**. Esto garantiza el compromiso de juego y rentabilidad de la arena.
+    - Personalizar el nombre de su Liga Privada.
+    - Generar y compartir enlaces de invitación adaptativos (`/join/[code]`).
     - Configurar reglas específicas (Modals de reglas).
 - **Archivos Clave**:
-    - `src/components/tournament/TournamentCard.tsx` (Header de Liga).
-    - `src/app/actions/leagues.ts` (Lógica de creación y edición).
+    - `src/components/tournament/TournamentCard.tsx` (Header de la Liga).
+    - `src/app/actions/leagues.ts` (Lógica de creación de ligas, guardado de capitán, unión ilimitada y bypass RLS).
+    - `src/app/actions/admin.ts` (Cruce de base de datos en memoria para validar la elegibilidad de sorteo del Founder con +2 invitados activos).
 
 ---
 

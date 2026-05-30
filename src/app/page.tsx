@@ -169,7 +169,7 @@ export default async function Home(props: PageProps) {
               </div>
             </div>
             <p className="text-white/75 text-sm md:text-base leading-relaxed">
-              Comprás tu pase y de una te convertís en Capitán. Fundás tu liga privada con nombre propio, generás el link de invitación y se los tiras al Whastapp o Telegram y sumás a tus amigos. A ver quien gana !!
+              Te registras y despues comprás tu pase y de una te convertís en Capitán. Armas tu Liga privada con nombre propio. Una vez adentro, generás el link de invitación y se los tiras al Whastapp o Telegram y sumás a tus amigos. A ver quien gana !!
             </p>
           </div>
 
