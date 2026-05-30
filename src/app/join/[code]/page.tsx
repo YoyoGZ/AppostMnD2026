@@ -95,11 +95,14 @@ export default async function JoinPage({ params }: Props) {
           </div>
           
           <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-white uppercase drop-shadow-[0_2px_15px_rgba(251,191,36,0.15)] leading-tight max-w-2xl">
-            ¡Te invitaron a unirte a la Liga de tu amigo: <span className="text-primary underline">"{leagueResult.captainAlias}"</span>!
+            ¡Te invitaron a unirte a la Liga de tu amigo/a:  <span className="text-primary">"{leagueResult.captainAlias}"</span> !
           </h1>
           
           <p className="text-white/60 text-xs sm:text-sm font-semibold leading-relaxed mt-3 max-w-xl">
-            Para jugar en MundiApp26, primero tenes que registrarte y despues te llevaremos al Pago Seguro de Mercado Pago, para abonar tu suscripción de membresía de <strong className="text-primary font-black">$5.000 ARS</strong>.
+            Bienvenido a MundiApp26! <strong className="text-primary font-black">La App para el Mundial!</strong>.
+          </p>
+          <p className="text-white/60 text-xs sm:text-sm font-semibold leading-relaxed mt-3 max-w-xl">
+            Para jugar: Te registras, te llevamos al Pago Seguro de Mercado Pago, abonas tu suscripción de <strong className="text-primary font-black">$5.000 ARS </strong> y directo a la App !!
           </p>
         </header>
 
@@ -116,7 +119,10 @@ export default async function JoinPage({ params }: Props) {
 
       <footer className="w-full text-center py-6 opacity-30 hover:opacity-60 transition-opacity shrink-0">
         <p className="text-[10px] uppercase font-bold tracking-widest text-white">
-          Desarrollado por Antigravity Engine
+          Designed by GM/JG - THE GAME
+        </p>
+        <p className="text-[10px] uppercase font-bold tracking-widest text-white">
+          Powered by ANTIGRAVITY ENGINE
         </p>
       </footer>
     </div>

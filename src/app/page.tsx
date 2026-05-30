@@ -157,7 +157,7 @@ export default async function Home(props: PageProps) {
           <div className="md:col-span-6 relative group overflow-hidden bg-gradient-to-r from-[#0a0a0a] via-[#1c180f] to-[#0a0a0a] border border-primary/25 rounded-[32px] p-6 flex flex-col justify-start gap-3 hover:border-primary/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(251,191,36,0.08)]">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.02)_0%,transparent_70%)] pointer-events-none" />
             <div className="flex justify-between items-center">
-              <h4 className="text-lg md:text-xl font-black text-white uppercase tracking-tight">"EL CAPI y nueve mas"</h4>
+              <h4 className="text-lg md:text-xl font-black text-white uppercase tracking-tight">"EL CAPITAN y sus Amigos"</h4>
               <div className="w-9 h-9 relative flex items-center justify-center flex-shrink-0 bg-primary/10 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
                 <Image
                   src="/assets/logo_oficial.png"
@@ -169,7 +169,7 @@ export default async function Home(props: PageProps) {
               </div>
             </div>
             <p className="text-white/75 text-sm md:text-base leading-relaxed">
-              Te registras y despues comprás tu pase y de una te convertís en Capitán. Armas tu Liga privada con nombre propio. Una vez adentro, generás el link de invitación y se los tiras al Whastapp o Telegram y sumás a tus amigos. A ver quien gana !!
+              Te registras, comprás tu pase y de una te convertís en Capitán. Armas tu Liga privada con nombre propio. Adentro, generás el link de invitación y se los tiras al Whastapp o Telegram y sumás a tus amigos. Suscripción por persona: <strong className="text-primary font-bold">$5.000 ARS</strong> para jugar en TODO el Mundial!!
             </p>
           </div>
 
@@ -292,7 +292,7 @@ export default async function Home(props: PageProps) {
             <p className="text-white/65 text-base leading-relaxed mb-6">
               Entre los primeros{" "}
               <strong className="text-white font-black">50 fundadores</strong>{" "}
-              que se registren en la App para formar su propia Liga sortearemos una{" "}
+              que se registren en la App para formar su Liga con al menos dos invitados, sortearemos una{" "}
               <strong className="text-white">Camiseta Oficial de Argentina</strong>.
             </p>
 
