@@ -17,7 +17,7 @@ const LigaRules = () => {
         
         <div className="space-y-4">
           <p className="text-sm font-black text-primary/80 mb-2 uppercase tracking-wide">
-            Solo tenes a otros 9 contrincantes !! (10 por cada Liga en la App)
+            Podes conseguir puntos de dos formas:
           </p>
           <div className="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/5">
             <span className="text-gray-400">Pronostico (Ganador o Empate)</span>
@@ -42,7 +42,7 @@ const LigaRules = () => {
           <h3 className="text-xl font-bold text-white uppercase tracking-wider">Sello de Apuesta</h3>
         </div>
         <p className="text-gray-300 leading-relaxed mb-4">
-          Una vez confirmado tu pronóstico, la apuesta queda <span className="text-blue-400 font-bold uppercase">SELLADA</span>. 
+          Una vez que confirmas tu pronóstico, la apuesta queda <span className="text-blue-400 font-bold uppercase">SELLADA</span>. 
           NO podras editarlo o cambiarlo de ningún modo.
         </p>
         <div className="flex items-center gap-2 text-blue-300 text-sm bg-blue-500/10 p-2 rounded-lg border border-blue-500/20">

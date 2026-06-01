@@ -36,23 +36,23 @@ export default function UserKnockoutsPage() {
              <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-primary/40 animate-bounce" />
           </div>
           
-          <div className="space-y-2">
+          <div className="space-y-3">
             <h1 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter">
               El Camino a la <span className="text-primary">Gloria</span>
             </h1>
-            <p className="text-white/40 font-bold uppercase text-xs md:text-sm tracking-[0.4em] max-w-md mx-auto">
+            <p className="text-slate-200 font-black uppercase text-xs md:text-sm tracking-[0.3em] max-w-md mx-auto leading-relaxed drop-shadow-md">
               La fase final se revelará cuando se defina el último clasificado en el Grupo L.
             </p>
           </div>
 
           <div className="flex items-center justify-center gap-4 pt-8">
-             <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-2xl flex items-center gap-3">
-                <Timer className="w-5 h-5 text-primary" />
-                <span className="text-xs font-black text-white/80 uppercase tracking-widest">Calculando Cruces...</span>
+             <div className="bg-black/60 border border-white/20 px-8 py-4 rounded-3xl flex items-center gap-3 shadow-inner">
+                <Timer className="w-5 h-5 text-primary animate-pulse" />
+                <span className="text-xs font-black text-white uppercase tracking-widest">Calculando Cruces de Liga...</span>
              </div>
           </div>
           
-          <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] pt-12">
+          <p className="text-[11px] font-black text-slate-300 uppercase tracking-[0.25em] pt-12 drop-shadow-md">
             Solo los mejores llegarán a la gran final en New York.
           </p>
         </div>

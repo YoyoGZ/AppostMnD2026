@@ -27,8 +27,6 @@ export default async function Home(props: PageProps) {
     }
   }
 
-
-
   return (
     <LandingWrapper>
       <div className="relative min-h-screen w-full bg-[#050505] text-white selection:bg-primary/30 overflow-x-hidden">

@@ -27,7 +27,7 @@ Para que un convenio corporativo funcione óptimamente en MundiApp26, necesitas 
 | **Logotipo Principal** | `.svg` (vectorial transparente) o `.png` (HD transparente, 32-bit) | `public/assets/brands/` | `[brand_id]-logo.svg` (Ej: `globant-logo.png`) |
 | **Configuración de Marca** | Bloque JSON estructurado | `src/data/brand-themes.json` | Clave única coincidente con `brand_id` (Ej: `"globant"`) |
 
-| **Confguración de Marca2** | Agregar Marca en src/components/admin/CorporateBrandingModule.tsx| 
+| **Confguración de Marca2** | Agregar Marca en src/components/admin/CorporateBrandingModule.tsx|
 
 | **Bypass de Paywall** | Registro en Base de Datos | Tabla `corporate_relations` (Supabase) | Clave primaria: `email` del directivo o empleado corporativo |
 

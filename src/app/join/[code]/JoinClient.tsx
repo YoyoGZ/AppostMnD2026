@@ -255,7 +255,6 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
               </div>
             </div>
 
-
             {/* Feature 2: Chicanas */}
             <div className="p-4 rounded-xl bg-black/35 border border-white/5 hover:border-white/10 transition-colors flex items-start gap-3">
               <div className="w-8 h-8 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center shrink-0">
@@ -277,7 +276,7 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
               <div>
                 <h4 className="text-xs font-black text-white uppercase tracking-wider mb-1">Tabla de Posiciones al Instante</h4>
                 <p className="text-[11px] text-slate-400 font-semibold leading-relaxed">
-                  Seguí el ranking interactivo de los miembros de tu liga en tiempo real. ¡El Oraculo calcula puntos y posiciones de La Liga al final de cada Partido !
+                  Seguí el ranking interactivo de los parcipantes en tiempo real. ¡El Oraculo calcula puntos y posiciones de La Liga al final de cada Partido !
                 </p>
               </div>
             </div>
@@ -341,7 +340,7 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
                   disabled={isLoading}
                   className="w-full flex items-center justify-center gap-2 text-white/30 hover:text-white/60 text-[10px] font-bold uppercase tracking-widest transition-colors py-2"
                 >
-                  <X className="w-3.5 h-3.5" /> Volver a Inicio
+                  <X className="w-3.5 h-3.5" /> Conocer la App (mirá el Demo!)
                 </button>
               </div>
             </div>
@@ -356,7 +355,7 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
               
               <div className="text-center">
                 <p className="text-slate-300 text-[10px] uppercase tracking-widest font-black mb-1.5 flex items-center justify-center gap-1">
-                  ⚔️ Unirme al Coliseo
+                  ⚔️ Unirme a La Liga
                 </p>
                 <h3 className="text-xl font-black text-white tracking-tighter uppercase">
                   Creá tu Cuenta
@@ -460,7 +459,7 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
 
             {/* Ya tengo cuenta */}
             <div className="bg-black/60 px-6 sm:px-8 py-4 flex justify-between items-center text-[11px] font-semibold border-t border-white/10">
-              <span className="text-slate-300">¿Ya eras de la banda?</span>
+              <span className="text-slate-300">¿Ya estás en la App?</span>
               <a
                 href={`/?redirect=/join/${code}`}
                 className="text-primary hover:text-white transition-colors uppercase font-black tracking-widest text-[10px] underline flex items-center gap-0.5"

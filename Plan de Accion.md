@@ -75,15 +75,25 @@
   - [ ] **Simulación Concurrente de Pagos**: Activar el Switch a $20 ARS en el HQ y lanzar una convocatoria privada con 15-20 beta-testers reales. Evaluar velocidad del Webhook, creación automática de ligas y despliegue del historial en el Censo Global en vivo.
   - [ ] **Stress Test de Tabla de Posiciones**: Forzar la inyección masiva de resultados (a través de "Sync Agent" en el HQ) con 50+ usuarios conectados de forma concurrente en `/dashboard` para verificar cálculo y ordenamiento de grupos.
   - [ ] **Control de Colisión SSR Lock**: Evaluar que no existan bloqueos de sesión en Supabase (validando las lecciones del incidente del candado SSR Lock Collision) durante el guardado intensivo de predicciones en listas de partidos activos.
-  - [ ] **Despliegue Masivo Push**: Lanzar alertas- [x] **Hito 11: Cartel de Bienvenida a Founders & Sorteo Camiseta** 🇦🇷 *(Verificado y Pulido)*
+  - [ ] **Despliegue Masivo Push**: Lanzar alertas.
+- [x] **Hito 11: Cartel de Bienvenida a Founders & Sorteo Camiseta** 🇦🇷 *(Verificado y Pulido)*
   - [x] Cálculo dinámico de número de liga global y verificación de metadatos en `layout.tsx`.
-  - [x] Creación de componente `WelcomeSorteoModal.tsx` con estética Bento Glassmorphic y botón dorado.
+  - [x] Creación de componente `WelcomeSorteoModal.tsx` with estética Bento Glassmorphic y botón dorado.
   - [x] Integración y persistencia en Supabase Auth.
   - [x] Exclusión corporativa en caliente (Raffle Exclusion) en el onboarding e inmunidad en sorteo del HQ (`runRaffleAction`).
   - [x] Marca de agua colosal en backdrop con logo difuminado y opacidad ultra-sutil para profundidad 3D.
+- [x] **Hito 12: Co-Branding & Cromática de Marcas Blancas (Hy Brokers)** 🏢💎
+  - [x] **Corrección del Logotipo**: Corrección del asset del logo de Hy Brokers a `/assets/brands/hy-logo.png` en `brand-themes.json`.
+  - [x] **Rediseño Cromático**: Sustitución del fondo blanco plano roto por un degradado elegante de azul noche a negro corporativo.
+  - [x] **Optimización de Interfaz (Desktop & Mobile)**: Unificación del título de ligas a "Acciones", eliminación de nombres duplicados de liga en celulares, y select premium con mayor padding.
+  - [x] **Volumen y Escala de Marca Responsiva**: Transición de contenedor cuadrado a maquetación elástica rectangular (`w-28 h-10` en móvil, `w-36 h-10` en Desktop) con filtro solar `brightness-115` y `drop-shadow` de color de acento de marca con opacidad del 80%, dotándole de un volumen colosal.
+  - [x] **Invitaciones Inteligentes en Redes (WhatsApp OG Link)**: Integración de metadatos dinámicos asíncronos (`generateMetadata`) en `/join/[code]` para que WhatsApp renderice una hermosa preview con título, descripción explicativa de la liga y logo dorado oficial, eliminando el "limbo informativo" de compartir enlaces.
+  - [x] **Instrucciones UX de Invitación**: Redacción instruccional interactiva en el alert/prompt de unión de liga, guiando al usuario a copiar y pegar su código.
+  - [x] **Accesibilidad Outdoor**: Contraste elevado y peso tipográfico intenso en la pantalla de Eliminatorias, y descompresión de celdas a w-16 en Standings (Duelos y Puntos).
+  - [x] **Robustecimiento Multimarca**: Incorporación del tema completo de Accenture en la configuración estática.
 
 ## Current Trajectory
-**Status**: Funcionalidad del Hito 11 **VERIFIED & POLISHED** localmente. Se completó el Cartel de Bienvenida obligatorio, resolviendo la exclusión automática de patrocinadores (marcas en `corporate_relations`) para evitar conflictos de interés en el sorteo, y se integró un diseño inmersivo espectacular con el logo oficial difuminado a escala gigante en el fondo para profundidad espacial. Compilación probada con TypeScript limpia y sin fallos.
+**Status**: Funcionalidad de Co-Branding, Metadatos OG de WhatsApp para invitaciones personalizadas y volumen del logo elástico del Hito 12 **VERIFIED & POLISHED** localmente. Se inyectó maquetación rectangular elástica con resplandor en color de acento para la marca corporativa, se implementó `generateMetadata` dinámico para previews perfectas en chats de mensajería (WhatsApp), y se optimizaron las alineaciones de standings y eliminatorias. Compilación limpia y estable.
 
 **Próximos Pasos:**
 1. Presentar las pruebas manuales y los detalles visuales de la integración al usuario.
@@ -104,4 +114,5 @@
 | Builder | Peer-to-Peer Duelos Motor & UI | ✅ VERIFIED & POLISHED |
 | Design Lead | Chat de Liga Realtime Panel | ✅ VERIFIED & POLISHED |
 | Design & Infra | Hito 11: Cartel de Bienvenida & Exclusión de Marcas | ✅ VERIFIED & POLISHED |
-
+| Design Lead | Hito 12: Co-Branding Cromática & Logotipo Hy Brokers | ✅ VERIFIED & POLISHED |
+| Builder | Hito 12: Robustecimiento Multimarca (Accenture Theme) | ✅ VERIFIED & POLISHED |

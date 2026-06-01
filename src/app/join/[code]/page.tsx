@@ -8,6 +8,55 @@ type Props = {
   params: Promise<{ code: string }>;
 };
 
+export async function generateMetadata({ params }: Props) {
+  try {
+    const { code } = await params;
+    const leagueResult = await getLeagueByInvite(code);
+
+    if (!leagueResult || "error" in leagueResult) {
+      return {
+        title: "Invitación de Liga - MundiApp26 🏆",
+        description: "Unite a las ligas de MundiApp26 y competí amigos en este Mundial.",
+      };
+    }
+
+    const title = `¡Te invitaron a la Liga "${leagueResult.name}"! 🏆`;
+    const description = `Unite a la Liga creada por ${leagueResult.captainAlias} en MundiApp26. Pronosticá los partidos y desafiá a tus amigos en los Duelos. ¡Aceptá el desafío!`;
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        url: `https://mundiapp26.com/join/${code}`,
+        siteName: "MundiApp26",
+        images: [
+          {
+            url: "https://mundiapp26.com/assets/logo_oficial.png",
+            width: 512,
+            height: 512,
+            alt: "MundiApp26 Logo",
+          },
+        ],
+        locale: "es_AR",
+        type: "website",
+      },
+      twitter: {
+        card: "summary",
+        title,
+        description,
+        images: ["https://mundiapp26.com/assets/logo_oficial.png"],
+      }
+    };
+  } catch (err) {
+    return {
+      title: "Invitación de Liga - MundiApp26 🏆",
+      description: "Unite a las ligas de MundiApp26 y competí con tus amigos en la Copa del Mundo.",
+    };
+  }
+}
+
 export default async function JoinPage({ params }: Props) {
   const { code } = await params;
 
@@ -102,7 +151,7 @@ export default async function JoinPage({ params }: Props) {
             Bienvenido a MundiApp26! <strong className="text-primary font-black">La App para el Mundial!</strong>.
           </p>
           <p className="text-white/60 text-xs sm:text-sm font-semibold leading-relaxed mt-3 max-w-xl">
-            Para jugar: Te registras, te llevamos al Pago Seguro de Mercado Pago, abonas tu suscripción de <strong className="text-primary font-black">$5.000 ARS </strong> y directo a la App !!
+            Para jugar: Te registras, te llevamos al Pago Seguro de Mercado Pago, pagas tu suscripción de <strong className="text-primary font-black">$5.000 ARS </strong> y directo a la App !!
           </p>
         </header>
 

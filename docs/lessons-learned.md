@@ -459,3 +459,62 @@ La Server Action `getLeagueByInvite` consultaba la base de datos de Supabase usa
    - Bloque 2: Características clave del juego (Oráculo, Chats privados y rankings en vivo).
    - Bloque 3: Sorteo de la camiseta de Argentina utilizando el asset `/assets/camiseta.png`.
    - Bloque 4: Formulario de registro rápido/login adaptativo con inputs glassmorphic de alto contraste e iconos de apoyo para legibilidad exterior.
+
+## 2026-06-01: Incidencia de Co-Branding en Marca Blanca (Hy Brokers) e Imagen Rota 404 (LL-14)
+
+### Síntoma
+Al ingresar con el usuario de pruebas asignado al convenio corporativo de **Hy Brokers (Honesty Brokers)**, el logotipo de la marca no se visualizaba en ninguna de las pantallas (Dashboard banner, Header móvil ni barra lateral), mostrando una imagen rota o ausente. Además, el fondo de la barra lateral (Sidebar) se renderizaba de color blanco plano, rompiendo la estética general de *Estadio Nocturno Premium* y eliminando el contraste del menú lateral.
+
+### Diagnóstico
+1. **Ruta Incorrecta de Asset (Causa Raíz)**: En `brand-themes.json`, el tema de `"honesty"` declaraba la propiedad `"logo": "/assets/brands/honesty-bg.png"`. Sin embargo, el archivo real cargado en el disco era `hy-logo.png` (dentro de `/public/assets/brands/`). Al no existir el archivo `honesty-bg.png`, el navegador lanzaba un error HTTP 404, provocando que los componentes que usaban `brandTheme.logo` no mostraran el logotipo.
+2. **Incompatibilidad Estética de SidebarBg**: En el mismo JSON de configuración de marca, el valor de `"sidebarBg"` intentaba inyectar una imagen inexistente y forzaba un fondo blanco plano (`bg-white`). Esto no solo arruinaba la experiencia inmersiva oscura de MundiApp26, sino que al renderizar textos claros en el sidebar, estos se volvían invisibles por la falta de contraste.
+
+### Resolución (The House Way)
+1. **Corrección Quirúrgica de Rutas**: Modificamos el diccionario de temas estático en `src/data/brand-themes.json` para que la propiedad `"logo"` apunte estrictamente a `"/assets/brands/hy-logo.png"`.
+2. **Rediseño Cromático de Barra Lateral (Sidebar)**: Reemplazamos la regla blanca plana rota por un degradado profundo y sofisticado de azul noche corporativo a negro (`bg-gradient-to-b from-[#060b16] via-[#0d1527] to-[#03050a] border-r border-[#3A80F5]/10`), logrando una armonía perfecta con el color de acento azul (`#3A80F5`) e integrándolo de forma estelar al concepto visual *Estadio Nocturno Premium*.
+3. **Robustecimiento de Marcas**: Se incorporó adicionalmente el tema completo de `"accenture"` en `brand-themes.json` para evitar fallos lógicos en el HQ administrativo si se asocian usuarios a esta marca patrocinadora.
+
+## 2026-06-01: Maquetación Responsiva Elástica para Logotipos Corporativos (LL-15)
+
+### Síntoma
+A pesar de inyectar las variables correctas y darles mayor escala al contenedor en píxeles (`w-11 h-11`), el logotipo horizontal de Hy Brokers (`hy-logo.png`) se renderizaba extremadamente pequeño, angosto y sin volumen predominante en celulares y escritorio.
+
+### Diagnóstico
+La maquetación inicial confinaba la imagen a un contenedor estrictamente **cuadrado** (`w-11 h-11`). Dado que el logo real es de relación de aspecto **horizontal**, la propiedad CSS `object-contain` forzaba a la imagen a reducir proporcionalmente su tamaño vertical para caber en el ancho de 44px, resultando en un render diminuto e ilegible.
+
+### Resolución (The House Way)
+1. **Transición a Formato Rectangular Elástico**: Se descartó la maquetación cuadrada para logotipos corporativos activos. En celulares, se implementó un contenedor flexible rectangular de `w-28 h-10` y en Desktop de `w-36 h-10` con `object-contain object-left`. Esto permite que la imagen aproveche de forma sublime todo el ancho horizontal, ganando una visibilidad y tamaño imponentes.
+2. **Volumen Lumínico Solar (Quiet UI Boost)**: Para repeler el reflejo solar exterior y darle realce 3D, inyectamos un filtro `brightness-115` y un marcado `drop-shadow` en el color de acento de marca con opacidad del 80% (`drop-shadow(0 0 12px accentColor)`). Esto crea un resplandor en degradado brillante alrededor de la marca que le dota de un volumen tridimensional sensacional.
+
+## 2026-06-01: Metadatos Open Graph (OG) Dinámicos para Previews de WhatsApp (LL-16)
+
+### Síntoma
+Al compartir por WhatsApp un enlace de invitación a una liga (`/join/[code]`), la tarjeta preview generada por la mensajería carecía de contexto, mostrando el título estático global `"MundiApp26 | Dashboard..."` y sin indicar de qué se trataba la invitación ni cómo proceder.
+
+### Diagnóstico
+Al no definir metadatos `<meta>` de cabecera específicos a nivel de página dinámica, la plataforma de mensajería (WhatsApp scraper) recurría a los metadatos heredados del layout maestro global. Al ser una invitación de liga personal, se requiere inyectar metadatos Open Graph (OG) dinámicos que informen en vivo el nombre de la liga del capitán.
+
+### Resolución (The House Way)
+1. **Metadata Dinámica Asíncrona (`generateMetadata`)**: Implementamos la exportación de `generateMetadata` de Next.js en `src/app/join/[code]/page.tsx`. Esta función asíncrona lee en caliente la liga y el capitán a partir del código de invitación en base de datos.
+2. **Personalización del Scraping**: Retorna metadatos de Open Graph personalizados en tiempo de ejecución:
+   - `og:title`: `"¡Te invitaron a la Liga \"[Nombre de Liga]\"! 🏆"`
+   - `og:description`: `"Unite a la arena de [Capitán] en MundiApp26. Pronosticá partidos, desafiá a tus amigos en el Coliseo de Duelos y demostrá tu nivel. ¡Aceptá el desafío!"`
+   - `og:image`: `"https://mundiapp26.com/assets/logo_oficial.png"`
+Esto garantiza que la previsualización en WhatsApp y redes sociales sea interactiva, descriptiva e instruccional, aumentando exponencialmente la conversión viral de la aplicación.
+
+## 2026-06-01: Ajuste Estético del Header en Sidebar Desktop/Mobile (LL-17)
+
+### Síntoma
+En el Sidebar de escritorio, al ingresar con marcas corporativas, el logotipo rectangular/vertical de Hy Brokers se veía extremadamente enano ("aplastado") debido a las restricciones de altura. Además, en el sidebar estándar de MundiApp26 (cuando no hay co-branding), la cabecera del primer bloque quedaba vacía con la copa Trophy sola y sin el nombre de la aplicación al lado.
+
+### Diagnóstico
+1. **Conflicto de Escala de Isotipo**: Al forzar la clase `h-12` (48px) en el contenedor expandido de marca blanca, el logotipo de Hy Brokers (`hy-logo.png` / `hy-logo-vert.png`), que posee una relación de aspecto vertical por albergar la palabra "Seguros" abajo, se veía obligado por `object-contain` a encogerse horizontalmente para caber en la altura disponible, reduciendo su visibilidad al mínimo.
+2. **Ausencia de Identidad Estándar**: En el rediseño a dos bloques, se movió el nombre de la liga activa al segundo bloque del selector de "Acciones". Esto ocasionó que si el usuario jugaba en el tema por defecto (MundiApp26), el primer bloque superior mostrara únicamente la copa sin el nombre de la app al lado, dejando la cabecera despoblada.
+
+### Resolución (The House Way)
+1. **Centrado y Rediseño Elástico de Logotipos**:
+   - **En Desktop**: Modificamos el contenedor del logotipo expandido en `Sidebar.tsx` de `h-20` a `h-24` (96px) y lo configuramos con `justify-center` y `object-center`. Removemos `overflow-hidden` del contenedor para que la sombra no se corte a la derecha, permitiendo que la imagen del escudo de Hy Brokers (que tiene un fondo blanco asimétrico en el asset original) se dibuje de forma majestuosa en el centro exacto de la barra lateral sin cortes planos y ocupando de manera uniforme todo el ancho visual.
+   - **En Móvil**: Diseñamos una caja cuadrada simétrica de `w-16 h-16` para el logotipo corporativo (`justify-center` y `object-center`), eliminando el contenedor rectangular que forzaba el alineado a la izquierda. La imagen de marca blanca se renderiza al 100% de su relación de aspecto 1:1 original, sin verse cortada ni incompleta en el celular.
+2. **Presencia Visual del Tag 'Acciones'**: Reemplazamos el color gris claro deslucido (`text-white/50`) de la palabra "Acciones" por el color de acento corporativo de la marca en vivo (`brandTheme.accentColor`), y elevamos su peso a `font-black text-[10px]` con un tracking de `tracking-[0.2em]`. Esto dota a la categoría del selector de una jerarquía distinguida y con gran carácter visual.
+3. **Restauración del Título Estándar en Primer Bloque**: En el tema por defecto de MundiApp26, restablecimos el renderizado del Trophy animado al lado del texto `"MundiApp26"` en tamaño `text-xl font-black text-white`.
+4. **Control Sintáctico Absoluto**: Verificamos minuciosamente el balance de etiquetas JSX y corrimos `npx tsc --noEmit` de forma satisfactoria para asegurar cero regresiones sintácticas en el proyecto.

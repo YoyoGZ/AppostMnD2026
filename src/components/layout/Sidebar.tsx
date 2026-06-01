@@ -116,28 +116,49 @@ export function Sidebar({
         </div>
       )}
 
-      {/* Mobile Top Header (Muestra la Liga + Selector) */}
+      {/* Mobile Top Header (Muestra la Liga + Selector de Acciones) */}
       <header className="md:hidden fixed top-0 left-0 w-full bg-black/60 backdrop-blur-xl border-b border-white/5 z-50 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4 w-full">
           {brandTheme?.logo ? (
-            <img src={brandTheme.logo} alt={brandTheme.name} className="w-5 h-5 object-contain" />
+            <div 
+              className="shrink-0 w-16 h-16 flex items-center justify-center bg-transparent transition-all duration-300 relative rounded-xl"
+              style={{
+                filter: brandTheme.accentColor ? `drop-shadow(0 0 12px ${brandTheme.accentColor}70)` : 'none'
+              }}
+            >
+              <img 
+                src={brandTheme.logo} 
+                alt={brandTheme.name} 
+                className="object-contain object-center max-w-full max-h-full filter brightness-115 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]" 
+              />
+            </div>
           ) : (
-            <Trophy className="w-5 h-5" style={{ color: brandTheme?.accentColor || '#fbbf24' }} />
+            <div className="flex items-center gap-2">
+              <div className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-primary/10 border border-primary/20 shadow-[0_0_10px_rgba(251,191,36,0.15)] animate-pulse">
+                <Trophy className="w-5 h-5 text-primary" />
+              </div>
+              <span className="text-sm font-black text-white tracking-tight">
+                MundiApp26
+              </span>
+            </div>
           )}
-          <div className="flex flex-col">
-            <span className="text-[9px] font-black uppercase tracking-widest text-white/40">Tu Liga</span>
-            <div className="flex items-center gap-1">
-              <span className="text-sm font-bold text-white leading-tight">{activeLeague?.name || "MundiApp26"}</span>
+          
+          <div className="flex flex-col gap-1 pl-1">
+            <span className="text-[9px] font-black uppercase tracking-widest text-white/40">Acciones</span>
+            <div className="flex items-center">
               {allLeagues.length >= 1 && (
                 <select 
-                  className="bg-transparent text-primary text-[10px] font-bold uppercase focus:outline-none"
-                  style={{ color: brandTheme?.accentColor || '#fbbf24' }}
+                  className="bg-black/45 border border-white/10 rounded-xl px-3 py-1.5 text-[11px] font-black uppercase tracking-wider focus:outline-none transition-all cursor-pointer"
+                  style={{ 
+                    color: brandTheme?.accentColor || '#facc15',
+                    borderColor: brandTheme?.accentColor ? `${brandTheme.accentColor}30` : 'rgba(250,204,21,0.2)'
+                  }}
                   onChange={async (e) => {
                     const val = e.target.value;
                     if (val === "__create__") {
                       router.push("/paywall");
                     } else if (val === "__join__") {
-                      const code = prompt("Ingresá el Código de Invitación de la Liga a la que querés unirte:");
+                      const code = prompt("¡Te invitaron a una Liga! Copiá y pegá acá el Código de Invitación de 6 caracteres que te compartieron (ej: BSLJ4Z):");
                       if (code && code.trim()) {
                         const { joinLeagueAction } = await import("@/app/actions/leagues");
                         const res = await joinLeagueAction(code.trim());
@@ -250,71 +271,111 @@ export function Sidebar({
         </button>
 
         <div className={cn(
-          "flex flex-col border-b border-border/20 px-6 py-4 transition-all relative",
-          isCollapsed && "px-4 items-center"
+          "flex flex-col border-b border-border/20 transition-all relative",
+          isCollapsed ? "px-4 py-4 items-center gap-2" : "px-6 py-5 gap-5"
         )}>
-          <div className="flex items-center w-full">
+          {/* Fila del Logotipo (Arriba) */}
+          <div className={cn("flex w-full", isCollapsed ? "justify-center" : "justify-center")}>
             {brandTheme?.logo ? (
-              <div className="shrink-0 w-10 h-10 p-1 flex items-center justify-center bg-white/5 border border-white/10 rounded-xl overflow-hidden">
-                <img src={brandTheme.logo} alt={brandTheme.name} className="object-contain max-w-full max-h-full" />
-              </div>
-            ) : (
-              <div className="bg-primary/10 p-2 rounded-xl shrink-0">
-                <Trophy className="w-7 h-7 text-primary" />
-              </div>
-            )}
-            {!isCollapsed && (
-              <div className="flex flex-col ml-3 overflow-hidden flex-1">
-                <span className="text-[9px] font-black uppercase tracking-widest text-white/50" style={brandTheme?.accentText ? undefined : { color: brandTheme?.accentColor || '#fbbf24' }}>
-                  {brandTheme?.name ? `Liga ${brandTheme.name}` : "Tu Liga"}
-                </span>
+              isCollapsed ? (
+                /* Logo Colapsado (Formato Cuadrado con Brillo) */
                 <div 
-                  className={cn(
-                    "flex items-center justify-between gap-2 cursor-pointer w-full mt-2 px-3 py-2 rounded-xl transition-all duration-300 border bg-white/[0.02] shadow-inner",
-                    showSelector 
-                      ? "border-primary/40 bg-primary/5 shadow-[0_0_15px_rgba(250,204,21,0.05)]" 
-                      : "border-white/5 hover:border-white/20 hover:bg-white/[0.06]"
-                  )}
-                  style={showSelector && brandTheme?.accentColor ? { borderColor: `${brandTheme.accentColor}40`, backgroundColor: `${brandTheme.accentColor}08` } : undefined}
-                  onClick={() => setShowSelector(!showSelector)}
+                  className="shrink-0 w-11 h-11 p-1.5 flex items-center justify-center bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.4)] transition-all duration-300"
+                  style={{ 
+                    borderColor: brandTheme.accentColor ? `${brandTheme.accentColor}30` : 'rgba(255,255,255,0.1)',
+                    boxShadow: brandTheme.accentColor ? `0 0 15px ${brandTheme.accentColor}20` : undefined,
+                    filter: brandTheme.accentColor ? `drop-shadow(0 0 6px ${brandTheme.accentColor}60)` : 'none'
+                  }}
                 >
-                  <h1 className="text-sm font-black tracking-tight text-white truncate flex-1">
-                    {activeLeague?.name || "MundiApp26"}
-                  </h1>
-                  <ChevronDown 
-                    className={cn(
-                      "w-4 h-4 transition-all duration-500 ease-out text-primary shrink-0", 
-                      showSelector ? "rotate-180 text-white" : "animate-pulse"
-                    )} 
-                    style={!showSelector ? { 
-                      color: brandTheme?.accentColor || '#facc15',
-                      filter: `drop-shadow(0 0 5px ${brandTheme?.accentColor || '#facc15'}80)` 
-                    } : undefined}
+                  <img src={brandTheme.logo} alt={brandTheme.name} className="object-contain max-w-full max-h-full filter brightness-110" />
+                </div>
+              ) : (
+                /* Logo Expandido Centrado (Banner Corporativo Premium con volumen) */
+                <div 
+                  className="w-full h-24 flex items-center justify-center bg-transparent transition-all duration-300 relative rounded-xl"
+                  style={{
+                    filter: brandTheme.accentColor ? `drop-shadow(0 0 16px ${brandTheme.accentColor}75)` : 'none'
+                  }}
+                >
+                  <img 
+                    src={brandTheme.logo} 
+                    alt={brandTheme.name} 
+                    className="object-contain object-center max-w-full max-h-full filter brightness-115 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]" 
                   />
                 </div>
-              </div>
+              )
+            ) : (
+              /* Logo por Defecto */
+              isCollapsed ? (
+                <div className="bg-primary/10 p-2 rounded-xl shrink-0 border border-primary/15 shadow-[0_0_12px_rgba(251,191,36,0.1)] animate-pulse">
+                  <Trophy className="w-6 h-6 text-primary" />
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 w-full animate-in fade-in duration-300">
+                  <div className="bg-primary/10 p-2.5 rounded-xl shrink-0 border border-primary/20 shadow-[0_0_15px_rgba(251,191,36,0.15)] animate-pulse">
+                    <Trophy className="w-6 h-6 text-primary" />
+                  </div>
+                  <span className="text-xl font-black tracking-tight text-white leading-none">
+                    MundiApp26
+                  </span>
+                </div>
+              )
             )}
           </div>
 
-          {/* Selector de Ligas (Desktop Dropdown) */}
-          {!isCollapsed && showSelector && (
-            <div className="absolute top-full left-0 w-full px-4 py-2 z-50">
-              <div className="bg-black/90 backdrop-blur-3xl border border-white/10 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
-                {allLeagues.length > 0 && allLeagues.map((league) => (
-                  <button
-                    key={league.id}
-                    onClick={() => handleSwitchLeague(league.id)}
-                    disabled={isChangingLeague}
-                    className={cn(
-                      "w-full px-4 py-3 text-left text-xs font-bold transition-all hover:bg-primary/10 flex items-center justify-between border-b border-white/[0.05]",
-                      league.id === activeLeague?.id ? "text-primary" : "text-white/60 hover:text-white"
-                    )}
-                    style={league.id === activeLeague?.id && brandTheme?.accentColor ? { color: brandTheme.accentColor } : undefined}
-                  >
-                    <span className="truncate">{league.name}</span>
-                    {league.isCaptain && <Crown className="w-3 h-3 text-yellow-500" />}
-                  </button>
-                ))}
+          {/* Fila de Acciones y Nombre de la Liga (Abajo - Solo si no está colapsado) */}
+          {!isCollapsed && (
+            <div className="flex flex-col w-full overflow-hidden animate-in fade-in duration-300">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5 transition-all" style={{ color: brandTheme?.accentColor || '#fbbf24' }}>
+                Acciones
+              </span>
+              <div 
+                className={cn(
+                  "flex items-center justify-between gap-2 cursor-pointer w-full mt-2 px-3 py-2.5 rounded-xl transition-all duration-300 border bg-white/[0.02] shadow-inner",
+                  showSelector 
+                    ? "border-primary/40 bg-primary/5 shadow-[0_0_15px_rgba(250,204,21,0.05)]" 
+                    : "border-white/5 hover:border-white/20 hover:bg-white/[0.06]"
+                )}
+                style={showSelector && brandTheme?.accentColor ? { borderColor: `${brandTheme.accentColor}40`, backgroundColor: `${brandTheme.accentColor}08` } : undefined}
+                onClick={() => setShowSelector(!showSelector)}
+              >
+                <h1 className="text-sm font-black tracking-tight text-white truncate flex-1 leading-tight">
+                  {activeLeague?.name || "MundiApp26"}
+                </h1>
+                <ChevronDown 
+                  className={cn(
+                    "w-4 h-4 transition-all duration-500 ease-out text-primary shrink-0", 
+                    showSelector ? "rotate-180 text-white" : "animate-pulse"
+                  )} 
+                  style={!showSelector ? { 
+                    color: brandTheme?.accentColor || '#facc15',
+                    filter: `drop-shadow(0 0 5px ${brandTheme?.accentColor || '#facc15'}80)` 
+                  } : undefined}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Selector de Ligas (Desktop Dropdown) */}
+        {!isCollapsed && showSelector && (
+          <div className="absolute top-[165px] left-0 w-full px-4 py-2 z-50">
+            <div className="bg-black/95 backdrop-blur-3xl border border-white/10 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
+              {allLeagues.length > 0 && allLeagues.map((league) => (
+                <button
+                  key={league.id}
+                  onClick={() => handleSwitchLeague(league.id)}
+                  disabled={isChangingLeague}
+                  className={cn(
+                    "w-full px-4 py-3 text-left text-xs font-bold transition-all hover:bg-primary/10 flex items-center justify-between border-b border-white/[0.05]",
+                    league.id === activeLeague?.id ? "text-primary" : "text-white/60 hover:text-white"
+                  )}
+                  style={league.id === activeLeague?.id && brandTheme?.accentColor ? { color: brandTheme.accentColor } : undefined}
+                >
+                  <span className="truncate">{league.name}</span>
+                  {league.isCaptain && <Crown className="w-3 h-3 text-yellow-500" />}
+                </button>
+              ))}
                 
                 {/* Acciones de Liga Bento */}
                 <div className="p-1.5 bg-white/[0.02] flex flex-col gap-1">
@@ -349,7 +410,6 @@ export function Sidebar({
               </div>
             </div>
           )}
-        </div>
         
         <nav className="flex-1 px-3 py-8 space-y-2">
           {navItems.map((item) => {

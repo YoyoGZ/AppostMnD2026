@@ -13,12 +13,26 @@
       "accentBg": "bg-[#8feb16]/10 border-[#8feb16]/20"
     }
   },
+  "accenture": {
+    "name": "Accenture",
+    "logo": "/assets/brands/accenture-logo.png",
+    "accentColor": "#a100ff",
+    "sidebarBg": "bg-gradient-to-b from-[#111111] via-[#211432] to-[#0a0a0a] border-r border-[#a100ff]/10",
+    "sidebarText": "text-[#a100ff]",
+    "accentText": "text-[#a100ff]",
+    "accentBorder": "border-[#a100ff]/30",
+    "dashboardBanner": {
+      "title": "Arena Accenture 2026 🟣",
+      "description": "El fixture exclusivo donde la estrategia, el análisis predictivo y el fútbol se cruzan para coronar al gladiador tecnológico.",
+      "accentBg": "bg-[#a100ff]/10 border-[#a100ff]/20"
+    }
+  },
 
     "honesty": {
     "name": "Honesty Brokers",
-    "logo": "/assets/brands/honesty-bg.png",
+    "logo": "/assets/brands/hy-logo.png",
     "accentColor": "#3A80F5",
-    "sidebarBg": "bg-[url('/assets/brands/honesty-bg.png')] bg-cover bg-center bg-white",
+    "sidebarBg": "bg-gradient-to-b from-[#060b16] via-[#0d1527] to-[#03050a] border-r border-[#3A80F5]/10",
     "sidebarText": "text-[#3A80F5]",
     "accentText": "text-[#3A80F5]",
     "accentBorder": "border-[#3A80F5]/30",

@@ -179,13 +179,13 @@ export default function StandingsClient({
 
       <section className="max-w-4xl mx-auto px-2 md:px-0 relative z-10">
         {/* Cabecera de Columnas Técnica */}
-        <div className="flex items-center px-3 md:px-6 mb-4 text-[11px] md:text-xs font-black uppercase tracking-[0.2em] text-white/60 border-b border-white/10 pb-3">
-          <div className="w-6 md:w-12 text-center">#</div>
-          <div className="flex-1 pl-1 md:pl-4">Gladiador</div>
-          <div className="w-14 md:w-20 text-center">Duelos</div>
-          <div className="w-20 md:w-24 hidden sm:block text-center">Racha</div>
-          <div className="w-24 md:w-28 hidden md:block text-center">Stats</div>
-          <div className="w-12 md:w-20 text-right pr-2 md:pr-0">Puntos</div>
+        <div className="flex items-center px-3 md:px-6 mb-4 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-white border-b border-white/10 pb-3">
+          <div className="w-6 md:w-12 text-center text-white/40">#</div>
+          <div className="flex-1 pl-1 md:pl-4 text-white/50">Gladiador</div>
+          <div className="w-16 md:w-20 text-center text-yellow-500/90 font-black tracking-wider">Duelos</div>
+          <div className="w-20 md:w-24 hidden sm:block text-center text-white/40">Racha</div>
+          <div className="w-24 md:w-28 hidden md:block text-center text-white/40">Stats</div>
+          <div className="w-16 md:w-20 text-right pr-2 md:pr-0 text-yellow-500/90 font-black tracking-wider">Puntos</div>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -209,7 +209,7 @@ export default function StandingsClient({
                 </div>
 
                 {/* Duelos Ganados */}
-                <div className="w-14 md:w-20 flex flex-col items-center justify-center shrink-0">
+                <div className="w-16 md:w-20 flex flex-col items-center justify-center shrink-0">
                   <div className="flex items-center gap-1 bg-yellow-500/10 px-2 py-1 rounded-md border border-yellow-500/20">
                     <span className="text-[11px] font-black text-yellow-500">{user.duelosGanados}</span>
                     <Swords className="w-3 h-3 text-yellow-500" />
@@ -231,7 +231,7 @@ export default function StandingsClient({
                 </div>
 
                 {/* Puntos - Ajustado para móvil */}
-                <div className="w-12 md:w-20 flex justify-end shrink-0 pl-2 md:pl-4 border-l border-white/5 md:border-none">
+                <div className="w-16 md:w-20 flex justify-end shrink-0 pl-2 md:pl-4 border-l border-white/5 md:border-none">
                   <span className={`text-lg md:text-2xl font-black ${index === 0 ? "text-yellow-400" : "text-white"}`}>
                     {user.pts}
                   </span>
