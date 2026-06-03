@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "MundiApp26 | La App para el Mundial 🏆",
-    description: "Creá tu propia liga, competí con tus amigos pronosticando los resultados de la Copa del Mundo 2026, desafiá a otros en el Coliseo de Duelos y chateá en tiempo real. ¡Viví el mundial a otro nivel!",
+    description: "Creá tu propia liga, competí con tus amigos pronosticando los resultados del Mundial de Norteamérica, desafiá a otros en los Duelos y chateá en tiempo real. ¡Viví este Mundial a otro nivel!",
     url: "https://mundiapp26.com/",
     siteName: "MundiApp26",
     images: [
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "MundiApp26 | La App para el Mundial 🏆",
-    description: "Creá tu propia liga, competí con tus amigos pronosticando la Copa del Mundo, desafiá a otros en el Coliseo de Duelos y chateá en tiempo real.",
+    description: "Creá tu propia liga, competí con tus amigos pronosticando los resultados del Mundial de Norteamérica, desafiá a otros en los Duelos y chateá en tiempo real.",
     images: ["https://mundiapp26.com/assets/logo_oficial.png"],
   }
 };
