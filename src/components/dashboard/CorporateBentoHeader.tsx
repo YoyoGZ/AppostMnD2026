@@ -66,7 +66,7 @@ export function CorporateBentoHeader({ brandTheme }: CorporateBentoHeaderProps) 
       
       <div className="flex items-center gap-4 w-full md:w-auto">
         {brandTheme.logo ? (
-          <div className="shrink-0 w-12 h-12 p-1.5 flex items-center justify-center bg-white/5 border border-white/10 rounded-xl overflow-hidden shadow-lg">
+          <div className="shrink-0 w-28 h-10 p-1 flex items-center justify-center bg-white/5 border border-white/10 rounded-xl overflow-hidden shadow-lg">
             <img src={brandTheme.logo} alt={brandTheme.name} className="object-contain max-w-full max-h-full" />
           </div>
         ) : (

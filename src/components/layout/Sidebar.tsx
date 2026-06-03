@@ -121,7 +121,7 @@ export function Sidebar({
         <div className="flex items-center gap-4 w-full">
           {brandTheme?.logo ? (
             <div 
-              className="shrink-0 w-16 h-16 flex items-center justify-center bg-transparent transition-all duration-300 relative rounded-xl"
+              className="shrink-0 w-28 h-10 flex items-center justify-center bg-transparent transition-all duration-300 relative rounded-xl"
               style={{
                 filter: brandTheme.accentColor ? `drop-shadow(0 0 12px ${brandTheme.accentColor}70)` : 'none'
               }}

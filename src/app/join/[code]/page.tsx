@@ -83,7 +83,7 @@ export default async function JoinPage({ params }: Props) {
           </h2>
 
           <p className="text-slate-300 text-xs sm:text-sm mb-6 leading-relaxed font-semibold">
-            El enlace de invitación que ingresaste es inválido, ha expirado o pertenece a una arena inexistente en MundiApp26.
+            El enlace de invitación que ingresaste es inválido, ha expirado o pertenece a una Liga  inexistente en MundiApp26.
           </p>
 
           <div className="bg-red-500/5 border border-red-500/10 rounded-xl p-4 mb-6 text-left">
@@ -144,15 +144,14 @@ export default async function JoinPage({ params }: Props) {
           </div>
           
           <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-white uppercase drop-shadow-[0_2px_15px_rgba(251,191,36,0.15)] leading-tight max-w-2xl">
-            ¡Te invitaron a unirte a la Liga de tu amigo/a:  <span className="text-primary">"{leagueResult.captainAlias}"</span> !
+            ¡Te invitaron a unirte a la Liga:  <span className="text-primary">"{leagueResult.captainAlias}"</span> !
           </h1>
-          
           <p className="text-white/60 text-xs sm:text-sm font-semibold leading-relaxed mt-3 max-w-xl">
-            Bienvenido a MundiApp26! <strong className="text-primary font-black">La App para el Mundial!</strong>.
+            <strong className="text-primary font-black"> La App para el Mundial !</strong>.
           </p>
           {leagueResult.isCorporate ? (
             <p className="text-white/60 text-xs sm:text-sm font-semibold leading-relaxed mt-3 max-w-xl">
-              Para jugar: Registrate con tu Alias y clave de acceso corporativa, ¡y comenzá a pronosticar de inmediato bajo el patrocinio de tu organización!
+              Para jugar: Registrate con tu Alias y Clave de Acceso y ¡ comenzá a pronosticar los resultados de los partidos !
             </p>
           ) : (
             <p className="text-white/60 text-xs sm:text-sm font-semibold leading-relaxed mt-3 max-w-xl">
