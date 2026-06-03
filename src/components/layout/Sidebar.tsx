@@ -411,7 +411,7 @@ export function Sidebar({
             </div>
           )}
         
-        <nav className="flex-1 px-3 py-8 space-y-2">
+        <nav className="flex-1 px-3 py-4 space-y-2 overflow-y-auto min-h-0 scrollbar-thin">
           {navItems.map((item) => {
             const isItemActive = isActive(item.href || '') || item.active;
             const commonClasses = cn(
