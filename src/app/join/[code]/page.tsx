@@ -150,9 +150,16 @@ export default async function JoinPage({ params }: Props) {
           <p className="text-white/60 text-xs sm:text-sm font-semibold leading-relaxed mt-3 max-w-xl">
             Bienvenido a MundiApp26! <strong className="text-primary font-black">La App para el Mundial!</strong>.
           </p>
-          <p className="text-white/60 text-xs sm:text-sm font-semibold leading-relaxed mt-3 max-w-xl">
-            Para jugar: Te registras, te llevamos al Pago Seguro de Mercado Pago, pagas tu suscripción de <strong className="text-primary font-black">$5.000 ARS </strong> y directo a la App !!
-          </p>
+          {leagueResult.isCorporate ? (
+            <p className="text-white/60 text-xs sm:text-sm font-semibold leading-relaxed mt-3 max-w-xl">
+              Para jugar: Registrate con tu Alias y clave de acceso corporativa, ¡y comenzá a pronosticar de inmediato bajo el patrocinio de tu organización!
+            </p>
+          ) : (
+            <p className="text-white/60 text-xs sm:text-sm font-semibold leading-relaxed mt-3 max-w-xl">
+              Para jugar: Te registras, te llevamos al Pago Seguro de Mercado Pago, pagas tu suscripción de <strong className="text-primary font-black">$5.000 ARS </strong> y directo a la App !!
+            </p>
+          )}
+
         </header>
 
         {/* Bento Grid Principal — Delegado al Client Component para máxima interactividad */}

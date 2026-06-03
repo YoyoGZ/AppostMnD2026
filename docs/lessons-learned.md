@@ -518,3 +518,31 @@ En el Sidebar de escritorio, al ingresar con marcas corporativas, el logotipo re
 2. **Presencia Visual del Tag 'Acciones'**: Reemplazamos el color gris claro deslucido (`text-white/50`) de la palabra "Acciones" por el color de acento corporativo de la marca en vivo (`brandTheme.accentColor`), y elevamos su peso a `font-black text-[10px]` con un tracking de `tracking-[0.2em]`. Esto dota a la categoría del selector de una jerarquía distinguida y con gran carácter visual.
 3. **Restauración del Título Estándar en Primer Bloque**: En el tema por defecto de MundiApp26, restablecimos el renderizado del Trophy animado al lado del texto `"MundiApp26"` en tamaño `text-xl font-black text-white`.
 4. **Control Sintáctico Absoluto**: Verificamos minuciosamente el balance de etiquetas JSX y corrimos `npx tsc --noEmit` de forma satisfactoria para asegurar cero regresiones sintácticas en el proyecto.
+
+## 2026-06-03: Bypass de SSL y WebSockets en Scripts Node Locales para Supabase y Ajuste de Metadata de Mercado Pago (LL-18)
+
+### Síntoma
+Al ejecutar scripts administrativos de Node (`scripts/create-member.js` o `scripts/seed-members-test.js`) en entornos de desarrollo local en Windows para poblar o auditar tablas de Supabase, la consola arrojaba errores del SDK de Supabase por certificados TLS no válidos del proxy local o fallos por falta de WebSocket global (`WebSocket is not defined` o `TLS rejection`). Asimismo, el Censo de Ventas del HQ presentaba discrepancias con los campos de la API de Mercado Pago al cambiar los nombres de propiedades o claves de la preferencia a minúsculas o snake_case.
+
+### Diagnóstico
+1. **Falta de WebSockets en Node.js < 22:** El SDK de Supabase cliente (`@supabase/supabase-js`) asume la existencia de la API `WebSocket` global en tiempo de ejecución. Al ejecutarse en Node.js en consola local, esta API no está de forma nativa en versiones antiguas de Node, provocando que la suscripción a canales de Supabase Realtime falle al instante.
+2. **Rechazo de Certificado TLS Local:** Los contenedores locales de Supabase o proxys HTTPS de desarrollo a veces utilizan certificados auto-firmados no reconocidos por el almacén raíz de Node.
+3. **Conversión de Llaves en API de Mercado Pago:** Al crear una preferencia de pago en Mercado Pago, se inyectan metadatos personalizados (ej: `league_id`, `referred_by_code`). Sin embargo, al consultar la API de pagos de Mercado Pago en vivo, esta puede retornar las claves en minúsculas (ej: `league_id` o `referredbycode`) o alteradas según la versión de la API de MP.
+
+### Resolución (The House Way)
+1. **Mock de WebSocket y Bypass SSL en Scripts de Consola**:
+   Inyectar al inicio de todo script administrativo de consola de Node:
+   ```javascript
+   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // Bypass de SSL local
+   global.WebSocket = require('ws'); // Mock del WebSocket usando la dependencia ws instalada
+   ```
+2. **Búsqueda Resiliente de Metadatos en MP (Censo de Ventas)**:
+   Implementar un acceso robusto que busque las propiedades en minúsculas, snake_case o camelCase indistintamente en el servidor:
+   ```typescript
+   const metadata = payment.metadata || {};
+   const leagueId = metadata.league_id || metadata.leagueid || metadata.LeagueId;
+   const referredBy = metadata.referred_by_code || metadata.referredbycode || metadata.ReferredByCode;
+   ```
+3. **Límite Corporativo Híbrido Dinámico (10 Participantes)**:
+   Implementación de comprobaciones de unión evaluando si la liga es corporativa y rechazando de inmediato en el servidor si ya cuenta con 10 o más participantes. Esto bloquea el registro en el cliente y deshabilita formularios con una Bento Card roja que informa visualmente el límite excedido.
+

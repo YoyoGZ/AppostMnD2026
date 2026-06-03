@@ -116,7 +116,7 @@ export async function joinLeagueAction(inviteCode: string) {
   // 1. Buscar liga por código (Case Insensitive)
   const { data: leagueByCode } = await supabase
     .from('leagues')
-    .select('id, name')
+    .select('id, name, created_by')
     .ilike('invite_code', inviteCode)
     .maybeSingle();
 
@@ -126,7 +126,7 @@ export async function joinLeagueAction(inviteCode: string) {
   if (!league) {
     const { data: leagueByName } = await supabase
       .from('leagues')
-      .select('id, name')
+      .select('id, name, created_by')
       .ilike('name', inviteCode)
       .maybeSingle();
     league = leagueByName;
@@ -136,8 +136,36 @@ export async function joinLeagueAction(inviteCode: string) {
     return { error: "Liga no encontrada. Verifica el enlace de invitación." };
   }
 
-  // Nota: Se ha removido el límite estricto de 10 participantes para permitir el crecimiento viral infinito de la Liga.
+  // 3. Validar límite de capacidad para ligas corporativas (Marca Blanca)
+  const { createAdminClient } = await import("@/utils/supabase/admin");
+  const adminClient = createAdminClient();
 
+  const { data: creatorProfile } = await adminClient
+    .from('profiles')
+    .select('email')
+    .eq('id', league.created_by)
+    .maybeSingle();
+
+  if (creatorProfile?.email) {
+    const { data: relation } = await adminClient
+      .from('corporate_relations')
+      .select('brand_id')
+      .eq('email', creatorProfile.email.trim().toLowerCase())
+      .maybeSingle();
+
+    if (relation) {
+      // Contar miembros activos actuales en league_members
+      const { count: memberCount } = await adminClient
+        .from('league_members')
+        .select('*', { count: 'exact', head: true })
+        .eq('league_id', league.id);
+
+      const countNum = memberCount || 0;
+      if (countNum >= 10) {
+        return { error: "Esta liga ha alcanzado el límite máximo de 10 participantes permitido para cuentas corporativas." };
+      }
+    }
+  }
 
   // Multi-liga: verificar si ya está en ESTA liga específica (no en cualquier liga)
   const { data: alreadyInThisLeague } = await supabase
@@ -204,7 +232,7 @@ export async function getLeagueByInvite(inviteCode: string) {
     return { error: finalError };
   }
   
-  // 2. Obtener el alias del capitán
+  // 3. Obtener el alias del capitán
   const { data: captainMember } = await supabase
     .from('league_members')
     .select('alias')
@@ -212,12 +240,41 @@ export async function getLeagueByInvite(inviteCode: string) {
     .eq('user_id', leagueBasic.created_by)
     .single();
 
+  // 4. Verificar si es una liga corporativa (Marca Blanca)
+  const { data: creatorProfile } = await supabase
+    .from('profiles')
+    .select('email')
+    .eq('id', leagueBasic.created_by)
+    .maybeSingle();
+
+  let isCorporate = false;
+  if (creatorProfile?.email) {
+    const { data: relation } = await supabase
+      .from('corporate_relations')
+      .select('brand_id')
+      .eq('email', creatorProfile.email.trim().toLowerCase())
+      .maybeSingle();
+    isCorporate = !!relation;
+  }
+
+  // 5. Contar miembros
+  const { count: memberCount } = await supabase
+    .from('league_members')
+    .select('*', { count: 'exact', head: true })
+    .eq('league_id', leagueBasic.id);
+
+  const countNum = memberCount || 0;
+
   return {
     id: leagueBasic.id,
     name: leagueBasic.name,
-    captainAlias: captainMember?.alias || "Capitán"
+    captainAlias: captainMember?.alias || "Capitán",
+    isCorporate,
+    memberCount: countNum,
+    isFull: isCorporate && countNum >= 10
   };
 }
+
 
 /**
  * Obtiene todas las ligas a las que pertenece el usuario actual.

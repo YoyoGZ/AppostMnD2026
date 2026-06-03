@@ -21,6 +21,7 @@ import { RaffleModule } from '@/components/admin/RaffleModule';
 import { UserControlModule } from '@/components/admin/UserControlModule';
 import { CorporateBrandingModule } from '@/components/admin/CorporateBrandingModule';
 import { PromoControlModule } from '@/components/admin/PromoControlModule';
+import { SupportTicketsModule } from '@/components/admin/SupportTicketsModule';
 
 import { 
   getTestModeAction, 
@@ -288,6 +289,9 @@ export default function HQPage() {
 
           {/* Módulo de Control de Jugadores & Claves Extraviadas */}
           <UserControlModule />
+
+          {/* Módulo de Gestión de Tickets de Soporte */}
+          <SupportTicketsModule />
 
           {/* Censo Global de Transacciones Reales (Mercado Pago) */}
           <div className="bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-3xl p-6 relative overflow-hidden">

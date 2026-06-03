@@ -40,13 +40,30 @@ Este documento detalla el "Customer Journey" y la arquitectura funcional de la p
 - **Flujo**: Si el usuario llega con un link de invitación dedicado (`/join/[code]`), el sistema utiliza un bypass de RLS del lado del servidor para consultar la base de datos de manera anónima y mostrar la tarjeta de bienvenida con el alias del capitán fundador.
   - **Identificación**: Si el código no existe o es inválido, en lugar de una redirección ciega, se renderiza una pantalla de error glassmorphic en español muy pulida.
   - **Bento Grid de Captación**: Si el código es válido, se presenta un Bento Grid responsivo de alta fidelidad con el logo oficial (`/assets/logo_oficial.png`), la bienvenida personalizada a la liga del capitán, y las características exclusivas de MundiApp26 (Oráculo en tablas de posiciones, chat en vivo y duelos). La card de sorteo se excluye en este flujo por ser un beneficio exclusivo de Founders.
-  - **Funnel descentralizado**: Al presionar registrarse, el invitado crea su cuenta en Supabase Auth y es redirigido de inmediato al **Paywall de Invitado exclusivo** (`/paywall?join=[code]`) para adquirir su membresía individual de **$5.000 ARS** en Mercado Pago.
-  - **Doble Lógica de Éxito**: Tras el pago exitoso, el callback GET de Mercado Pago procesa la Server Action `joinLeagueAction` para insertar de forma segura al miembro en la liga de su amigo y redireccionarlo al Dashboard listo para jugar.
+  - **Bypass de Tarifas Corporativas (Marca Blanca)**: Si la invitación es para una liga corporativa (`isCorporate: true`), la interfaz oculta de forma preventiva toda leyenda de cobro de $5.000 ARS y Mercado Pago. El flujo redirige a una confirmación directa de ingreso patrocinada por la organización sin pasar por la pasarela de pagos.
+  - **Límite de Capacidad Corporativa Híbrido**: Solo en el caso de ligas asociadas a marcas corporativas, se aplica un límite de capacidad estricto de **10 participantes** (1 Capitán + 9 invitados). Al alcanzar ese número:
+    - **Frontend (Pre-emptive Block)**: Se renderiza una Bento Card roja prominente detallando el límite excedido y se deshabilita por completo el formulario de registro rápido y el botón de unión.
+    - **Backend**: La acción `joinLeagueAction` valida la capacidad en el servidor antes de realizar cualquier mutación, devolviendo un error e impidiendo inscripciones concurrentes no deseadas.
+  - **Funnel descentralizado**: En ligas normales (gratuitas con pases individuales), al presionar registrarse, el invitado crea su cuenta en Supabase Auth y es redirigido de inmediato al **Paywall de Invitado exclusivo** (`/paywall?join=[code]`) para adquirir su membresía individual de **$5.000 ARS** en Mercado Pago.
+  - **Doble Lógica de Éxito**: Tras el pago exitoso (o unión directa en ligas corporativas), la aplicación procesa la Server Action `joinLeagueAction` para insertar de forma segura al miembro en la liga de su amigo y redireccionarlo al Dashboard listo para jugar.
 - **Archivos Clave**:
-    - `src/app/join/[code]/page.tsx` (Ruta protegida, render de cabecera con logo, error glassmorphic e inyección de datos de invitación).
-    - `src/app/join/[code]/JoinClient.tsx` (Bento Grid responsivo e interactivo del onboarding y formulario de registro rápido).
-    - `src/app/actions/leagues.ts` (Bypass RLS `getLeagueByInvite` y unión de liga `joinLeagueAction` sin límites de 10 participantes).
+    - `src/app/join/[code]/page.tsx` (Ruta protegida, render de cabecera con logo, error glassmorphic y resolución de metadatos de Marca Blanca).
+    - `src/app/join/[code]/JoinClient.tsx` (Bento Grid responsivo, lógica de bloqueo de capacidad corporativa e inhabilitación de formularios).
+    - `src/app/actions/leagues.ts` (Bypass RLS `getLeagueByInvite` con conteo de capacidad y validación de unión `joinLeagueAction` con límite de 10 participantes exclusivo para corporativos).
     - `src/app/api/callbacks/mp-success/route.ts` (Callback transaccional que recibe el parámetro `join` e inscribe al gladiador tras el cobro).
+
+### Páginas Legales & Soporte Técnico (Institucional)
+
+- **Flujo**: El usuario puede acceder desde el footer de la landing o el dashboard a las páginas de términos, privacidad y soporte técnico.
+  - **Términos y Condiciones (`/terms`)**: Declaración solemne del aviso de Fair Play (la app es ajena a la intermediación o fomento de apuestas por dinero real) y el uso de cookies estrictamente técnicas y de rendimiento.
+  - **Política de Privacidad (`/privacy`)**: Detalle sobre el almacenamiento del correo electrónico y el rechazo de rastreadores publicitarios externos o cookies de marketing de terceros.
+  - **Formulario de Soporte (`/support`)**: Componente cliente que autocompleta el correo y alias del usuario activo. Al enviar un mensaje, se invoca `createSupportTicketAction` para registrar atómicamente el ticket en la tabla `support_tickets` de Supabase con estado `open` y prioridad calculada.
+  - **Bandeja de Entrada HQ (`/hq`)**: El módulo interactivo `SupportTicketsModule.tsx` permite al Super Administrador visualizar en tiempo real los tickets, filtrarlos por estado y marcarlos como resueltos (`resolved`).
+- **Archivos Clave**:
+    - `src/app/terms/page.tsx` y `src/app/privacy/page.tsx` (Vistas Bento con Glassmorphism para las políticas legales).
+    - `src/app/support/page.tsx` y `src/app/support/SupportClientForm.tsx` (Formulario de soporte reactivo con feedback inmediato).
+    - `src/components/admin/SupportTicketsModule.tsx` (Bandeja de administración integrada en el HQ).
+    - `src/app/actions/support.ts` (Acciones del servidor `createSupportTicketAction` y `resolveSupportTicketAction`).
 
 ---
 

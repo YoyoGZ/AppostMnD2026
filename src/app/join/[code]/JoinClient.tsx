@@ -14,7 +14,8 @@ import {
   Zap, 
   Sparkles, 
   Crown,
-  ChevronRight
+  ChevronRight,
+  AlertTriangle
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
@@ -24,6 +25,9 @@ type LeagueInfo = {
   id: string;
   name: string;
   captainAlias: string;
+  isCorporate?: boolean;
+  memberCount?: number;
+  isFull?: boolean;
 };
 
 type Props = {
@@ -291,8 +295,43 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
           ====================================================== */}
       <div className="md:col-span-5 w-full">
         
-        {/* RENDER — Estado A: Usuario ya logueado */}
-        {isAuthenticated ? (
+        {/* RENDER — Caso: Liga corporativa llena (Límite preventivo de Marca Blanca) */}
+        {leagueInfo.isFull ? (
+          <div className="w-full bg-slate-900/40 backdrop-blur-xl border border-red-500/20 shadow-2xl rounded-2xl overflow-hidden relative animate-in fade-in duration-300">
+            <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-red-500/50 via-red-500 to-red-500/50" />
+
+            <div className="p-6 sm:p-8 flex flex-col gap-6 text-center">
+              <div className="w-14 h-14 bg-red-500/10 border border-red-500/25 rounded-2xl flex items-center justify-center mx-auto mb-2 shadow-[0_0_15px_rgba(239,68,68,0.15)]">
+                <AlertTriangle className="w-7 h-7 text-red-500" />
+              </div>
+
+              <div>
+                <span className="bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-full text-[9px] uppercase font-black tracking-widest">
+                  Capacidad Completa
+                </span>
+                <h3 className="text-xl font-black text-white tracking-tighter uppercase mt-4">
+                  Liga Llena
+                </h3>
+                <p className="text-slate-300 text-xs leading-relaxed font-semibold mt-3 text-slate-300">
+                  Lamentablemente esta Liga ha alcanzado el límite máximo de <strong className="text-white font-black">10 jugadores activos.</strong>
+                </p>
+              </div>
+
+              <div className="bg-red-500/5 border border-red-500/10 rounded-xl p-4 text-left">
+                <p className="text-white/60 text-[11px] leading-relaxed font-medium">
+                  💡 <span className="text-white font-bold">¿ Y cómo sigo ?</span> Contactá al creador de la liga (<strong className="text-red-400 font-bold">{leagueInfo.captainAlias}</strong>) para solicitar la baja de participantes inactivos o crear una nueva Liga, para que accedas.
+                </p>
+              </div>
+
+              <button
+                onClick={handleDecline}
+                className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-[0.98] cursor-pointer"
+              >
+                Volver al Inicio
+              </button>
+            </div>
+          </div>
+        ) : isAuthenticated ? (
           <div className="w-full bg-slate-900/40 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl overflow-hidden relative">
             <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-primary/50 via-primary to-primary/50" />
 

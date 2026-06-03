@@ -210,4 +210,30 @@ Para romper la tosquedad del fondo negro plano e inyectar profundidad espacial t
 1. **Logo Colosal en Backdrop**: Se integró una marca de agua gigante del logo oficial de la app (`/assets/logo_oficial.png`), escalada al `200vw` en pantallas móviles y `75vw` en computadoras de escritorio.
 2. **Lens Blur de Bajo Contraste**: El logo se diseñó con una opacidad extremadamente sutil (`opacity-[0.035]`), rotado a `12deg` y con un desenfoque profundo (`blur-[25px]`). Adicionalmente, cuenta con un gradiente radial dorado (`bg-primary/5`) detrás de la tarjeta y una animación pulsante de respiración lenta. Esto crea volumen físico, texturiza el espacio vacío y genera una atmósfera inmersiva de estadio nocturno sin interferir en la legibilidad.
 
+---
 
+## 12. Páginas Legales, Soporte HQ y Límites de Marca Blanca
+**Fecha de Implementación**: 2026-06-03  
+**Responsable**: Antigravity (Senior Product Engineer)
+
+### Especificaciones Técnicas e Implementación
+Para refinar y completar la experiencia de marca e institucional de la aplicación:
+
+1. **Metadatos OG Globales de Landing**:
+   * Incorporación de metadatos Open Graph y Twitter ricos en `src/app/layout.tsx` apuntando al logotipo dorado oficial y descripción publicitaria atrayente.
+
+2. **Rutas Institucionales y Legales**:
+   * **Términos y Condiciones (`/terms`)**: Bento grid de alta legibilidad detallando el aviso de Fair Play (declaración solemne de que la app no intermedia apuestas con activos o dinero real) y políticas de uso de cookies de rendimiento.
+   * **Política de Privacidad (`/privacy`)**: Declaración del uso seguro y confidencial de correos electrónicos y la inyección de cookies estrictamente técnicas (sesión Supabase Auth), libre de tracking comercial de marketing de terceros.
+   * **Formulario de Soporte (`/support`)**: Componente interactivo que precarga email/alias para usuarios autenticados, incluye placeholders intuitivos, toast de éxito y Server Action segura conectada a base de datos.
+
+3. **Módulo de Tickets de Soporte en el HQ (God Mode)**:
+   * Creación de la tabla `support_tickets` en Supabase con RLS de inserción pública (para casos sin sesión o con claves extraviadas).
+   * Módulo interactivo `SupportTicketsModule` integrado en la vista super_admin (`/hq`), permitiendo listar, filtrar en caliente por estado (pendientes/todos) y resolver tickets mediante Server Action. La respuesta directa a correos del usuario queda pendiente de desarrollo técnico.
+
+4. **Límite de Capacidad de Ligas Corporativas**:
+   * **Control de Capacidad Híbrido**:
+     1. **Servidor (Backend)**: En `joinLeagueAction` y `getLeagueByInvite`, se evalúa si el creador de la liga pertenece a la tabla `corporate_relations`. Si es así, se cuenta el total de miembros. Al alcanzar **10 participantes** (1 Capitán Fundador + 9 invitados), la Server Action de unión rechaza la inserción por seguridad de licenciamiento.
+     2. **Pre-emptive Block (Frontend)**: Si la liga de Marca Blanca está llena (`isFull`), la página `/join/[code]` deshabilita de inmediato el formulario de registro y la acción de unirse, mostrando una tarjeta roja Bento de capacidad máxima.
+   * **Ocultación de Precios de Venta**: Si la invitación es para una liga corporativa, se oculta toda leyenda de cobro de $5.000 ARS y Mercado Pago, reemplazándola por instrucciones de registro patrocinadas por la organización.
+   * **Siembra de Test**: Creación del script `scripts/seed-members-test.js` para poblar ligas de prueba dinámicamente hasta el límite de 10 participantes.

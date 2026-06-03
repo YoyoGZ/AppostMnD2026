@@ -92,12 +92,22 @@
   - [x] **Accesibilidad Outdoor**: Contraste elevado y peso tipográfico intenso en la pantalla de Eliminatorias, y descompresión de celdas a w-16 en Standings (Duelos y Puntos).
   - [x] **Robustecimiento Multimarca**: Incorporación del tema completo de Accenture en la configuración estática.
 
+- [x] **Hito 13: Páginas Legales, Soporte HQ y Capacidad Corporativa** ⚖️📞🔒
+  - [x] **Metadatos OG Globales**: Incorporación de meta tags rich-graph en `layout.tsx` para mejorar el SEO y las previsualizaciones de la Landing.
+  - [x] **Páginas Legales**: Creación de `/terms` y `/privacy` con estructura Bento, cubriendo el disclaimer de apuestas no-monetarias y política de cookies de rendimiento/técnicas (sin trackers publicitarios).
+  - [x] **Formulario de Soporte**: Creación de `/support` con formulario interactivo y la Server Action `createSupportTicketAction` para persistencia en Supabase.
+  - [x] **Bandeja de Tickets en HQ**: Módulo `SupportTicketsModule` integrado en `/hq` para auditar, filtrar y marcar como resueltos los tickets de soporte.
+  - [x] **Límite de 10 Miembros Corporativos**: Lógica en `joinLeagueAction` y `getLeagueByInvite` para calcular la capacidad y bloquear el acceso si una liga Marca Blanca excede los 10 participantes (1 Capitán + 9 invitados).
+  - [x] **UI Preventiva**: Bento card roja e inhabilitación de formularios en `/join/[code]` si el límite está al 100%.
+  - [x] **Scripts de Aprovisionamiento y Siembra**: Desarrollo de scripts locales robustos con bypass SSL/WS para poblar ligas de prueba (`seed-members-test.js`).
+
 ## Current Trajectory
-**Status**: Funcionalidad de Co-Branding, Metadatos OG de WhatsApp para invitaciones personalizadas y volumen del logo elástico del Hito 12 **VERIFIED & POLISHED** localmente. Se inyectó maquetación rectangular elástica con resplandor en color de acento para la marca corporativa, se implementó `generateMetadata` dinámico para previews perfectas en chats de mensajería (WhatsApp), y se optimizaron las alineaciones de standings y eliminatorias. Compilación limpia y estable.
+**Status**: Hito 13 **VERIFIED & POLISHED** localmente. Implementadas todas las páginas institucionales (`/terms`, `/privacy`, `/support`), panel de tickets en el `/hq`, limitación híbrida de capacidad para ligas corporativas y scripts de desarrollo local. El proyecto compila en su totalidad sin advertencias de tipado.
 
 **Próximos Pasos:**
-1. Presentar las pruebas manuales y los detalles visuales de la integración al usuario.
-2. Iniciar el sprint de **Hito 10: Pruebas de Estrés & Beta Testing Masivo** cuando el usuario lo solicite.
+1. Realizar el build de producción completo (`npm run build`) para verificar consistencia.
+2. [PENDIENTE] Diseñar e implementar el motor o flujo de respuesta a consultas de soporte directamente al correo registrado del usuario desde el panel HQ.
+3. Iniciar el sprint de **Hito 10: Pruebas de Estrés & Beta Testing Masivo** cuando el usuario lo solicite.
 
 ## Squad Status
 | Agent | Task | Status |
@@ -116,3 +126,5 @@
 | Design & Infra | Hito 11: Cartel de Bienvenida & Exclusión de Marcas | ✅ VERIFIED & POLISHED |
 | Design Lead | Hito 12: Co-Branding Cromática & Logotipo Hy Brokers | ✅ VERIFIED & POLISHED |
 | Builder | Hito 12: Robustecimiento Multimarca (Accenture Theme) | ✅ VERIFIED & POLISHED |
+| Builder | Hito 13: Páginas Legales, Soporte HQ y Capacidad Corporativa | ✅ VERIFIED & POLISHED |
+

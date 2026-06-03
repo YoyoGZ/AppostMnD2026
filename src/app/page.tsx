@@ -348,9 +348,9 @@ export default async function Home(props: PageProps) {
           Powered by <span className="text-primary">Antigravity Engine</span>
         </p>
         <div className="flex justify-center gap-8 mb-6">
-            <a href="#" className="text-[9px] uppercase font-bold text-white/40 hover:text-white transition-colors">Términos</a>
-            <a href="#" className="text-[9px] uppercase font-bold text-white/40 hover:text-white transition-colors">Privacidad</a>
-            <a href="#" className="text-[9px] uppercase font-bold text-white/40 hover:text-white transition-colors">Soporte</a>
+            <Link href="/terms" className="text-[9px] uppercase font-bold text-white/40 hover:text-white transition-colors">Términos</Link>
+            <Link href="/privacy" className="text-[9px] uppercase font-bold text-white/40 hover:text-white transition-colors">Privacidad</Link>
+            <Link href="/support" className="text-[9px] uppercase font-bold text-white/40 hover:text-white transition-colors">Soporte</Link>
         </div>
         <p className="text-[8px] text-white/20 uppercase font-medium tracking-widest">
           © 2026 -  MundiAPP26 - LIGAS — Todos los derechos reservados.
