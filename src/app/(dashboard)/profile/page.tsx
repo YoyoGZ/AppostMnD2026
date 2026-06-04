@@ -22,7 +22,7 @@ export default function ProfilePage() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          setAlias(user.user_metadata?.display_name || user.email?.split("@")[0] || "Gladiador");
+          setAlias(user.user_metadata?.display_name || user.email?.split("@")[0] || "Jugador");
           setEmail(user.email || "");
 
           const activeLeagueId = user.user_metadata?.active_league_id;
@@ -68,7 +68,7 @@ export default function ProfilePage() {
           {alias}
         </h2>
         <p className="text-primary/80 text-[10px] font-black uppercase tracking-[0.3em]">
-          Gladiador Legendario
+          Jugador Legendario
         </p>
       </header>
 

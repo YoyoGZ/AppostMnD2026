@@ -189,7 +189,7 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
           <div className="absolute right-[-40px] bottom-[-45px] w-64 h-64 opacity-5 pointer-events-none group-hover:scale-110 group-hover:opacity-10 transition-all duration-500 transform rotate-12">
             <Image
               src="/assets/Copa_1.png"
-              alt="Copa Mundial"
+              alt="Copa"
               fill
               className="object-contain"
             />
@@ -203,7 +203,7 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
             </div>
 
             <p className="text-white/40 text-[10px] uppercase tracking-widest font-black mb-1">
-              Nombre de la Arena
+              Nombre de la Liga
             </p>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tighter leading-tight drop-shadow-[0_2px_8px_rgba(255,255,255,0.05)]">
               {leagueInfo.name}
@@ -267,7 +267,7 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
               <div>
                 <h4 className="text-xs font-black text-white uppercase tracking-wider mb-1">Gastadas & Chat Privado</h4>
                 <p className="text-[11px] text-slate-400 font-semibold leading-relaxed">
-                  Un canal exclusivo de chat en tiempo real para chicanear, debatir y festejar los goles con toda tu liga.
+                  Un canal exclusivo de chat en tiempo real para chicanear, debatir y festejar los goles con toda tu Liga.
                 </p>
               </div>
             </div>
@@ -319,7 +319,7 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
 
               <div className="bg-red-500/5 border border-red-500/10 rounded-xl p-4 text-left">
                 <p className="text-white/60 text-[11px] leading-relaxed font-medium">
-                  💡 <span className="text-white font-bold">¿ Y cómo sigo ?</span> Contactá al creador de la liga (<strong className="text-red-400 font-bold">{leagueInfo.captainAlias}</strong>) para solicitar la baja de participantes inactivos o crear una nueva Liga, para que accedas.
+                  💡 <span className="text-white font-bold">¿ Y cómo sigo ?</span> Contactá al creador de la Liga (<strong className="text-red-400 font-bold">{leagueInfo.captainAlias}</strong>) para solicitar la baja de participantes inactivos o crear una nueva Liga, para que accedas.
                 </p>
               </div>
 
@@ -348,7 +348,7 @@ export function JoinClient({ code, leagueInfo, isAuthenticated, userAlias }: Pro
 
               <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-center">
                 <p className="text-slate-100 text-xs leading-relaxed font-semibold">
-                  Hola, <strong className="text-primary font-black">"{userAlias}"</strong>. Fuiste invitado a sumarte a esta liga. ¿Aceptás el desafío mundialista?
+                  Hola, <strong className="text-primary font-black">"{userAlias}"</strong>. Fuiste invitado a sumarte a esta Liga. ¿Aceptás el desafío mundialista?
                 </p>
               </div>
 

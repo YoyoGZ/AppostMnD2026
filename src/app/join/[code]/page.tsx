@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props) {
     if (!leagueResult || "error" in leagueResult) {
       return {
         title: "Invitación de Liga - MundiApp26 🏆",
-        description: "Unite a las ligas de MundiApp26 y competí amigos en este Mundial.",
+        description: "Unite a las ligas de MundiApp26 y competí con amigos en este Mundial.",
       };
     }
 
@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: Props) {
   } catch (err) {
     return {
       title: "Invitación de Liga - MundiApp26 🏆",
-      description: "Unite a las ligas de MundiApp26 y competí con tus amigos en la Copa del Mundo.",
+      description: "Unite a las ligas de MundiApp26 y competí con tus amigos en este Mundial.",
     };
   }
 }
@@ -88,7 +88,7 @@ export default async function JoinPage({ params }: Props) {
 
           <div className="bg-red-500/5 border border-red-500/10 rounded-xl p-4 mb-6 text-left">
             <p className="text-white/60 text-[11px] leading-relaxed font-medium">
-              💡 <span className="text-white font-bold">¿Qué pudo pasar?</span> El código de invitación <strong className="text-red-400 font-bold">"{code}"</strong> puede tener un error tipográfico o el creador de la liga dio de baja la arena.
+              💡 <span className="text-white font-bold">¿Qué pudo pasar?</span> El código de invitación <strong className="text-red-400 font-bold">"{code}"</strong> puede tener un error tipográfico o el creador de la liga dio de baja la liga.
             </p>
           </div>
 

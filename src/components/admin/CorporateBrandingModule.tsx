@@ -126,7 +126,7 @@ export function CorporateBrandingModule() {
       </div>
 
       <p className="text-white/40 text-xs mb-6 leading-relaxed">
-        Pre-registrá correos corporativos (Founders o empleados especiales) para permitirles fundar su Arena de forma **100% gratuita** y teñir dinámicamente su UI.
+        Pre-registrá correos corporativos (Founders o empleados especiales) para permitirles fundar su Liga de forma **100% gratuita** y teñir dinámicamente su UI.
       </p>
 
       {/* Alertas */}

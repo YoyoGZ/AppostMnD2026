@@ -141,7 +141,7 @@ export default async function Home(props: PageProps) {
       {/* --- SECCIÓN UNIFICADA: ¿CÓMO SE JUEGA EN MundiAPP26? --- */}
       <section id="features" className="px-6 py-10 max-w-7xl mx-auto border-t border-white/5">
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <h4 className="text-xs md:text-sm font-black tracking-[0.25em] text-primary uppercase mb-2">La Arena de Pronósticos</h4>
+          <h4 className="text-xs md:text-sm font-black tracking-[0.25em] text-primary uppercase mb-2">La Liga de Pronósticos</h4>
           <h3 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tight leading-none mb-3">
             ¿CÓMO JUGAR?
           </h3>

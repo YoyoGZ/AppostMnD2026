@@ -31,7 +31,7 @@ export default async function VIPTokenPage({ params }: { params: Promise<{ token
   }
 
   if (tokenData.is_used) {
-    return <InvalidTicket message="Este pase VIP ya fue canjeado por otro gladiador." />;
+    return <InvalidTicket message="Este pase VIP ya fue canjeado por otro jugador." />;
   }
 
   return <TicketClient token={resolvedParams.token} />;

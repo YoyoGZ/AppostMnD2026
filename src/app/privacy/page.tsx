@@ -63,7 +63,7 @@ export default function PrivacyPage() {
               El correo electrónico que nos provees en el formulario de registro se procesa síncronamente mediante Supabase Auth y se encripta nativamente. 
             </p>
             <p className="text-slate-300 text-xs sm:text-sm leading-relaxed font-semibold mt-3">
-              <strong className="text-white font-black">Declaramos formalmente que la App NO comercializa, comparte ni comparte datos</strong> de perfiles, apodos, pronósticos o correos con ninguna agencia de publicidad o empresa comercial externa. La información solo se almacena para procesar tu participación y los rankings en tu Liga.
+              <strong className="text-white font-black">Declaramos formalmente que la App NO comercializa ni comparte datos</strong> de perfiles, apodos, pronósticos o correos con ninguna agencia de publicidad o empresa comercial externa. La información solo se almacena para procesar tu participación y los rankings en tu Liga.
             </p>
           </div>
 

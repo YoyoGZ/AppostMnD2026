@@ -271,7 +271,7 @@ function PaywallContent() {
           </div>
         )}
         
-        {/* Right Side: Pricing or Arena Creation Card */}
+        {/* Right Side: Pricing or League Creation Card */}
         <div className={(isFounderActive || joinLeagueCode) ? "w-full bg-white/[0.03] border border-white/10 rounded-[32px] p-6 md:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden transition-all duration-500 hover:border-white/20 animate-in zoom-in-95 duration-500" : "w-full md:w-[440px] bg-white/[0.03] border border-white/10 rounded-[32px] p-6 md:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden transition-all duration-500 hover:border-white/20"}>
           
           <div className="absolute top-0 right-0 p-4 pointer-events-none">
@@ -283,13 +283,13 @@ function PaywallContent() {
           </div>
 
           {isFounderActive ? (
-            /* ──────── CREADOR DE ARENA PARA FOUNDERS DIRECTOS ──────── */
+            /* ──────── CREADOR DE LIGA PARA FOUNDERS DIRECTOS ──────── */
             <form onSubmit={handleDirectCreateLeague} className="space-y-6">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
                   <Star className="w-4 h-4 fill-primary" />
                 </div>
-                <h3 className="text-lg font-black uppercase tracking-widest text-white">ARENA DISPONIBLE</h3>
+                <h3 className="text-lg font-black uppercase tracking-widest text-white">LIGA DISPONIBLE</h3>
               </div>
               
               <div className="bg-primary/10 border border-primary/20 rounded-2xl p-4">
@@ -327,7 +327,7 @@ function PaywallContent() {
                 {creatingLeague ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    CREANDO ARENA...
+                    CREANDO LIGA...
                   </>
                 ) : (
                   <>

@@ -181,7 +181,7 @@ export default function StandingsClient({
         {/* Cabecera de Columnas Técnica */}
         <div className="flex items-center px-3 md:px-6 mb-4 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-white border-b border-white/10 pb-3">
           <div className="w-6 md:w-12 text-center text-white/40">#</div>
-          <div className="flex-1 pl-1 md:pl-4 text-white/50">Gladiador</div>
+          <div className="flex-1 pl-1 md:pl-4 text-white/50">Jugador</div>
           <div className="w-16 md:w-20 text-center text-yellow-500/90 font-black tracking-wider">Duelos</div>
           <div className="w-20 md:w-24 hidden sm:block text-center text-white/40">Racha</div>
           <div className="w-24 md:w-28 hidden md:block text-center text-white/40">Stats</div>

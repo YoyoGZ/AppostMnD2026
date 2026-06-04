@@ -95,7 +95,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
       try {
         const checkAlias = await checkAliasAvailabilityAction(alias);
         if (checkAlias.success && !checkAlias.available) {
-          setError(`El apodo "${alias.trim()}" ya está registrado por otro gladiador. Elegí otro para diferenciarte.`);
+          setError(`El apodo "${alias.trim()}" ya está registrado por otro jugador. Elegí otro para diferenciarte.`);
           setIsLoading(false);
           return;
         }

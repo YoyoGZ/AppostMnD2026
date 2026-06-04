@@ -120,7 +120,7 @@ export function WelcomeSorteoModal({
         
         <p className="text-white/60 text-xs md:text-sm font-semibold leading-relaxed max-w-sm mx-auto mb-6">
           {isCorporate 
-            ? `Activaste tu Pase de Liga corporativo con éxito. Oficialmente has inaugurado la arena de ${corporateBrandName || "tu Empresa"} en la app, ya podés linkear a tus compañeros.`
+            ? `Activaste tu Pase de Liga corporativo con éxito. Oficialmente has inaugurado la liga de ${corporateBrandName || "tu Empresa"} en la app, ya podés linkear a tus compañeros.`
             : "Activaste tu Pase con éxito. Oficialmente has inaugurado tu propia Liga en la app, ya podés linkear a tus amigos."
           }
         </p>
@@ -174,7 +174,7 @@ export function WelcomeSorteoModal({
           {closing ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              ACCEDIENDO A LA ARENA...
+              ACCEDIENDO A LA LIGA...
             </>
           ) : (
             <>

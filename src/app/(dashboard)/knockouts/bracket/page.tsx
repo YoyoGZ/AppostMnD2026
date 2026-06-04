@@ -23,7 +23,7 @@ export default function BracketPage() {
               Bracket <span className="text-primary">Oficial</span>
             </h1>
             <p className="text-white/40 font-medium uppercase text-[10px] md:text-xs tracking-[0.3em]">
-              Copa del Mundo 2026 | El Cuadro de la Gloria
+              Mundial de Norteamérica | El Cuadro de la Gloria
             </p>
           </div>
         </div>

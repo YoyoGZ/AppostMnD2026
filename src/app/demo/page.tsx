@@ -99,7 +99,7 @@ export default function DemoPage() {
             <header className="mb-10 pt-4 md:pt-0 relative z-10 flex justify-between items-center">
               <div>
                 <h2 className="text-3xl font-black tracking-tight mb-2 text-white drop-shadow-[0_2px_10px_rgba(56,189,248,0.3)]">
-                  Copa Mundial FIFA 2026
+                  Mundial de Norteamérica
                 </h2>
                 <p className="text-white/60 text-sm font-medium">Dashboard General de tu Equipo</p>
               </div>

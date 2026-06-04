@@ -200,7 +200,7 @@ export async function getPromoAnalyticsAction() {
       if (code) {
         const list = referredGroupMap.get(code) || [];
         list.push({
-          display_name: profile.display_name || "Gladiador Anónimo",
+          display_name: profile.display_name || "Jugador Anónimo",
           email: profile.email || "Sin Email"
         });
         referredGroupMap.set(code, list);

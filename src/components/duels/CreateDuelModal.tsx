@@ -49,7 +49,7 @@ export function CreateDuelModal({ isOpen, onClose, leagueId, members }: CreateDu
       return;
     }
     if (selectedParticipants.length < 2) {
-      setError("Debes seleccionar al menos 2 gladiadores para combatir.");
+      setError("Debes seleccionar al menos 2 jugadores para el duelo.");
       return;
     }
 
@@ -92,18 +92,18 @@ export function CreateDuelModal({ isOpen, onClose, leagueId, members }: CreateDu
           </select>
         </div>
 
-        {/* Paso 2: Seleccionar Gladiadores */}
+        {/* Paso 2: Seleccionar Jugadores */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-sm font-black uppercase text-primary flex items-center gap-2">
-              <UserPlus className="w-5 h-5" /> 2. Seleccionar Gladiadores
+              <UserPlus className="w-5 h-5" /> 2. Seleccionar Jugadores
             </h3>
             <span className="text-xs font-bold text-white/50 bg-black/40 px-3 py-1 rounded-full">
               {selectedParticipants.length} Seleccionados
             </span>
           </div>
           <p className="text-xs text-white/40 mb-4 font-medium leading-relaxed">
-            El sistema usará automáticamente los pronósticos que cada gladiador ya cargó en su tablero. 
+            El sistema usará automáticamente los pronósticos que cada jugador ya cargó en su tablero. 
           </p>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[220px] overflow-y-auto pr-2 custom-scrollbar">

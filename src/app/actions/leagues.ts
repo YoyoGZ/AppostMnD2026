@@ -35,7 +35,7 @@ export async function createLeagueAction(formData: FormData) {
   const maxAllowed = profile.max_leagues || 0;
 
   if (profile.role !== 'super_admin' && (foundedCount !== null && foundedCount >= maxAllowed)) {
-    return { error: "Ya fundaste todas las ligas permitidas por tus pases activos. ¡Adquiere otro Founder Pass para abrir una nueva arena!" };
+    return { error: "Ya fundaste todas las ligas permitidas por tus pases activos. ¡Adquiere otro Founder Pass para abrir una nueva liga!" };
   }
 
   let rawName = formData.get("name")?.toString()?.trim();
@@ -180,7 +180,7 @@ export async function joinLeagueAction(inviteCode: string) {
     redirect("/dashboard");
   }
 
-  const alias = user.user_metadata?.display_name || user.email?.split('@')[0] || "Gladiador";
+  const alias = user.user_metadata?.display_name || user.email?.split('@')[0] || "Jugador";
   const { error: joinError } = await supabase.from('league_members').insert({
     league_id: league.id,
     user_id: user.id,

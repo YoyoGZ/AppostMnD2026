@@ -42,14 +42,14 @@ export async function createDuelAction(leagueId: string, matchId: string, partic
     .from('duel_participants')
     .insert(participantsData);
 
-  if (partsError) return { error: "No se pudieron inscribir los gladiadores." };
+  if (partsError) return { error: "No se pudieron inscribir los jugadores." };
 
   revalidatePath('/dashboard');
   return { success: true };
 }
 
 /**
- * Obtiene los duelos de una liga con sus participantes y nombres de gladiadores.
+ * Obtiene los duelos de una liga con sus participantes y nombres de jugadores.
  */
 export async function getLeagueDuelsAction(leagueId: string) {
   const supabase = await createClient();
@@ -98,7 +98,7 @@ export async function getLeagueDuelsAction(leagueId: string) {
     participants: d.duel_participants.map((p: any) => ({
       userId: p.user_id,
       isWinner: p.is_winner,
-      alias: aliasMap.get(p.user_id) || "Gladiador"
+      alias: aliasMap.get(p.user_id) || "Jugador"
     }))
   }));
 

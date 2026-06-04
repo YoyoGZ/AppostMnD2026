@@ -233,7 +233,7 @@ export function PromoControlModule() {
                 {/* Subtabla / Inspector Desplegable con usuarios registrados */}
                 {expandedCode === item.code && item.usesCount > 0 && (
                   <div className="bg-black/50 p-4 border-t border-white/5 animate-in slide-in-from-top-1 duration-200">
-                    <span className="text-[9px] font-black text-primary uppercase tracking-widest block mb-2">Gladiadores Registrados con este Código:</span>
+                <span className="text-[9px] font-black text-primary uppercase tracking-widest block mb-2">Jugadores Registrados con este Código:</span>
                     <div className="space-y-2 max-h-[120px] overflow-y-auto custom-scrollbar">
                       {item.users.map((user, idx) => (
                         <div key={idx} className="flex justify-between items-center bg-white/5 p-2 rounded-lg border border-white/5">

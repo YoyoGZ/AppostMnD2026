@@ -67,7 +67,7 @@ export default function UserKnockoutsPage() {
           La Fase <span className="text-primary">Final</span>
         </h1>
         <p className="text-white/40 font-medium uppercase text-xs tracking-[0.3em]">
-          Copa del Mundo FIFA 2026 | El Camino a la Gloria
+          Mundial de Norteamérica | El Camino a la Gloria
         </p>
       </div>
 
