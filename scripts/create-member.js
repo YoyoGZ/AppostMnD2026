@@ -18,12 +18,13 @@ const { createClient } = require('@supabase/supabase-js');
 //   adentro del array 'members' (separados por coma).
 // ====================================================================
 const CONFIG = {
-  leagueNameOrCode: "da41c54b-fc20-4129-a89d-52a438ed1441", // Nombre o código de la liga a la que querés que entren
+  leagueNameOrCode: "LigaTest26", // Nombre o código de la liga a la que querés que entren o a crear
   members: [
     {
-      email: "chicho@mail.com",    // Cambiá este email
-      alias: "Chichooo",                 // Cambiá este apodo
-      password: "chicho2026"            // Cambiá la clave (mínimo 6 caracteres)
+      email: "test@mail.com",
+      alias: "Yoyo-test",
+      password: "test2026",
+      role: "founder" // Rol de fundador
     }
   ]
 };
@@ -69,29 +70,12 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 
 async function run() {
   try {
-    // 3. Buscar la liga por UUID, código o nombre
     const identifier = CONFIG.leagueNameOrCode.trim();
     const isUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(identifier);
     
     console.log(`🔍 Buscando liga por identificador: "${identifier}"...`);
     let league = null;
 
-    if (isUUID) {
-      console.log("   [INFO] Detectado formato UUID. Buscando directamente por ID de liga...");
-      const { dataByUUID, error: uuidErr } = await supabase
-        .from('leagues')
-        .select('id, name')
-        .eq('id', identifier)
-        .maybeSingle();
-
-      if (uuidErr) {
-        console.error("❌ Error al buscar liga por UUID:", uuidErr);
-        process.exit(1);
-      }
-      // NOTA: supabase retorna dataByUUID en variables locales si cambiamos el desestructurado
-    }
-
-    // Buscador general secuencial
     if (isUUID) {
       const { data, error } = await supabase
         .from('leagues')
@@ -133,20 +117,17 @@ async function run() {
       }
     }
 
-    if (!league) {
-      console.error(`\n❌ ERROR: No se encontró ninguna liga en la base de datos con: "${identifier}"`);
-      console.error("💡 TIP 1: Si buscás por nombre y tiene acentos (ej: 'Campeón'), la consola puede corromper el caracter. Probá usando el Código de Invitación alfanumérico (ej: '014NW2') que no tiene acentos ni espacios.");
-      console.error("💡 TIP 2: Si usás el UUID, asegurate de que sea el valor exacto de la columna 'id' de la tabla 'leagues'.\n");
-      process.exit(1);
+    if (league) {
+      console.log(`✅ Liga encontrada: "${league.name}" (ID: ${league.id})`);
+    } else {
+      console.log(`⚠️ Liga "${identifier}" no encontrada en la base de datos.`);
     }
-
-    console.log(`✅ Liga encontrada: "${league.name}" (ID: ${league.id})`);
 
     // 4. Recorrer los miembros a registrar
     for (const member of CONFIG.members) {
       console.log(`\n👤 Procesando miembro: ${member.email} (${member.alias})...`);
 
-      // Crear usuario en Supabase Auth con metadatos de liga activa y visto del sorteo
+      // Crear usuario en Supabase Auth
       console.log(`   Creando usuario de autenticación en Auth...`);
       const { data: authData, error: authErr } = await supabase.auth.admin.createUser({
         email: member.email,
@@ -154,28 +135,28 @@ async function run() {
         email_confirm: true,
         user_metadata: {
           display_name: member.alias,
-          active_league_id: league.id,
-          welcome_sorteo_shown: true // Saltearse el popup de bienvenida/sorteo en el primer login
+          welcome_sorteo_shown: true
         }
       });
 
       if (authErr) {
         console.error(`   ❌ ERROR al crear usuario en Supabase Auth:`, authErr.message);
-        continue; // Seguir con el siguiente si hay error
+        continue;
       }
 
       const userId = authData.user.id;
       console.log(`   ✅ Usuario creado en Auth con ID único: ${userId}`);
 
-      // Configurar el perfil en public.profiles (upsert por si el trigger ya lo creó)
-      console.log("   Configurando perfil del usuario en la tabla profiles...");
+      // Configurar el perfil en public.profiles (con el rol asignado)
+      const userRole = member.role || 'member';
+      console.log(`   Configurando perfil del usuario en la tabla profiles con rol "${userRole}"...`);
       const { error: profileErr } = await supabase
         .from('profiles')
         .upsert({
           id: userId,
           email: member.email,
           display_name: member.alias,
-          role: 'member' // Rol normal de miembro
+          role: userRole
         });
 
       if (profileErr) {
@@ -184,22 +165,62 @@ async function run() {
         console.log("   ✅ Perfil guardado exitosamente en profiles.");
       }
 
+      // Si la liga no existía y el rol es 'founder', la creamos ahora con este usuario
+      let targetLeagueId = league?.id;
+      if (!targetLeagueId) {
+        if (userRole === 'founder') {
+          console.log(`   ➕ Creando liga "${identifier}" asociada a este fundador...`);
+          const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+          const { data: newLeague, error: newLeagueErr } = await supabase
+            .from('leagues')
+            .insert({
+              name: identifier,
+              invite_code: inviteCode,
+              created_by: userId
+            })
+            .select('id, name')
+            .single();
+
+          if (newLeagueErr) {
+            console.error("   ❌ ERROR al crear liga:", newLeagueErr.message);
+            await supabase.auth.admin.deleteUser(userId);
+            continue;
+          }
+
+          console.log(`   ✅ Liga "${newLeague.name}" creada exitosamente con código "${inviteCode}" (ID: ${newLeague.id})`);
+          targetLeagueId = newLeague.id;
+          league = newLeague;
+        } else {
+          console.error(`   ❌ ERROR: No se puede asociar el usuario a la liga porque no existe y el rol no es 'founder'.`);
+          await supabase.auth.admin.deleteUser(userId);
+          continue;
+        }
+      }
+
       // Insertar la membresía en la tabla league_members
       console.log(`   ⚔️ Integrando a ${member.alias} a la liga "${league.name}"...`);
       const { error: memberErr } = await supabase
         .from('league_members')
         .insert({
-          league_id: league.id,
+          league_id: targetLeagueId,
           user_id: userId,
           alias: member.alias
         });
 
       if (memberErr) {
         console.error("   ❌ ERROR al insertar en league_members:", memberErr.message);
-        // Borrar el auth user si falla la membresía para mantener consistencia
         await supabase.auth.admin.deleteUser(userId);
         continue;
       }
+
+      // Actualizar el active_league_id del usuario en Auth metadatos para que inicie en esa liga
+      await supabase.auth.admin.updateUserById(userId, {
+        user_metadata: {
+          display_name: member.alias,
+          active_league_id: targetLeagueId,
+          welcome_sorteo_shown: true
+        }
+      });
 
       console.log("   🎉 ¡APROVISIONAMIENTO COMPLETADO CON ÉXITO!");
     }

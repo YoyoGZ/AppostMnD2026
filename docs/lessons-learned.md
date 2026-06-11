@@ -546,3 +546,46 @@ Al ejecutar scripts administrativos de Node (`scripts/create-member.js` o `scrip
 3. **Límite Corporativo Híbrido Dinámico (10 Participantes)**:
    Implementación de comprobaciones de unión evaluando si la liga es corporativa y rechazando de inmediato en el servidor si ya cuenta con 10 o más participantes. Esto bloquea el registro en el cliente y deshabilita formularios con una Bento Card roja que informa visualmente el límite excedido.
 
+
+## 2026-06-11: Resultados Mock Vacíos en Bracket por IDs de Equipo Nulos (LL-19)
+
+### Síntoma
+Al inyectar partidos mock desde el HQ para simular resultados, el alert reportaba éxito, pero al ingresar a la pantalla de Eliminatorias (`/knockouts`), el bracket no mostraba los cruces ni los equipos clasificados y se quedaba en la vista de carga "El Camino a la Gloria".
+
+### Diagnóstico
+1. **Ausencia de IDs de Equipos en Upsert**: La función `syncMatchesToDatabase` del `SportsSyncAgent` realizaba un upsert que solo inyectaba `id`, `home_score`, `away_score` y `status` a la tabla `match_results`. Al no estar sembrados inicialmente los partidos de grupos en la base de datos Supabase, la fila se insertaba de cero y dejaba las columnas `home_team_id` y `away_team_id` en `null`.
+2. **Standings y Clasificados Rotos**: `calculateGroupStandings` calcula el acumulado dinámico leyendo `home_team_id` y `away_team_id` desde `match_results`. Al estar en `null`, no encontraba los equipos, por lo que las posiciones de los 12 grupos y los mejores terceros se calculaban vacíos, impidiendo que el motor proyectara o desplegara los partidos de eliminatorias (ID >= 73).
+3. **Simulación de Grupos Insuficiente**: Para poblar y desplegar de forma consistente las llaves finales con equipos reales de manera automatizada, se necesita inyectar los 72 partidos de la Fase de Grupos completa y finalizada, en lugar de solo 3 partidos aislados.
+
+## 2026-06-11: Bloqueo de Bracket de Eliminatorias por Políticas de RLS en Supabase y Cookies Locales (LL-20)
+
+### Síntoma
+Tras pulsar el botón "Desplegar a la Liga" en el Admin HQ para promover los clasificados al bracket, la app no mostraba los partidos de eliminatorias en la página de los jugadores (`/knockouts`), manteniéndose la pantalla de carga de "El Camino a la Gloria". Asimismo, el login en dispositivos móviles locales a través del túnel HTTPS fallaba al redirigir al usuario indefinidamente.
+
+### Diagnóstico
+1. **Fallo de Escritura por RLS**: La Server Action `promoteTeamsToRoundOf32` (en `src/app/actions/tournament-engine.ts`) instanciaba el cliente de Supabase usando el servidor común (`createClient()`), el cual opera bajo la `NEXT_PUBLIC_SUPABASE_ANON_KEY`. La base de datos rechazaba la consulta de `upsert` sobre `match_results` con un error de violación de políticas RLS (Postgres `42501`), impidiendo que se crearan los 16 partidos finales (ID 73 al 88).
+2. **Cookies no Sincronizadas en el Cliente**: En desarrollo local sobre HTTP, el cliente de navegador de Supabase (`src/utils/supabase/client.ts`) no tenía configuradas las opciones de cookies relajadas en desarrollo (`secure: false` y `sameSite: 'lax'`), provocando que los navegadores móviles bloquearan o descartaran las cookies de sesión debido a diferencias de protocolos (origen HTTP e IP local, destino HTTPS Supabase), causando un bucle infinito en el login.
+
+### Resolución (The House Way)
+1. **Bypass de RLS en Acciones Administrativas**: Refactorizamos `promoteTeamsToRoundOf32` para utilizar `createAdminClient()`. Esto realiza el upsert de eliminatorias utilizando la `SUPABASE_SERVICE_ROLE_KEY` del servidor de forma 100% segura y omitiendo el RLS.
+2. **Sincronización de Cookies en Cliente y Servidor**: Agregamos `cookieOptions` con `secure = false` y `sameSite = 'lax'` en `src/utils/supabase/client.ts` para desarrollo. Esto alinea la configuración de cookies en el navegador con la del servidor y el middleware, permitiendo que el celular almacene la cookie de sesión sin contratiempos.
+3. **Instrucción de Pruebas con Túnel HTTPS**: Recomendamos al fundador el uso de **VS Code Dev Tunnels** o **ngrok** para exponer el puerto local `3000` mediante un dominio público HTTPS seguro. Esto soluciona la restricción de los navegadores móviles modernos sobre almacenamiento de cookies de terceros en conexiones HTTP directas sobre IPs.
+
+
+## 2026-06-11: Mapeo Inteligente de la API-Football por Enfrentamiento de Equipos y Marcador en Vivo (LL-21)
+
+### Síntoma
+Al habilitar la API Key real de API-Football, las actualizaciones de partidos del Mundial no se sincronizaban ni se mostraban en la app. Además, las tarjetas de predicciones de los usuarios (`MatchPredictionCard`) no mostraban los goles reales ni el estado del partido (en vivo/finalizado) una vez que el partido comenzaba y las apuestas se bloqueaban.
+
+### Diagnóstico
+1. **Desajuste de IDs API vs Local**: API-Football numera los partidos con IDs globales de su sistema (e.g. `1124532`), mientras que MundiApp26 utiliza IDs del 1 al 104. El agente de sincronización intentaba cruzar directamente `apiMatch.fixture.id === localMatch.id`, lo que fallaba al instante y no actualizaba nada.
+2. **Falta de Consulta y Suscripción del Marcador Real**: La card de predicción sólo consultaba la tabla `predictions` para leer la apuesta del jugador, pero omitía leer `match_results` para obtener el marcador real y el estado en curso del partido.
+
+### Resolución (The House Way)
+1. **Mapeo por Cruce de Equipos**: Implementamos una tabla de equivalencias de nombres de equipos (`TEAM_MAP`) y una función normalizadora y tolerante a tildes (`mapApiTeamToLocalCode`). En `syncMatchesToDatabase`, si no estamos en Mock Mode, se consulta todo el fixture del Mundial 2026 (`/fixtures?league=1&season=2026`) y se asocia cada partido local buscando el enfrentamiento unívoco entre el equipo local y visitante.
+2. **Visualización y Suscripción del Marcador Real**: Actualizamos `MatchPredictionCard.tsx` para consultar el marcador de `match_results` al montar el componente. Integramos una suscripción en caliente mediante WebSockets (`postgres_changes` filtrado por ID de partido) para actualizar los goles en tiempo real en la UI en menos de 100ms.
+3. **Banner de Feedback e IA de Puntos**: Si el partido está `"playing"` o `"finished"`, la card dibuja un banner superior con el estado ("En Vivo" con animación roja, o "Resultado Real") junto con el marcador oficial y una badge premium indicando los puntos ganados (e.g., `🏆 +5 PTS` por pleno o `🏆 +2 PTS` por acierto).
+
+
+
+

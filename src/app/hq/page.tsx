@@ -12,7 +12,8 @@ import {
   CheckCircle2, 
   XCircle, 
   AlertTriangle,
-  QrCode
+  QrCode,
+  Trash2
 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -33,6 +34,9 @@ import {
 export default function HQPage() {
   const router = useRouter();
   const supabase = createClient();
+
+  const localIp = process.env.NEXT_PUBLIC_LOCAL_IP;
+  const qrDataUrl = localIp ? `http://${localIp}:3000` : 'https://www.mundiapp26.com';
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -245,22 +249,41 @@ export default function HQPage() {
                 <h2 className="text-lg font-black uppercase tracking-wide">Sync Agent (MOCK)</h2>
               </div>
               <p className="text-white/40 text-sm mb-6 leading-relaxed">
-                Fuerza la inyección de datos simulados para probar los marcadores y tablas de posiciones de los grupos.
+                Simula y carga los resultados de los 72 partidos de la Fase de Grupos en Supabase para habilitar el bracket de eliminatorias.
               </p>
-              <button 
-                onClick={async () => {
-                  const { forceMockSyncAction } = await import('@/app/actions/sync');
-                  const res = await forceMockSyncAction();
-                  if (res.success) {
-                    alert(`¡Sincronización exitosa! ${res.updatedCount} partidos inyectados en Supabase. Revisa el Dashboard.`);
-                  } else {
-                    alert("Error sincronizando: " + res.error);
-                  }
-                }}
-                className="w-full bg-green-500/20 text-green-400 hover:bg-green-500/40 transition-colors font-black py-4 rounded-xl uppercase tracking-widest text-xs border border-green-500/30 shadow-[0_0_15px_rgba(34,197,94,0.1)] active:scale-95"
-              >
-                Inyectar Resultados Mock
-              </button>
+              
+              <div className="flex flex-col gap-3">
+                <button 
+                  onClick={async () => {
+                    const { forceMockSyncAction } = await import('@/app/actions/sync');
+                    const res = await forceMockSyncAction();
+                    if (res.success) {
+                      alert(`¡Sincronización exitosa! ${res.updatedCount} partidos inyectados en Supabase con sus equipos. Revisa el Motor de Eliminatorias.`);
+                    } else {
+                      alert("Error sincronizando: " + res.error);
+                    }
+                  }}
+                  className="w-full bg-green-500/20 text-green-400 hover:bg-green-500/40 transition-colors font-black py-4 rounded-xl uppercase tracking-widest text-xs border border-green-500/30 shadow-[0_0_15px_rgba(34,197,94,0.1)] active:scale-95"
+                >
+                  Inyectar Grupos Completos
+                </button>
+
+                <button 
+                  onClick={async () => {
+                    if (!confirm("⚠️ ¿Estás seguro de resetear TODOS los resultados de partidos en la base de datos? Esto también limpiará los cruces de Eliminatorias desplegados.")) return;
+                    const { clearAllMatchResultsAction } = await import('@/app/actions/sync');
+                    const res = await clearAllMatchResultsAction();
+                    if (res.success) {
+                      alert("¡Base de datos de partidos reseteada con éxito (0 partidos en Supabase)!");
+                    } else {
+                      alert("Error al limpiar BD: " + res.error);
+                    }
+                  }}
+                  className="w-full bg-red-500/10 text-red-500 hover:bg-red-500/30 transition-colors font-black py-4 rounded-xl uppercase tracking-widest text-xs border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)] active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" /> Resetear Resultados (Limpiar BD)
+                </button>
+              </div>
             </div>
 
             {/* Live API Test */}
@@ -438,7 +461,7 @@ export default function HQPage() {
           <div className="flex justify-center mb-5">
             <div className="bg-white p-4 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-transform duration-300 hover:scale-105">
               <img 
-                src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://www.mundiapp26.com" 
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrDataUrl)}`} 
                 alt="QR Code Oficial MundiApp26" 
                 className="w-48 h-48 object-contain"
                 style={{ imageRendering: 'pixelated' }}
@@ -448,7 +471,7 @@ export default function HQPage() {
 
           <div className="inline-flex flex-col items-center">
             <span className="text-[11px] font-mono text-white/50 bg-black/40 px-3 py-1 rounded-md border border-white/5">
-              https://www.mundiapp26.com
+              {qrDataUrl}
             </span>
             <span className="text-[9px] text-white/30 mt-2 italic font-bold">
               Tamaño aproximado en pantalla: ~5cm x 5cm (192px)

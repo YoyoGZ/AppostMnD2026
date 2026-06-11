@@ -1,8 +1,10 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import worldCupData from "@/data/world-cup-2026.json";
 import { TeamStanding } from "@/types/tournament";
+
 
 /**
  * Calcula las posiciones de todos los grupos basándose en los resultados reales de la BD.
@@ -92,7 +94,7 @@ export async function getBestThirdPlaces(allStandings: Record<string, TeamStandi
  * Ejecuta la promoción masiva de equipos de Grupos a 16avos.
  */
 export async function promoteTeamsToRoundOf32() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const standings = await calculateGroupStandings();
   const bestThirds = await getBestThirdPlaces(standings);
 

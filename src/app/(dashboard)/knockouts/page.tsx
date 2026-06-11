@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import KnockoutManager from '@/components/tournament/KnockoutManager';
+import KnockoutBracket from '@/components/tournament/KnockoutBracket';
 import { Trophy, Timer, Sparkles } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 
@@ -48,7 +48,7 @@ export default function UserKnockoutsPage() {
           <div className="flex items-center justify-center gap-4 pt-8">
              <div className="bg-black/60 border border-white/20 px-8 py-4 rounded-3xl flex items-center gap-3 shadow-inner">
                 <Timer className="w-5 h-5 text-primary animate-pulse" />
-                <span className="text-xs font-black text-white uppercase tracking-widest">Calculando Cruces de Liga...</span>
+                <span className="text-xs font-black text-white uppercase tracking-widest">Calculando los cruces de Eliminatorias.</span>
              </div>
           </div>
           
@@ -71,7 +71,7 @@ export default function UserKnockoutsPage() {
         </p>
       </div>
 
-      <KnockoutManager isAdmin={false} />
+      <KnockoutBracket />
     </div>
   );
 }

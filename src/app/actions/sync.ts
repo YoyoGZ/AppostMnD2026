@@ -1,14 +1,17 @@
 "use server";
 
 import { sportsSyncAgent } from "@/services/SportsSyncAgent";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 export async function forceMockSyncAction(): Promise<
   | { success: true; updatedCount: number }
   | { success: false; error: string }
 > {
   try {
-    // Simulamos la sincronización de los partidos 2, 3 y 4
-    const result = await sportsSyncAgent.syncMatchesToDatabase([2, 3, 4]);
+    // Generamos los IDs de los 72 partidos de la Fase de Grupos
+    const fixtureIds = Array.from({ length: 72 }, (_, i) => i + 1);
+    
+    const result = await sportsSyncAgent.syncMatchesToDatabase(fixtureIds);
     if (result.success) {
       return { success: true, updatedCount: result.updatedCount };
     } else {
@@ -17,6 +20,24 @@ export async function forceMockSyncAction(): Promise<
   } catch (error: any) {
     console.error("Error forzando sincronización:", error);
     return { success: false, error: error.message || "Error desconocido" };
+  }
+}
+
+export async function clearAllMatchResultsAction(): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = createAdminClient();
+    // Borramos todos los partidos (fase de grupos y eliminatorias)
+    const { error } = await supabase
+      .from('match_results')
+      .delete()
+      .not('id', 'is', null);
+
+    if (error) throw error;
+    
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error reseteando match_results:", error);
+    return { success: false, error: error.message || "Error al limpiar la base de datos" };
   }
 }
 

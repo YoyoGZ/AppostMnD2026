@@ -6,6 +6,7 @@ import { Clock, Lock, Check, Loader2 } from "lucide-react";
 import { getLocalMatchTimeText } from "@/lib/utils/date";
 import { createClient } from "@/utils/supabase/client";
 import { getTeamFlagUrl } from "@/lib/utils/flags";
+import { cn } from "@/lib/utils";
 
 export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInfo, userId: string | null }) => {
   const [localTimeText, setLocalTimeText] = useState<string>("");
@@ -16,32 +17,76 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showConfirmMode, setShowConfirmMode] = useState<boolean>(false);
+  
+  const [realResult, setRealResult] = useState<{ home_score: number; away_score: number; status: string } | null>(null);
+  const [pointsEarned, setPointsEarned] = useState<number | null>(null);
+
   const supabase = createClient();
 
-  // 1. Cargar apuesta existente al montar el componente o cuando cambie el userId
+  // 1. Cargar apuesta, resultado real y escuchar cambios en vivo
   useEffect(() => {
-    const fetchPrediction = async () => {
-      if (!userId) {
-        setIsLoading(false);
-        return;
+    const fetchPredictionAndResult = async () => {
+      if (userId) {
+        const { data: predData } = await supabase
+          .from('predictions')
+          .select('equipo_a_goles, equipo_b_goles, is_sealed, points_earned')
+          .eq('user_id', userId)
+          .eq('match_id', matchInfo.id)
+          .maybeSingle();
+          
+        if (predData) {
+          setHomeScore(predData.equipo_a_goles.toString());
+          setAwayScore(predData.equipo_b_goles.toString());
+          setIsSealed(predData.is_sealed || false);
+          setPointsEarned(predData.points_earned);
+        }
+      }
+
+      // Cargar resultado oficial
+      const { data: resultData } = await supabase
+        .from('match_results')
+        .select('home_score, away_score, status')
+        .eq('id', parseInt(matchInfo.id))
+        .maybeSingle();
+
+      if (resultData) {
+        setRealResult({
+          home_score: resultData.home_score ?? 0,
+          away_score: resultData.away_score ?? 0,
+          status: resultData.status
+        });
       }
       
-      const { data } = await supabase
-        .from('predictions')
-        .select('equipo_a_goles, equipo_b_goles, is_sealed')
-        .eq('user_id', userId)
-        .eq('match_id', matchInfo.id)
-        .maybeSingle();
-        
-      if (data) {
-        setHomeScore(data.equipo_a_goles.toString());
-        setAwayScore(data.equipo_b_goles.toString());
-        setIsSealed(data.is_sealed || false);
-      }
       setIsLoading(false);
     };
-    fetchPrediction();
+
+    fetchPredictionAndResult();
+
+    // Canal en tiempo real para el partido individual
+    const channel = supabase
+      .channel(`match-result-${matchInfo.id}`)
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'match_results',
+        filter: `id=eq.${matchInfo.id}`
+      }, (payload: any) => {
+        const newRecord = payload.new;
+        if (newRecord) {
+          setRealResult({
+            home_score: newRecord.home_score ?? 0,
+            away_score: newRecord.away_score ?? 0,
+            status: newRecord.status
+          });
+        }
+      })
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
   }, [matchInfo.id, supabase, userId]);
+
 
   // 2. Motor de Tiempo: Bloqueo 5 min antes
   useEffect(() => {
@@ -141,7 +186,48 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
       </div>
 
       {/* Body: Teams & Predictions */}
-      <div className={`p-7 flex flex-col gap-5 flex-grow transition-opacity duration-300 ${isEntryDisabled ? "opacity-70 grayscale-[30%]" : "opacity-100"}`}>
+      <div className={cn(
+        "p-7 flex flex-col gap-5 flex-grow transition-all duration-300",
+        isEntryDisabled ? "bg-card-body/10 opacity-80" : "opacity-100"
+      )}>
+        {/* Banner de Resultado Real Oficial (API o Simulador) */}
+        {realResult && realResult.status !== 'pending' && (
+          <div className={cn(
+            "px-4 py-3 rounded-2xl flex items-center justify-between border text-[10px] font-black uppercase tracking-wider animate-in fade-in slide-in-from-top-2 duration-500",
+            realResult.status === 'playing' 
+              ? "bg-red-500/10 border-red-500/20 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.15)]" 
+              : "bg-white/5 border-white/5 text-slate-300"
+          )}>
+            <span className="flex items-center gap-1.5">
+              {realResult.status === 'playing' ? (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  <span>En Vivo</span>
+                </>
+              ) : (
+                <span>Resultado Real</span>
+              )}
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-black tracking-widest text-white bg-black/40 px-3 py-1 rounded-xl">
+                {realResult.home_score} - {realResult.away_score}
+              </span>
+              {pointsEarned !== null && (
+                <span className={cn(
+                  "px-2.5 py-1 rounded-xl text-[9px] font-black tracking-wider shadow-sm border",
+                  pointsEarned === 5 ? "bg-green-500/20 text-green-400 border-green-500/20 shadow-[0_0_10px_rgba(34,197,94,0.15)]" :
+                  pointsEarned === 2 ? "bg-primary/20 text-primary border-primary/20" :
+                  "bg-white/5 text-white/30 border-white/5"
+                )}>
+                  {pointsEarned === 5 ? "🏆 +5 PTS" :
+                   pointsEarned === 2 ? "🏆 +2 PTS" :
+                   "0 PTS"}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Home Team */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">

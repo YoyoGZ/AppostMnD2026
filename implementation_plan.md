@@ -17,7 +17,9 @@ Proponemos la creación de un nuevo componente y la modificación del layout pri
 ### 1. Backend / Cálculo Dinámico del Número de Liga
 
 #### [MODIFY] [layout.tsx](file:///c:/Users/triun/AFlexe_Project/Mundial2026/src/app/(dashboard)/layout.tsx)
-* En el Layout de rutas protegidas (Server Component), si el usuario actual es creador de alguna liga, calcularemos de forma matemáticamente exacta qué número de liga global fundó.
+
+* En el Layout de rutas protegidas (Server Component), si el usuario actual es creador de alguna liga, calcularemos de forma matemáticamente exacta qué número
+de liga global fundó.
 * **El algoritmo dinámico:**
   1. Buscamos la fecha de creación (`created_at`) de su primera liga fundada en la tabla `leagues`.
   2. Contamos cuántas ligas existen globalmente en la base de datos cuya fecha de creación sea menor o igual a la de su liga (`lte`).
@@ -29,6 +31,7 @@ Proponemos la creación de un nuevo componente y la modificación del layout pri
 ### 2. Frontend / Componente de Alta Fidelidad
 
 #### [NEW] [WelcomeSorteoModal.tsx](file:///c:/Users/triun/AFlexe_Project/Mundial2026/src/components/dashboard/WelcomeSorteoModal.tsx)
+
 * Diseñar un modal premium e interactivo con estética **Estadio Nocturno**:
   * **Overlay:** Fondo negro con un blur ultra-profundo (`backdrop-blur-2xl bg-black/85`) para tapar completamente el dashboard de fondo y focalizar la atención.
   * **Tarjeta Bento Glassmorphism:** Caja flotante con degradado radial dorado tenue, bordes brillantes de contraste (`border-white/10`) y destellos solares.
@@ -46,6 +49,7 @@ Proponemos la creación de un nuevo componente y la modificación del layout pri
 ### 3. Integración en el Dashboard Layout
 
 #### [MODIFY] [layout.tsx](file:///c:/Users/triun/AFlexe_Project/Mundial2026/src/app/(dashboard)/layout.tsx)
+
 * Importar e inyectar el componente `<WelcomeSorteoModal leagueNumber={leagueNumber} alreadyShown={alreadyShown} />` justo dentro del renderizado, para que actúe como guardián de entrada a cualquier ruta protegida del dashboard.
 
 ---
@@ -53,6 +57,7 @@ Proponemos la creación de un nuevo componente y la modificación del layout pri
 ## Plan de Verificación
 
 ### Pruebas Manuales y de Caja Negra
+
 1. **Verificación de Cálculo de Posición:**
    * Crear una liga en una cuenta nueva y verificar en consola o base de datos que el conteo de ligas creadas antes que ella coincide exactamente con su número asignado.
 2. **Prueba de Persistencia Unica (One-Shot):**

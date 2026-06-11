@@ -1,5 +1,111 @@
 import { APIFootballFixtureResponse, MatchStatus } from "@/types/tournament";
 import { createAdminClient } from "@/utils/supabase/admin";
+import worldCupData from "@/data/world-cup-2026.json";
+
+// Diccionario de traducción de nombres de equipos en inglés/español de la API a códigos FIFA
+const TEAM_MAP: Record<string, string> = {
+  "mexico": "MEX",
+  "south africa": "RSA",
+  "sudafrica": "RSA",
+  "korea": "KOR",
+  "czech": "CZE",
+  "canada": "CAN",
+  "switzerland": "SUI",
+  "suiza": "SUI",
+  "qatar": "QAT",
+  "bosnia": "BIH",
+  "brazil": "BRA",
+  "brasil": "BRA",
+  "morocco": "MAR",
+  "marruecos": "MAR",
+  "usa": "USA",
+  "united states": "USA",
+  "estados unidos": "USA",
+  "paraguay": "PAR",
+  "australia": "AUS",
+  "turkey": "TUR",
+  "turquia": "TUR",
+  "turkiye": "TUR",
+  "argentina": "ARG",
+  "sweden": "SWE",
+  "suecia": "SWE",
+  "cameroon": "CMR",
+  "camerun": "CMR",
+  "honduras": "HON",
+  "france": "FRA",
+  "francia": "FRA",
+  "ukraine": "UKR",
+  "ucrania": "UKR",
+  "iraq": "IRQ",
+  "irak": "IRQ",
+  "new zealand": "NZL",
+  "nueva zelanda": "NZL",
+  "spain": "ESP",
+  "espana": "ESP",
+  "denmark": "DEN",
+  "dinamarca": "DEN",
+  "nigeria": "NGA",
+  "jamaica": "JAM",
+  "england": "ENG",
+  "inglaterra": "ENG",
+  "poland": "POL",
+  "polonia": "POL",
+  "egypt": "EGY",
+  "egipto": "EGY",
+  "panama": "PAN",
+  "italy": "ITA",
+  "italia": "ITA",
+  "serbia": "SRB",
+  "algeria": "ALG",
+  "argelia": "ALG",
+  "costa rica": "CRC",
+  "portugal": "POR",
+  "netherlands": "NED",
+  "paises bajos": "NED",
+  "holand": "NED",
+  "japan": "JPN",
+  "japon": "JPN",
+  "ecuador": "ECU",
+  "uruguay": "URU",
+  "germany": "GER",
+  "alemania": "GER",
+  "iran": "IRN",
+  "ghana": "GHA",
+  "belgium": "BEL",
+  "belgica": "BEL",
+  "colombia": "COL",
+  "saudi arabia": "KSA",
+  "arabia saudita": "KSA",
+  "peru": "PER",
+  "venezuela": "VEN",
+  "chile": "CHI",
+  "senegal": "SEN",
+  "tunisia": "TUN",
+  "tunez": "TUN",
+  "croatia": "CRO",
+  "croacia": "CRO"
+};
+
+function mapApiTeamToLocalCode(apiTeamName: string): string | null {
+  const name = apiTeamName.toLowerCase().trim();
+  
+  // 1. Coincidencia exacta o parcial por palabras clave del mapa
+  for (const [key, code] of Object.entries(TEAM_MAP)) {
+    if (name.includes(key)) return code;
+  }
+  
+  // 2. Coincidencia aproximada tolerante a acentos
+  const normalizedApiName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const localTeam = worldCupData.equipos.find(t => {
+    const normalizedLocalName = t.nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return normalizedLocalName.includes(normalizedApiName) || normalizedApiName.includes(normalizedLocalName);
+  });
+  
+  if (localTeam) return localTeam.id;
+
+  return null;
+}
+
 
 /**
  * SportsSyncAgent
@@ -15,11 +121,19 @@ export class SportsSyncAgent {
 
   constructor() {
     this.apiKey = process.env.API_FOOTBALL_KEY;
-    // Si no hay key, activamos automáticamente el modo simulador
-    this.isMockMode = !this.apiKey;
+    
+    // Si la clave es la antigua inactiva, o no existe, forzamos Mock Mode
+    const inactiveKey = "2672e54b9659d01a9d41a50005dc6849";
+    const isInactive = this.apiKey === inactiveKey;
+    
+    this.isMockMode = !this.apiKey || isInactive;
     
     if (this.isMockMode) {
-      console.warn("⚠️ SportsSyncAgent iniciado en MOCK MODE. No se usarán llamadas reales a la API.");
+      if (isInactive) {
+        console.warn("⚠️ SportsSyncAgent: La clave API_FOOTBALL_KEY actual es la clave inactiva/reseteada. Se fuerza MOCK MODE.");
+      } else {
+        console.warn("⚠️ SportsSyncAgent iniciado en MOCK MODE. No se usarán llamadas reales a la API.");
+      }
     }
   }
 
@@ -112,7 +226,35 @@ export class SportsSyncAgent {
    */
   async syncMatchesToDatabase(fixtureIds: number[]): Promise<{ success: boolean; updatedCount: number }> {
     console.log(`🔄 Iniciando sincronización de ${fixtureIds.length} partidos...`);
-    const liveData = await this.getLiveScores(fixtureIds);
+    
+    let liveData: APIFootballFixtureResponse[] = [];
+    
+    if (this.isMockMode) {
+      liveData = await this.getLiveScores(fixtureIds);
+    } else {
+      // MODO REAL: Consultamos todo el fixture de la Copa del Mundo 2026 en API-Football (League ID: 1)
+      try {
+        const response = await fetch(`${this.baseUrl}/fixtures?league=1&season=2026`, {
+          method: "GET",
+          headers: {
+            "x-rapidapi-host": "v3.football.api-sports.io",
+            "x-rapidapi-key": this.apiKey as string,
+          },
+          next: { revalidate: 60 } 
+        });
+
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        liveData = data.response || [];
+        console.log(`ℹ️ [SportsSyncAgent] Se recibieron ${liveData.length} partidos reales desde la API.`);
+      } catch (error) {
+        console.error("❌ Error en SportsSyncAgent getLiveScores en vivo:", error);
+        return { success: false, updatedCount: 0 };
+      }
+    }
     
     if (!liveData || liveData.length === 0) {
       return { success: false, updatedCount: 0 };
@@ -120,13 +262,94 @@ export class SportsSyncAgent {
 
     const supabase = createAdminClient();
     
-    // Transformamos el formato de la API al esquema de nuestra base de datos (match_results)
-    const upserts = liveData.map(apiMatch => ({
-      id: apiMatch.fixture.id,
-      home_score: apiMatch.goals.home,
-      away_score: apiMatch.goals.away,
-      status: this.mapStatusToInternal(apiMatch.fixture.status.short)
-    }));
+    // Obtener los partidos que ya existan en match_results (útil para mapear eliminatorias dinámicas)
+    const { data: dbMatches } = await supabase
+      .from('match_results')
+      .select('id, home_team_id, away_team_id');
+    
+    const dbMatchesMap = new Map(dbMatches?.map((m: any) => [`${m.home_team_id}-${m.away_team_id}`, m.id]) || []);
+    
+    const upserts: any[] = [];
+
+    for (const apiMatch of liveData) {
+      if (this.isMockMode) {
+        // En MOCK MODE, el ID de la API coincide con el ID de nuestro fixture
+        const localMatch = worldCupData.partidos.find(m => m.id === apiMatch.fixture.id);
+        const item: any = {
+          id: apiMatch.fixture.id,
+          home_score: apiMatch.goals.home,
+          away_score: apiMatch.goals.away,
+          status: this.mapStatusToInternal(apiMatch.fixture.status.short)
+        };
+
+        if (localMatch) {
+          item.home_team_id = localMatch.local;
+          item.away_team_id = localMatch.visitante;
+        }
+        upserts.push(item);
+      } else {
+        // EN MODO REAL: Mapeamos los partidos cruzando los códigos de equipos locales y visitantes
+        const homeName = (apiMatch as any).teams?.home?.name;
+        const awayName = (apiMatch as any).teams?.away?.name;
+
+        if (!homeName || !awayName) continue;
+
+        const homeCode = mapApiTeamToLocalCode(homeName);
+        const awayCode = mapApiTeamToLocalCode(awayName);
+
+        if (!homeCode || !awayCode) {
+          // No logueamos todo para evitar spam, pero advertimos si es México o Sudáfrica
+          if (homeName.includes("Mexico") || awayName.includes("Mexico")) {
+            console.warn(`⚠️ No se pudo mapear equipos de la API: ${homeName} vs ${awayName}`);
+          }
+          continue;
+        }
+
+        // Buscamos el ID de partido local correspondiente en el fixture de grupos
+        let localMatchId: number | null = null;
+        
+        const staticMatch = worldCupData.partidos.find(m => 
+          (m.local === homeCode && m.visitante === awayCode) ||
+          (m.local === awayCode && m.visitante === homeCode)
+        );
+
+        if (staticMatch) {
+          localMatchId = staticMatch.id;
+        } else {
+          // Si no es fase de grupos, buscamos si hay una eliminatoria ya desplegada con estos equipos
+          const dbId = dbMatchesMap.get(`${homeCode}-${awayCode}`) || dbMatchesMap.get(`${awayCode}-${homeCode}`);
+          if (dbId) {
+            localMatchId = dbId as number;
+          }
+        }
+
+        if (!localMatchId) {
+          continue;
+        }
+
+        // Verificamos si en la API el equipo local/visitante está en el mismo orden que nuestro fixture
+        const isHomeSame = staticMatch 
+          ? staticMatch.local === homeCode 
+          : dbMatches?.find((m: any) => m.id === localMatchId)?.home_team_id === homeCode;
+
+        const homeScore = isHomeSame ? apiMatch.goals.home : apiMatch.goals.away;
+        const awayScore = isHomeSame ? apiMatch.goals.away : apiMatch.goals.home;
+
+        upserts.push({
+          id: localMatchId,
+          home_team_id: homeCode,
+          away_team_id: awayCode,
+          home_score: homeScore,
+          away_score: awayScore,
+          status: this.mapStatusToInternal(apiMatch.fixture.status.short)
+        });
+      }
+    }
+
+    if (upserts.length === 0) {
+      console.warn("⚠️ Ningún partido de la API coincidió con el fixture local de MundiApp26.");
+      return { success: true, updatedCount: 0 };
+    }
 
     // Realizamos un 'upsert' masivo. Si el ID ya existe, actualiza los goles y el estado.
     const { error } = await supabase
@@ -138,14 +361,28 @@ export class SportsSyncAgent {
       return { success: false, updatedCount: 0 };
     }
 
-    console.log(`✅ Sincronización exitosa: ${upserts.length} partidos actualizados en BD.`);
+    console.log(`✅ Sincronización exitosa: ${upserts.length} partidos procesados y actualizados en BD.`);
     return { success: true, updatedCount: upserts.length };
   }
 
   // --- MOCK GENERATOR PARA DESARROLLO ---
 
   private generateMockLiveScores(fixtureIds: number[]): APIFootballFixtureResponse[] {
+    const isBulkSimulation = fixtureIds.length > 10;
+
     return fixtureIds.map(id => {
+      // Si es simulación masiva (Fase de Grupos completa), finalizamos todos los partidos
+      if (isBulkSimulation) {
+        // Marcadores estables basados en el ID para evitar empates masivos y tener variedad
+        const homeScore = (id % 3);
+        const awayScore = ((id + 2) % 3);
+        return {
+          fixture: { id, status: { short: "FT", elapsed: 90 } },
+          goals: { home: homeScore, away: awayScore },
+          score: { penalty: { home: null, away: null } }
+        };
+      }
+
       // Simulamos que el partido 2 (CAN vs SUI) está en vivo (Segundo Tiempo)
       if (id === 2) {
         return {

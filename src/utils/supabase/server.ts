@@ -22,12 +22,16 @@ export async function createClient() {
         },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
+            cookiesToSet.forEach(({ name, value, options }) => {
+              const adjustedOptions = { ...options };
+              if (process.env.NODE_ENV === 'development') {
+                adjustedOptions.secure = false;
+                adjustedOptions.sameSite = 'lax';
+              }
+              cookieStore.set(name, value, adjustedOptions);
+            });
           } catch {
-            // The `setAll` method was called from a Server Component.
-            // Ignore si se llama al leer desde Server.
+            // Ignore if called from Server Component
           }
         },
       },

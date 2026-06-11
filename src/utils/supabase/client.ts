@@ -20,12 +20,22 @@ export function createClient() {
 
   // En el cliente (navegador), garantizamos una única instancia global (Singleton)
   if (!client) {
+    const cookieOptions: any = {};
+    if (process.env.NODE_ENV === 'development') {
+      cookieOptions.secure = false;
+      cookieOptions.sameSite = 'lax';
+    }
+
     client = createBrowserClient(
       supabaseUrl!,
-      supabaseKey!
-    )
+      supabaseKey!,
+      {
+        cookieOptions
+      }
+    );
   }
 
   return client;
 }
+
 
