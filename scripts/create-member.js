@@ -18,13 +18,13 @@ const { createClient } = require('@supabase/supabase-js');
 //   adentro del array 'members' (separados por coma).
 // ====================================================================
 const CONFIG = {
-  leagueNameOrCode: "LigaTest26", // Nombre o código de la liga a la que querés que entren o a crear
+  leagueNameOrCode: "Patines FC", // Nombre o código de la liga a la que querés que entren o a crear
   members: [
     {
-      email: "test@mail.com",
-      alias: "Yoyo-test",
-      password: "test2026",
-      role: "founder" // Rol de fundador
+      email: "Chicho2@mail.com",
+      alias: "Chicho",
+      password: "chicho2026",
+      role: "member" // Rol de fundador
     }
   ]
 };

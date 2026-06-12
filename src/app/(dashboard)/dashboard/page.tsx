@@ -14,12 +14,15 @@ import { getStandingsLocalAction } from "@/app/actions/sync";
 import { CorporateBentoHeader } from "@/components/dashboard/CorporateBentoHeader";
 import { useSidebar } from "@/context/SidebarContext";
 import { useAuth } from "@/context/AuthContext";
+import { MatchCardLive } from "@/components/tournament/MatchCardLive";
+import { cn } from "@/lib/utils";
 
 export default function Dashboard() {
   const { brandTheme } = useSidebar();
   const { user } = useAuth();
   const [activeGroup, setActiveGroup] = useState("A");
   const [showRules, setShowRules] = useState(false);
+  const [showLiveMatch, setShowLiveMatch] = useState(false);
   const [standings, setStandings] = useState<any[]>([]);
   const [dbMatches, setDbMatches] = useState<any[]>([]);
 
@@ -149,6 +152,11 @@ export default function Dashboard() {
   const filteredMatches = (matchesByFase[activeFase] || [])
     .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
 
+  // Verificar si hay algún partido en vivo en dbMatches (estados distintos de 'pending', 'finished' y 'bloqueado')
+  const hasLiveMatch = dbMatches.some(m => 
+    m.status && !["pending", "finished", "bloqueado"].includes(m.status)
+  );
+
   return (
     <div className="relative pb-12">
       <div className="absolute top-0 left-0 w-full h-[400px] bg-gradient-to-b from-primary/5 to-transparent -z-10 pointer-events-none" />
@@ -160,13 +168,39 @@ export default function Dashboard() {
         </div>
 
         <div className="flex flex-col gap-2 items-end">
-          <button 
-            onClick={() => setShowRules(true)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-[11px] md:text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(251,191,36,0.1)] transition-all group w-fit"
-          >
-            <Info className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-            Reglas
-          </button>
+          <div className="flex gap-2 items-center">
+            {/* Botón Live Hub */}
+            <button
+              onClick={() => setShowLiveMatch(true)}
+              className={cn(
+                "flex items-center gap-2 px-5 py-2.5 rounded-full text-[11px] md:text-xs font-black uppercase tracking-[0.15em] transition-all group w-fit border",
+                hasLiveMatch
+                  ? "bg-red-500/20 hover:bg-red-500/30 border-red-500/40 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.2)] animate-pulse"
+                  : "bg-white/10 hover:bg-white/20 border-white/20 text-white shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(56,189,248,0.1)]"
+              )}
+            >
+              {hasLiveMatch ? (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-ping shrink-0" />
+                  🔴 PARTIDO EN VIVO
+                </>
+              ) : (
+                <>
+                  <span className="text-primary group-hover:scale-110 transition-transform">📡</span>
+                  LIVE HUB
+                </>
+              )}
+            </button>
+
+            <button 
+              onClick={() => setShowRules(true)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-[11px] md:text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(251,191,36,0.1)] transition-all group w-fit"
+            >
+              <Info className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
+              Reglas
+            </button>
+          </div>
+          
           <div className="flex flex-col items-end gap-3 origin-right mt-1">
             <InstallAppButton />
             <PushOptInButton />
@@ -183,6 +217,14 @@ export default function Dashboard() {
         title="Reglas de la Liga"
       >
         <LigaRules />
+      </Modal>
+
+      <Modal 
+        isOpen={showLiveMatch} 
+        onClose={() => setShowLiveMatch(false)} 
+        title="Live Hub • Marcador en Tiempo Real"
+      >
+        <MatchCardLive />
       </Modal>
 
       <section className="mb-16 relative z-10">
