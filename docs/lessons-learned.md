@@ -665,3 +665,16 @@ Vercel limita de forma estricta el uso de Cron Jobs en las cuentas gratuitas (Ho
 ### Resolución (The House Way)
 1. **Configuración Diaria en Next.js**: Modificamos `vercel.json` para definir la frecuencia a una vez al día (`"schedule": "0 12 * * *"`), lo que desbloquea y permite pasar las reglas de validación de Vercel Hobby.
 2. **Orquestación Externa Gratuita**: En lugar de pagar un plan Pro, se delegan las llamadas recurrentes de alta frecuencia (cada 1 o 2 minutos) a un servicio de automatización externo gratuito (como `cron-job.org`). Este orquestador externo se configura para llamar vía HTTP GET al endpoint seguro `https://mundiapp26.com/api/sync` inyectando la cabecera `Authorization: Bearer <CRON_SECRET>` para mantener la seguridad e integridad del Oráculo.
+
+## 2026-06-12: Desajuste de Fases (Jornadas Mezcladas) al Alinear Fixtures (LL-27)
+
+### Síntoma
+En el Dashboard y la página Partidos, las jornadas aparecían mezcladas de forma errónea (por ejemplo, el partido Canadá vs Suiza figuraba etiquetado como `GRUPOS - J1` pero con fecha del 24 de junio, y el partido Canadá vs Bosnia figuraba como `GRUPOS - J3` pero con fecha del 12 de junio).
+
+### Diagnóstico
+Al alinear las fechas de los partidos en `world-cup-2026.json` mediante el script, se cruzaron los equipos y se corrigieron las fechas, pero se omitió actualizar la columna `"fase"` de cada partido local. Como consecuencia, el partido local 2 (que originalmente en el JSON de maquetas era la J1 de Canadá contra Suiza) se reprogramó para el 24 de junio pero mantuvo su fase `"Grupos - J1"`. Al agrupar y ordenar el Dashboard por fase, la UI mostraba partidos lejanos en la Jornada 1 y partidos inminentes en la Jornada 3.
+
+### Resolución (The House Way)
+1. **Alineación de Fases vía `league.round` de la API**: Refactorizamos el script `scratch/align-fixture-dates.js` para capturar la propiedad `league.round` de la API de fútbol (la cual reporta `"Group Stage - 1"`, `"Group Stage - 2"` o `"Group Stage - 3"`).
+2. **Mapeo de Nomenclatura**: Traducimos dinámicamente `"Group Stage - X"` a la nomenclatura local `"Grupos - JX"` y reescribimos el campo `localMatch.fase` en el JSON.
+3. **Resultado Estético e Integración**: Al correr el script se reasignaron correctamente las fases de 14 partidos desfasados. Ahora Canadá vs Bosnia (12 de junio) se agrupa correctamente en `GRUPOS - J1` y Canadá vs Suiza (24 de junio) en `GRUPOS - J3`.

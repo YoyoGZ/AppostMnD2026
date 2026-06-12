@@ -26,6 +26,7 @@ const TEAM_MAP: Record<string, string> = {
   "turkey": "TUR",
   "turquia": "TUR",
   "turkiye": "TUR",
+  "türkiye": "TUR",
   "argentina": "ARG",
   "sweden": "SWE",
   "suecia": "SWE",
@@ -83,7 +84,28 @@ const TEAM_MAP: Record<string, string> = {
   "tunisia": "TUN",
   "tunez": "TUN",
   "croatia": "CRO",
-  "croacia": "CRO"
+  "croacia": "CRO",
+  "haiti": "HAI",
+  "haití": "HAI",
+  "scotland": "SCO",
+  "escocia": "SCO",
+  "curacao": "CUW",
+  "curazao": "CUW",
+  "curaçao": "CUW",
+  "ivory coast": "CIV",
+  "costa de marfil": "CIV",
+  "cape verde": "CPV",
+  "cabo verde": "CPV",
+  "norway": "NOR",
+  "noruega": "NOR",
+  "austria": "AUT",
+  "jordan": "JOR",
+  "jordania": "JOR",
+  "congo dr": "COD",
+  "congo rd": "COD",
+  "rd congo": "COD",
+  "uzbekistan": "UZB",
+  "uzbekistán": "UZB"
 };
 
 function mapApiTeamToLocalCode(apiTeamName: string): string | null {

@@ -359,7 +359,7 @@
       "estadio": "bc_place",
       "local": "CAN",
       "visitante": "SUI",
-      "fase": "Grupos - J1",
+      "fase": "Grupos - J3",
       "grupo": "B"
     },
     {
@@ -368,7 +368,7 @@
       "estadio": "seattle",
       "local": "QAT",
       "visitante": "BIH",
-      "fase": "Grupos - J1",
+      "fase": "Grupos - J3",
       "grupo": "B"
     },
     {
@@ -413,7 +413,7 @@
       "estadio": "kansas",
       "local": "GER",
       "visitante": "ECU",
-      "fase": "Grupos - J1",
+      "fase": "Grupos - J3",
       "grupo": "E"
     },
     {
@@ -467,7 +467,7 @@
       "estadio": "monterrey",
       "local": "ESP",
       "visitante": "URU",
-      "fase": "Grupos - J1",
+      "fase": "Grupos - J3",
       "grupo": "H"
     },
     {
@@ -521,7 +521,7 @@
       "estadio": "ny",
       "local": "POR",
       "visitante": "COL",
-      "fase": "Grupos - J1",
+      "fase": "Grupos - J3",
       "grupo": "K"
     },
     {
@@ -611,7 +611,7 @@
       "estadio": "bc_place",
       "local": "BIH",
       "visitante": "CAN",
-      "fase": "Grupos - J3",
+      "fase": "Grupos - J1",
       "grupo": "B"
     },
     {
@@ -620,7 +620,7 @@
       "estadio": "metlife",
       "local": "SUI",
       "visitante": "QAT",
-      "fase": "Grupos - J3",
+      "fase": "Grupos - J1",
       "grupo": "B"
     },
     {
@@ -737,7 +737,7 @@
       "estadio": "bc_place",
       "local": "NED",
       "visitante": "TUN",
-      "fase": "Grupos - J2",
+      "fase": "Grupos - J3",
       "grupo": "F"
     },
     {
@@ -746,7 +746,7 @@
       "estadio": "bc_place",
       "local": "SWE",
       "visitante": "JPN",
-      "fase": "Grupos - J2",
+      "fase": "Grupos - J3",
       "grupo": "F"
     },
     {
@@ -755,7 +755,7 @@
       "estadio": "azteca",
       "local": "SWE",
       "visitante": "NED",
-      "fase": "Grupos - J3",
+      "fase": "Grupos - J2",
       "grupo": "F"
     },
     {
@@ -764,7 +764,7 @@
       "estadio": "azteca",
       "local": "JPN",
       "visitante": "TUN",
-      "fase": "Grupos - J3",
+      "fase": "Grupos - J2",
       "grupo": "F"
     },
     {
@@ -836,7 +836,7 @@
       "estadio": "metlife",
       "local": "URU",
       "visitante": "KSA",
-      "fase": "Grupos - J3",
+      "fase": "Grupos - J1",
       "grupo": "H"
     },
     {
@@ -854,7 +854,7 @@
       "estadio": "azteca",
       "local": "IRQ",
       "visitante": "SEN",
-      "fase": "Grupos - J2",
+      "fase": "Grupos - J3",
       "grupo": "I"
     },
     {
@@ -863,7 +863,7 @@
       "estadio": "azteca",
       "local": "IRQ",
       "visitante": "FRA",
-      "fase": "Grupos - J3",
+      "fase": "Grupos - J2",
       "grupo": "I"
     },
     {
