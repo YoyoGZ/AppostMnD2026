@@ -624,3 +624,20 @@ Al habilitar la API Key real de API-Football, las actualizaciones de partidos de
 2. **Nomenclatura Exacta de Jornadas**: Actualizamos el arreglo `fasesOrdered` en `page.tsx` a `["Grupos - J1", "Grupos - J2", "Grupos - J3"]` para que mapee exactamente con el JSON de datos.
 3. **Script de superusuario para Corrección de Marcador**: Escribimos y ejecutamos un script en consola de Node (`scratch/fix-match-1.js`) que realiza un `PATCH` a la API REST de Supabase utilizando la Service Role Key, evadiendo de forma segura el RLS en el servidor para establecer el marcador real de México a `2 - 0` y su estado a `finished`.
 
+## 2026-06-12: Sincronización Automática de API de Deportes y Control de Estados en Footers de Match Cards (LL-24)
+
+### Síntoma
+1. Los partidos en juego no se actualizaban automáticamente en la aplicación, dejando las tarjetas del Dashboard estáticas ("sin vida").
+2. Los partidos finalizados (`finished`) o en vivo seguían mostrando el mensaje `"Liga Cerrada / Límite alcanzado"` en su pie de página (footer) en lugar de indicar su estado real.
+3. El horario local en partidos pendientes no siempre reflejaba la fecha de inicio de forma limpia.
+
+### Diagnóstico
+1. **Ausencia de Cron Activo**: No existía una API dedicada a disparar la sincronización en segundo plano de manera periódica, por lo que la base de datos no se actualizaba en producción de forma automática durante los partidos.
+2. **Jerarquía Rígida del Footer**: El componente `MatchPredictionCard.tsx` evaluaba `isLockedByTime` antes de revisar el estado real del partido (`realResult.status`). Como los partidos en vivo o finalizados superaron el tiempo de inicio, `isLockedByTime` se volvía verdadero y sobreescribía la interfaz con el mensaje de liga cerrada.
+
+### Resolución (The House Way)
+1. **API Endpoint y Cron Job (`/api/sync`)**: Creamos la ruta dinámica `src/app/api/sync/route.ts` protegida por `CRON_SECRET` para gatillar `syncMatchesToDatabase` para todos los partidos del torneo en una sola petición. Añadimos el cron job en `vercel.json` para ejecutarse cada 2 minutos (`*/2 * * * *`).
+2. **Refactorización del Footer Dinámico**: Reestructuramos el footer de `MatchPredictionCard.tsx` ordenando las condicionales según el estado real del encuentro:
+   - **Finalizado (`finished`)**: Dibuja un footer elegante gris/negro con el texto `"Partido Finalizado • Resultados Oficiales"` e ícono de Trofeo (`Trophy`).
+   - **En Juego (estados en curso de la API)**: Dibuja un footer con tinte rojo, un círculo en vivo pulsante y el texto `"En Juego • Apuestas Cerradas"`.
+   - **Pendiente (`pending` / no iniciado)**: Muestra la fecha y hora de inicio (`localTimeText`). Si ya se cerró la apuesta y no está sellada, muestra `"Liga Cerrada • Límite alcanzado"`. Si está sellada, muestra `"Sello de Apuesta"`.
