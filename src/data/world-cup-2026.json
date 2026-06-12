@@ -331,7 +331,7 @@
   "partidos": [
     {
       "id": 1,
-      "fecha": "2026-06-11T18:00:00Z",
+      "fecha": "2026-06-11T19:00:00+00:00",
       "estadio": "azteca",
       "local": "MEX",
       "visitante": "RSA",
@@ -343,7 +343,7 @@
     },
     {
       "id": 13,
-      "fecha": "2026-06-11T20:00:00Z",
+      "fecha": "2026-06-12T02:00:00+00:00",
       "estadio": "sofi",
       "local": "KOR",
       "visitante": "CZE",
@@ -355,7 +355,7 @@
     },
     {
       "id": 2,
-      "fecha": "2026-06-11T21:00:00Z",
+      "fecha": "2026-06-24T19:00:00+00:00",
       "estadio": "bc_place",
       "local": "CAN",
       "visitante": "SUI",
@@ -364,7 +364,7 @@
     },
     {
       "id": 14,
-      "fecha": "2026-06-11T23:00:00Z",
+      "fecha": "2026-06-24T19:00:00+00:00",
       "estadio": "seattle",
       "local": "QAT",
       "visitante": "BIH",
@@ -373,7 +373,7 @@
     },
     {
       "id": 4,
-      "fecha": "2026-06-12T18:00:00Z",
+      "fecha": "2026-06-13T22:00:00+00:00",
       "estadio": "sofi",
       "local": "BRA",
       "visitante": "MAR",
@@ -391,7 +391,7 @@
     },
     {
       "id": 3,
-      "fecha": "2026-06-12T15:00:00Z",
+      "fecha": "2026-06-13T01:00:00+00:00",
       "estadio": "metlife",
       "local": "USA",
       "visitante": "PAR",
@@ -409,7 +409,7 @@
     },
     {
       "id": 5,
-      "fecha": "2026-06-13T12:00:00Z",
+      "fecha": "2026-06-25T20:00:00+00:00",
       "estadio": "kansas",
       "local": "GER",
       "visitante": "ECU",
@@ -427,7 +427,7 @@
     },
     {
       "id": 6,
-      "fecha": "2026-06-13T15:00:00Z",
+      "fecha": "2026-06-14T20:00:00+00:00",
       "estadio": "phila",
       "local": "NED",
       "visitante": "JPN",
@@ -436,7 +436,7 @@
     },
     {
       "id": 18,
-      "fecha": "2026-06-13T17:00:00Z",
+      "fecha": "2026-06-15T02:00:00+00:00",
       "estadio": "boston",
       "local": "TUN",
       "visitante": "SWE",
@@ -445,7 +445,7 @@
     },
     {
       "id": 7,
-      "fecha": "2026-06-14T12:00:00Z",
+      "fecha": "2026-06-15T19:00:00+00:00",
       "estadio": "atlanta",
       "local": "BEL",
       "visitante": "EGY",
@@ -454,7 +454,7 @@
     },
     {
       "id": 19,
-      "fecha": "2026-06-14T14:00:00Z",
+      "fecha": "2026-06-16T01:00:00+00:00",
       "estadio": "nashville",
       "local": "IRN",
       "visitante": "NZL",
@@ -463,7 +463,7 @@
     },
     {
       "id": 8,
-      "fecha": "2026-06-14T15:00:00Z",
+      "fecha": "2026-06-27T00:00:00+00:00",
       "estadio": "monterrey",
       "local": "ESP",
       "visitante": "URU",
@@ -481,7 +481,7 @@
     },
     {
       "id": 9,
-      "fecha": "2026-06-15T12:00:00Z",
+      "fecha": "2026-06-16T19:00:00+00:00",
       "estadio": "sf",
       "local": "FRA",
       "visitante": "SEN",
@@ -499,7 +499,7 @@
     },
     {
       "id": 10,
-      "fecha": "2026-06-15T15:00:00Z",
+      "fecha": "2026-06-17T01:00:00+00:00",
       "estadio": "miami",
       "local": "ARG",
       "visitante": "ALG",
@@ -517,7 +517,7 @@
     },
     {
       "id": 11,
-      "fecha": "2026-06-16T12:00:00Z",
+      "fecha": "2026-06-27T23:30:00+00:00",
       "estadio": "ny",
       "local": "POR",
       "visitante": "COL",
@@ -535,7 +535,7 @@
     },
     {
       "id": 12,
-      "fecha": "2026-06-16T15:00:00Z",
+      "fecha": "2026-06-17T20:00:00+00:00",
       "estadio": "boston",
       "local": "ENG",
       "visitante": "CRO",
@@ -544,7 +544,7 @@
     },
     {
       "id": 24,
-      "fecha": "2026-06-16T17:00:00Z",
+      "fecha": "2026-06-17T23:00:00+00:00",
       "estadio": "ny",
       "local": "GHA",
       "visitante": "PAN",
@@ -553,7 +553,7 @@
     },
     {
       "id": 25,
-      "fecha": "2026-06-17T12:00:00.000Z",
+      "fecha": "2026-06-19T01:00:00+00:00",
       "estadio": "metlife",
       "local": "MEX",
       "visitante": "KOR",
@@ -562,7 +562,7 @@
     },
     {
       "id": 26,
-      "fecha": "2026-06-17T15:00:00.000Z",
+      "fecha": "2026-06-18T16:00:00+00:00",
       "estadio": "bc_place",
       "local": "CZE",
       "visitante": "RSA",
@@ -571,7 +571,7 @@
     },
     {
       "id": 27,
-      "fecha": "2026-06-23T12:00:00.000Z",
+      "fecha": "2026-06-25T01:00:00+00:00",
       "estadio": "metlife",
       "local": "CZE",
       "visitante": "MEX",
@@ -580,7 +580,7 @@
     },
     {
       "id": 28,
-      "fecha": "2026-06-23T12:00:00.000Z",
+      "fecha": "2026-06-25T01:00:00+00:00",
       "estadio": "bc_place",
       "local": "RSA",
       "visitante": "KOR",
@@ -589,7 +589,7 @@
     },
     {
       "id": 29,
-      "fecha": "2026-06-17T12:00:00.000Z",
+      "fecha": "2026-06-18T22:00:00+00:00",
       "estadio": "azteca",
       "local": "CAN",
       "visitante": "QAT",
@@ -598,7 +598,7 @@
     },
     {
       "id": 30,
-      "fecha": "2026-06-17T15:00:00.000Z",
+      "fecha": "2026-06-18T19:00:00+00:00",
       "estadio": "bc_place",
       "local": "BIH",
       "visitante": "SUI",
@@ -607,7 +607,7 @@
     },
     {
       "id": 31,
-      "fecha": "2026-06-23T12:00:00.000Z",
+      "fecha": "2026-06-12T19:00:00+00:00",
       "estadio": "bc_place",
       "local": "BIH",
       "visitante": "CAN",
@@ -616,7 +616,7 @@
     },
     {
       "id": 32,
-      "fecha": "2026-06-23T12:00:00.000Z",
+      "fecha": "2026-06-13T19:00:00+00:00",
       "estadio": "metlife",
       "local": "SUI",
       "visitante": "QAT",
@@ -661,7 +661,7 @@
     },
     {
       "id": 37,
-      "fecha": "2026-06-18T12:00:00.000Z",
+      "fecha": "2026-06-19T19:00:00+00:00",
       "estadio": "bc_place",
       "local": "USA",
       "visitante": "AUS",
@@ -688,7 +688,7 @@
     },
     {
       "id": 40,
-      "fecha": "2026-06-24T12:00:00.000Z",
+      "fecha": "2026-06-26T02:00:00+00:00",
       "estadio": "metlife",
       "local": "PAR",
       "visitante": "AUS",
@@ -733,7 +733,7 @@
     },
     {
       "id": 45,
-      "fecha": "2026-06-19T12:00:00.000Z",
+      "fecha": "2026-06-25T23:00:00+00:00",
       "estadio": "bc_place",
       "local": "NED",
       "visitante": "TUN",
@@ -742,7 +742,7 @@
     },
     {
       "id": 46,
-      "fecha": "2026-06-19T15:00:00.000Z",
+      "fecha": "2026-06-25T23:00:00+00:00",
       "estadio": "bc_place",
       "local": "SWE",
       "visitante": "JPN",
@@ -751,7 +751,7 @@
     },
     {
       "id": 47,
-      "fecha": "2026-06-25T12:00:00.000Z",
+      "fecha": "2026-06-20T17:00:00+00:00",
       "estadio": "azteca",
       "local": "SWE",
       "visitante": "NED",
@@ -760,7 +760,7 @@
     },
     {
       "id": 48,
-      "fecha": "2026-06-25T12:00:00.000Z",
+      "fecha": "2026-06-21T04:00:00+00:00",
       "estadio": "azteca",
       "local": "JPN",
       "visitante": "TUN",
@@ -769,7 +769,7 @@
     },
     {
       "id": 49,
-      "fecha": "2026-06-20T12:00:00.000Z",
+      "fecha": "2026-06-21T19:00:00+00:00",
       "estadio": "metlife",
       "local": "BEL",
       "visitante": "IRN",
@@ -778,7 +778,7 @@
     },
     {
       "id": 50,
-      "fecha": "2026-06-20T15:00:00.000Z",
+      "fecha": "2026-06-22T01:00:00+00:00",
       "estadio": "bc_place",
       "local": "NZL",
       "visitante": "EGY",
@@ -787,7 +787,7 @@
     },
     {
       "id": 51,
-      "fecha": "2026-06-26T12:00:00.000Z",
+      "fecha": "2026-06-27T03:00:00+00:00",
       "estadio": "metlife",
       "local": "NZL",
       "visitante": "BEL",
@@ -796,7 +796,7 @@
     },
     {
       "id": 52,
-      "fecha": "2026-06-26T12:00:00.000Z",
+      "fecha": "2026-06-27T03:00:00+00:00",
       "estadio": "bc_place",
       "local": "EGY",
       "visitante": "IRN",
@@ -805,7 +805,7 @@
     },
     {
       "id": 53,
-      "fecha": "2026-06-20T12:00:00.000Z",
+      "fecha": "2026-06-21T16:00:00+00:00",
       "estadio": "azteca",
       "local": "ESP",
       "visitante": "KSA",
@@ -832,7 +832,7 @@
     },
     {
       "id": 56,
-      "fecha": "2026-06-26T12:00:00.000Z",
+      "fecha": "2026-06-15T22:00:00+00:00",
       "estadio": "metlife",
       "local": "URU",
       "visitante": "KSA",
@@ -850,7 +850,7 @@
     },
     {
       "id": 58,
-      "fecha": "2026-06-21T15:00:00.000Z",
+      "fecha": "2026-06-26T19:00:00+00:00",
       "estadio": "azteca",
       "local": "IRQ",
       "visitante": "SEN",
@@ -859,7 +859,7 @@
     },
     {
       "id": 59,
-      "fecha": "2026-06-27T12:00:00.000Z",
+      "fecha": "2026-06-22T21:00:00+00:00",
       "estadio": "azteca",
       "local": "IRQ",
       "visitante": "FRA",
@@ -949,7 +949,7 @@
     },
     {
       "id": 69,
-      "fecha": "2026-06-22T12:00:00.000Z",
+      "fecha": "2026-06-23T20:00:00+00:00",
       "estadio": "metlife",
       "local": "ENG",
       "visitante": "GHA",
@@ -958,7 +958,7 @@
     },
     {
       "id": 70,
-      "fecha": "2026-06-22T15:00:00.000Z",
+      "fecha": "2026-06-23T23:00:00+00:00",
       "estadio": "azteca",
       "local": "PAN",
       "visitante": "CRO",
@@ -967,7 +967,7 @@
     },
     {
       "id": 71,
-      "fecha": "2026-06-28T12:00:00.000Z",
+      "fecha": "2026-06-27T21:00:00+00:00",
       "estadio": "metlife",
       "local": "PAN",
       "visitante": "ENG",
@@ -976,7 +976,7 @@
     },
     {
       "id": 72,
-      "fecha": "2026-06-28T12:00:00.000Z",
+      "fecha": "2026-06-27T21:00:00+00:00",
       "estadio": "bc_place",
       "local": "CRO",
       "visitante": "GHA",

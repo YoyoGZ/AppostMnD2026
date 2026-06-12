@@ -641,3 +641,15 @@ Al habilitar la API Key real de API-Football, las actualizaciones de partidos de
    - **Finalizado (`finished`)**: Dibuja un footer elegante gris/negro con el texto `"Partido Finalizado • Resultados Oficiales"` e ícono de Trofeo (`Trophy`).
    - **En Juego (estados en curso de la API)**: Dibuja un footer con tinte rojo, un círculo en vivo pulsante y el texto `"En Juego • Apuestas Cerradas"`.
    - **Pendiente (`pending` / no iniciado)**: Muestra la fecha y hora de inicio (`localTimeText`). Si ya se cerró la apuesta y no está sellada, muestra `"Liga Cerrada • Límite alcanzado"`. Si está sellada, muestra `"Sello de Apuesta"`.
+
+## 2026-06-12: Desincronización de Fechas en Fixture Estático y Bloqueo Erróneo de Partidos Futuros (LL-25)
+
+### Síntoma
+Los usuarios no podían registrar apuestas en los partidos del Grupo B ya que aparecían bloqueados incondicionalmente con la leyenda `"Liga Cerrada • Límite alcanzado"`, a pesar de que eran partidos que iniciarían horas o días después.
+
+### Diagnóstico
+La lógica de control de tiempo (`isLockedByTime`) en `MatchPredictionCard.tsx` se calcula basándose estrictamente en el campo `"fecha"` del JSON estático `world-cup-2026.json`. En dicho JSON, las fechas de los primeros partidos del Grupo B (CAN vs SUI y QAT vs BIH) se definieron erróneamente para el 11 de junio, mientras que en la API de fútbol real se juegan el 12 y 13 de junio. Al pasar al 12 de junio local del cliente, el frontend asumió que el horario programado ya había pasado y bloqueó el formulario de forma errónea. Además, los emparejamientos y fechas diferían en su ordenamiento por jornada (ej. Canadá vs Bosnia se jugaba en la J1 real en vez de en la J3).
+
+### Resolución (The House Way)
+1. **Alineación Dinámica del Calendario (`align-fixture-dates.js`)**: Escribimos y ejecutamos el script `scratch/align-fixture-dates.js` para consultar el fixture real del mundial en API-Football, cruzar los partidos por los equipos y sobreescribir automáticamente las fechas en `world-cup-2026.json`. Se actualizaron 43 partidos en total.
+2. **Sincronización Atómica en Caliente**: Corrimos `npx -y tsx scratch/run-real-sync.ts` en la base de datos de producción de Supabase para forzar la bajada en vivo del fixture completo (sincronizando exitosamente 55 partidos). El partido 13 de Corea vs Rep. Checa cambió de estado de forma real a `finished: 2 - 1` e impactó en los standings correspondientes sin bucles.
