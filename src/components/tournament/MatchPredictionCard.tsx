@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { MatchInfo } from "@/types/tournament";
-import { Clock, Lock, Check, Loader2 } from "lucide-react";
+import { Clock, Lock, Check, Loader2, Trophy } from "lucide-react";
 import { getLocalMatchTimeText } from "@/lib/utils/date";
 import { createClient } from "@/utils/supabase/client";
 import { getTeamFlagUrl } from "@/lib/utils/flags";
@@ -360,10 +360,37 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
       </div>
 
       {/* Footer: Dynamic Actions or Timezone */}
-      <div className={`px-6 py-3 border-t flex flex-col items-center justify-center transition-all duration-300 mt-auto min-h-[50px]
-        ${isEntryDisabled ? "bg-green-500/5 border-green-500/10" : showConfirmMode ? "bg-black/80 border-orange-500/20" : hasBothScores ? "bg-primary/10 border-primary/20" : "bg-black/40 border-white/5 group-hover:bg-primary/5"}
-      `}>
-        {isSealed ? (
+      <div className={cn(
+        "px-6 py-3 border-t flex flex-col items-center justify-center transition-all duration-300 mt-auto min-h-[50px]",
+        realResult?.status === 'finished'
+          ? "bg-black/60 border-white/5"
+          : realResult && !['finished', 'pending', 'bloqueado'].includes(realResult.status)
+          ? "bg-red-950/20 border-red-900/30 shadow-[0_0_15px_rgba(239,68,68,0.05)]"
+          : isSealed
+          ? "bg-green-500/5 border-green-500/10"
+          : showConfirmMode
+          ? "bg-black/80 border-orange-500/20"
+          : hasBothScores
+          ? "bg-primary/10 border-primary/20"
+          : "bg-black/40 border-white/5 group-hover:bg-primary/5"
+      )}>
+        {realResult?.status === 'finished' ? (
+          <div className="flex items-center justify-between w-full h-full text-white/50">
+            <div className="flex items-center gap-2">
+              <Trophy className="w-4 h-4 text-yellow-500/80 flex-shrink-0" />
+              <span className="text-[11px] font-bold text-white/70 uppercase tracking-widest">Partido Finalizado</span>
+            </div>
+            <span className="text-[9px] text-white/40 font-bold uppercase tracking-wider">Resultados Oficiales</span>
+          </div>
+        ) : realResult && !['finished', 'pending', 'bloqueado'].includes(realResult.status) ? (
+          <div className="flex items-center justify-between w-full h-full">
+            <div className="flex items-center gap-2 text-red-500">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse flex-shrink-0" />
+              <span className="text-[11px] font-black uppercase tracking-widest animate-pulse">En Juego</span>
+            </div>
+            <span className="text-[9px] text-red-500/55 font-bold uppercase tracking-wider">Apuestas Cerradas</span>
+          </div>
+        ) : isSealed ? (
           <div className="flex items-center justify-between w-full h-full">
             <div className="flex items-center gap-2">
               <Lock className="w-4 h-4 text-green-400 flex-shrink-0" />
