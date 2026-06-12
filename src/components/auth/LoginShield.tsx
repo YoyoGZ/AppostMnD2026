@@ -234,7 +234,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
               {/* ── Campo: Nombre de Liga (Solo para Fundadores Nuevos) ── */}
               <div className={`transition-all duration-300 overflow-hidden ${isNewUser && !inviteCode ? "max-h-24 opacity-100" : "max-h-0 opacity-0"}`}>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                     <ShieldAlert className="h-5 w-5 text-primary" />
                   </div>
                   <input
@@ -242,7 +242,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                     value={leagueName}
                     onChange={(e) => setLeagueName(e.target.value)}
                     placeholder="Bautizá tu Liga (Ej: Los Pibes)"
-                    className="block w-full pl-12 pr-4 py-3.5 border-2 border-primary/60 rounded-xl bg-primary/10 text-white placeholder-slate-300 font-black focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                    className="block w-full pl-10 sm:pl-12 pr-3.5 py-2.5 sm:py-3.5 border-2 border-primary/60 rounded-xl bg-primary/10 text-white placeholder-slate-300 font-black focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-xs sm:text-sm transition-all"
                     required={isNewUser && !inviteCode}
                   />
                 </div>
@@ -250,7 +250,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
 
               {/* ── Campo: Email ── */}
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-white/30" />
                 </div>
                 <input
@@ -259,7 +259,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@correo.com"
                   autoComplete="email"
-                  className="block w-full pl-12 pr-4 py-3.5 border border-white/20 rounded-xl bg-black/60 text-white placeholder-slate-300 font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+                  className="block w-full pl-10 sm:pl-12 pr-3.5 py-2.5 sm:py-3.5 border border-white/20 rounded-xl bg-black/60 text-white placeholder-slate-300 font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent text-xs sm:text-sm transition-all"
                   required
                 />
               </div>
@@ -267,7 +267,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
               {/* ── Campo: Alias (solo en registro) ── */}
               <div className={`transition-all duration-300 overflow-hidden ${isNewUser ? "max-h-24 opacity-100" : "max-h-0 opacity-0"}`}>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                     <User className="h-5 w-5 text-white/30" />
                   </div>
                   <input
@@ -276,7 +276,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                     onChange={(e) => setAlias(e.target.value)}
                     placeholder="Tu apodo en la app (ej: El Pibe)"
                     autoComplete="username"
-                    className="block w-full pl-12 pr-4 py-3.5 border border-white/20 rounded-xl bg-black/60 text-white placeholder-slate-300 font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+                    className="block w-full pl-10 sm:pl-12 pr-3.5 py-2.5 sm:py-3.5 border border-white/20 rounded-xl bg-black/60 text-white placeholder-slate-300 font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent text-xs sm:text-sm transition-all"
                     required={isNewUser}
                   />
                 </div>
@@ -307,7 +307,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
 
               {/* ── Campo: Clave ── */}
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-white/30" />
                 </div>
                 <input
@@ -316,13 +316,13 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Clave Secreta (mín. 8 caracteres)"
                   autoComplete={isNewUser ? "new-password" : "current-password"}
-                  className="block w-full pl-12 pr-12 py-3.5 border border-white/20 rounded-xl bg-black/60 text-white placeholder-slate-300 font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+                  className="block w-full pl-10 sm:pl-12 pr-10 py-2.5 sm:py-3.5 border border-white/20 rounded-xl bg-black/60 text-white placeholder-slate-300 font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent text-xs sm:text-sm transition-all"
                   required
                 />
                 <button
                   type="button"
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowPassword(!showPassword); }}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-white/30 hover:text-white transition-colors z-20"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-white/30 hover:text-white transition-colors z-20"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -331,7 +331,7 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
               {/* ── Campo: Confirmar Clave (solo registro) ── */}
               <div className={`transition-all duration-300 overflow-hidden ${isNewUser ? "max-h-20 opacity-100" : "max-h-0 opacity-0"}`}>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-primary/40" />
                   </div>
                   <input
@@ -340,13 +340,13 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Repetí la Clave"
                     autoComplete="new-password"
-                    className="block w-full pl-12 pr-12 py-3.5 border border-white/20 rounded-xl bg-primary/10 text-white placeholder-slate-300 font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+                    className="block w-full pl-10 sm:pl-12 pr-10 py-2.5 sm:py-3.5 border border-white/20 rounded-xl bg-primary/10 text-white placeholder-slate-300 font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent text-xs sm:text-sm transition-all"
                     required={isNewUser}
                   />
                   <button
                     type="button"
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowConfirmPassword(!showConfirmPassword); }}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-white/30 hover:text-white transition-colors z-20"
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-white/30 hover:text-white transition-colors z-20"
                   >
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>

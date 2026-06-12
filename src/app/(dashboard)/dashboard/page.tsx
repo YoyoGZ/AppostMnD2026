@@ -161,19 +161,19 @@ export default function Dashboard() {
     <div className="relative pb-12">
       <div className="absolute top-0 left-0 w-full h-[400px] bg-gradient-to-b from-primary/5 to-transparent -z-10 pointer-events-none" />
 
-      <header className="mb-10 pt-4 md:pt-0 relative z-10 flex justify-between items-center">
+      <header className="mb-10 pt-4 md:pt-0 relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-3xl font-black tracking-tight mb-2 text-title drop-shadow-[0_2px_10px_rgba(56,189,248,0.3)]">MundiApp26</h2>
           <p className="text-white/60 text-sm font-medium">Panel General de tu Liga</p>
         </div>
 
-        <div className="flex flex-col gap-2 items-end">
-          <div className="flex gap-2 items-center">
+        <div className="flex flex-col sm:flex-col gap-2 items-end w-full sm:w-auto">
+          <div className="flex gap-2 items-center justify-between sm:justify-end w-full sm:w-auto">
             {/* Botón Live Hub */}
             <button
               onClick={() => setShowLiveMatch(true)}
               className={cn(
-                "flex items-center gap-2 px-5 py-2.5 rounded-full text-[11px] md:text-xs font-black uppercase tracking-[0.15em] transition-all group w-fit border",
+                "flex items-center gap-1.5 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-[0.12em] sm:tracking-[0.15em] transition-all group w-fit border",
                 hasLiveMatch
                   ? "bg-red-500/20 hover:bg-red-500/30 border-red-500/40 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.2)] animate-pulse"
                   : "bg-white/10 hover:bg-white/20 border-white/20 text-white shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(56,189,248,0.1)]"
@@ -182,26 +182,27 @@ export default function Dashboard() {
               {hasLiveMatch ? (
                 <>
                   <span className="w-2 h-2 rounded-full bg-red-500 animate-ping shrink-0" />
-                  🔴 PARTIDO EN VIVO
+                  <span className="inline sm:hidden">VIVO</span>
+                  <span className="hidden sm:inline">🔴 PARTIDO EN VIVO</span>
                 </>
               ) : (
                 <>
                   <span className="text-primary group-hover:scale-110 transition-transform">📡</span>
-                  LIVE HUB
+                  <span>LIVE HUB</span>
                 </>
               )}
             </button>
 
             <button 
               onClick={() => setShowRules(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-[11px] md:text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(251,191,36,0.1)] transition-all group w-fit"
+              className="flex items-center gap-1.5 px-3.5 sm:px-5 py-2 sm:py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-[0.12em] sm:tracking-[0.15em] text-white shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(251,191,36,0.1)] transition-all group w-fit"
             >
-              <Info className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-              Reglas
+              <Info className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary group-hover:scale-110 transition-transform" />
+              <span>Reglas</span>
             </button>
           </div>
           
-          <div className="flex flex-col items-end gap-3 origin-right mt-1">
+          <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 sm:gap-3 justify-between sm:justify-start w-full sm:w-auto origin-right mt-1">
             <InstallAppButton />
             <PushOptInButton />
           </div>
