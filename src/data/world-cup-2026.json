@@ -382,7 +382,7 @@
     },
     {
       "id": 15,
-      "fecha": "2026-06-12T20:00:00Z",
+      "fecha": "2026-06-14T01:00:00+00:00",
       "estadio": "miami",
       "local": "SCO",
       "visitante": "HAI",
@@ -400,7 +400,7 @@
     },
     {
       "id": 16,
-      "fecha": "2026-06-12T17:00:00Z",
+      "fecha": "2026-06-14T04:00:00+00:00",
       "estadio": "dallas",
       "local": "AUS",
       "visitante": "TUR",
@@ -418,11 +418,11 @@
     },
     {
       "id": 17,
-      "fecha": "2026-06-13T14:00:00Z",
+      "fecha": "2026-06-25T20:00:00+00:00",
       "estadio": "houston",
       "local": "CIV",
       "visitante": "CUW",
-      "fase": "Grupos - J1",
+      "fase": "Grupos - J3",
       "grupo": "E"
     },
     {
@@ -472,11 +472,11 @@
     },
     {
       "id": 20,
-      "fecha": "2026-06-14T17:00:00Z",
+      "fecha": "2026-06-27T00:00:00+00:00",
       "estadio": "guadalajara",
       "local": "KSA",
       "visitante": "CPV",
-      "fase": "Grupos - J1",
+      "fase": "Grupos - J3",
       "grupo": "H"
     },
     {
@@ -490,7 +490,7 @@
     },
     {
       "id": 21,
-      "fecha": "2026-06-15T14:00:00Z",
+      "fecha": "2026-06-16T22:00:00+00:00",
       "estadio": "seattle",
       "local": "NOR",
       "visitante": "IRQ",
@@ -508,7 +508,7 @@
     },
     {
       "id": 22,
-      "fecha": "2026-06-15T17:00:00Z",
+      "fecha": "2026-06-17T04:00:00+00:00",
       "estadio": "charlotte",
       "local": "AUT",
       "visitante": "JOR",
@@ -526,11 +526,11 @@
     },
     {
       "id": 23,
-      "fecha": "2026-06-16T14:00:00Z",
+      "fecha": "2026-06-27T23:30:00+00:00",
       "estadio": "phila",
       "local": "UZB",
       "visitante": "COD",
-      "fase": "Grupos - J1",
+      "fase": "Grupos - J3",
       "grupo": "K"
     },
     {
@@ -625,38 +625,38 @@
     },
     {
       "id": 33,
-      "fecha": "2026-06-18T12:00:00.000Z",
+      "fecha": "2026-06-24T22:00:00+00:00",
       "estadio": "azteca",
       "local": "BRA",
       "visitante": "SCO",
-      "fase": "Grupos - J2",
+      "fase": "Grupos - J3",
       "grupo": "C"
     },
     {
       "id": 34,
-      "fecha": "2026-06-18T15:00:00.000Z",
+      "fecha": "2026-06-24T22:00:00+00:00",
       "estadio": "bc_place",
       "local": "HAI",
       "visitante": "MAR",
-      "fase": "Grupos - J2",
+      "fase": "Grupos - J3",
       "grupo": "C"
     },
     {
       "id": 35,
-      "fecha": "2026-06-24T12:00:00.000Z",
+      "fecha": "2026-06-20T00:30:00+00:00",
       "estadio": "bc_place",
       "local": "HAI",
       "visitante": "BRA",
-      "fase": "Grupos - J3",
+      "fase": "Grupos - J2",
       "grupo": "C"
     },
     {
       "id": 36,
-      "fecha": "2026-06-24T12:00:00.000Z",
+      "fecha": "2026-06-19T22:00:00+00:00",
       "estadio": "azteca",
       "local": "MAR",
       "visitante": "SCO",
-      "fase": "Grupos - J3",
+      "fase": "Grupos - J2",
       "grupo": "C"
     },
     {
@@ -670,7 +670,7 @@
     },
     {
       "id": 38,
-      "fecha": "2026-06-18T15:00:00.000Z",
+      "fecha": "2026-06-20T03:00:00+00:00",
       "estadio": "bc_place",
       "local": "TUR",
       "visitante": "PAR",
@@ -679,7 +679,7 @@
     },
     {
       "id": 39,
-      "fecha": "2026-06-24T12:00:00.000Z",
+      "fecha": "2026-06-26T02:00:00+00:00",
       "estadio": "azteca",
       "local": "TUR",
       "visitante": "USA",
@@ -697,7 +697,7 @@
     },
     {
       "id": 41,
-      "fecha": "2026-06-19T12:00:00.000Z",
+      "fecha": "2026-06-20T20:00:00+00:00",
       "estadio": "metlife",
       "local": "GER",
       "visitante": "CIV",
@@ -706,7 +706,7 @@
     },
     {
       "id": 42,
-      "fecha": "2026-06-19T15:00:00.000Z",
+      "fecha": "2026-06-21T00:00:00+00:00",
       "estadio": "bc_place",
       "local": "CUW",
       "visitante": "ECU",
@@ -715,20 +715,20 @@
     },
     {
       "id": 43,
-      "fecha": "2026-06-25T12:00:00.000Z",
+      "fecha": "2026-06-14T17:00:00+00:00",
       "estadio": "azteca",
       "local": "CUW",
       "visitante": "GER",
-      "fase": "Grupos - J3",
+      "fase": "Grupos - J1",
       "grupo": "E"
     },
     {
       "id": 44,
-      "fecha": "2026-06-25T12:00:00.000Z",
+      "fecha": "2026-06-14T23:00:00+00:00",
       "estadio": "azteca",
       "local": "ECU",
       "visitante": "CIV",
-      "fase": "Grupos - J3",
+      "fase": "Grupos - J1",
       "grupo": "E"
     },
     {
@@ -814,7 +814,7 @@
     },
     {
       "id": 54,
-      "fecha": "2026-06-20T15:00:00.000Z",
+      "fecha": "2026-06-21T22:00:00+00:00",
       "estadio": "azteca",
       "local": "CPV",
       "visitante": "URU",
@@ -823,11 +823,11 @@
     },
     {
       "id": 55,
-      "fecha": "2026-06-26T12:00:00.000Z",
+      "fecha": "2026-06-15T16:00:00+00:00",
       "estadio": "metlife",
       "local": "CPV",
       "visitante": "ESP",
-      "fase": "Grupos - J3",
+      "fase": "Grupos - J1",
       "grupo": "H"
     },
     {
@@ -841,11 +841,11 @@
     },
     {
       "id": 57,
-      "fecha": "2026-06-21T12:00:00.000Z",
+      "fecha": "2026-06-26T19:00:00+00:00",
       "estadio": "bc_place",
       "local": "FRA",
       "visitante": "NOR",
-      "fase": "Grupos - J2",
+      "fase": "Grupos - J3",
       "grupo": "I"
     },
     {
@@ -868,16 +868,16 @@
     },
     {
       "id": 60,
-      "fecha": "2026-06-27T12:00:00.000Z",
+      "fecha": "2026-06-23T00:00:00+00:00",
       "estadio": "azteca",
       "local": "SEN",
       "visitante": "NOR",
-      "fase": "Grupos - J3",
+      "fase": "Grupos - J2",
       "grupo": "I"
     },
     {
       "id": 61,
-      "fecha": "2026-06-21T12:00:00.000Z",
+      "fecha": "2026-06-22T17:00:00+00:00",
       "estadio": "azteca",
       "local": "ARG",
       "visitante": "AUT",
@@ -886,7 +886,7 @@
     },
     {
       "id": 62,
-      "fecha": "2026-06-21T15:00:00.000Z",
+      "fecha": "2026-06-23T03:00:00+00:00",
       "estadio": "bc_place",
       "local": "JOR",
       "visitante": "ALG",
@@ -895,7 +895,7 @@
     },
     {
       "id": 63,
-      "fecha": "2026-06-27T12:00:00.000Z",
+      "fecha": "2026-06-28T02:00:00+00:00",
       "estadio": "metlife",
       "local": "JOR",
       "visitante": "ARG",
@@ -904,7 +904,7 @@
     },
     {
       "id": 64,
-      "fecha": "2026-06-27T12:00:00.000Z",
+      "fecha": "2026-06-28T02:00:00+00:00",
       "estadio": "metlife",
       "local": "ALG",
       "visitante": "AUT",
@@ -913,7 +913,7 @@
     },
     {
       "id": 65,
-      "fecha": "2026-06-22T12:00:00.000Z",
+      "fecha": "2026-06-23T17:00:00+00:00",
       "estadio": "azteca",
       "local": "POR",
       "visitante": "UZB",
@@ -922,7 +922,7 @@
     },
     {
       "id": 66,
-      "fecha": "2026-06-22T15:00:00.000Z",
+      "fecha": "2026-06-24T02:00:00+00:00",
       "estadio": "metlife",
       "local": "COD",
       "visitante": "COL",
@@ -931,20 +931,20 @@
     },
     {
       "id": 67,
-      "fecha": "2026-06-28T12:00:00.000Z",
+      "fecha": "2026-06-17T17:00:00+00:00",
       "estadio": "bc_place",
       "local": "COD",
       "visitante": "POR",
-      "fase": "Grupos - J3",
+      "fase": "Grupos - J1",
       "grupo": "K"
     },
     {
       "id": 68,
-      "fecha": "2026-06-28T12:00:00.000Z",
+      "fecha": "2026-06-18T02:00:00+00:00",
       "estadio": "azteca",
       "local": "COL",
       "visitante": "UZB",
-      "fase": "Grupos - J3",
+      "fase": "Grupos - J1",
       "grupo": "K"
     },
     {

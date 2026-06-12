@@ -1,5 +1,7 @@
 import { sportsSyncAgent } from "@/services/SportsSyncAgent";
 import { NextResponse } from "next/server";
+import { processFinishedMatches } from "@/app/actions/oracle";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 /**
  * GET /api/sync
@@ -25,10 +27,39 @@ export async function GET(request: Request) {
     const result = await sportsSyncAgent.syncMatchesToDatabase(fixtureIds);
 
     if (result.success) {
-      console.log(`[API-Sync] Sincronización finalizada correctamente. ${result.updatedCount} partidos procesados.`);
+      console.log(`[API-Sync] Sincronización de fixture finalizada correctamente. ${result.updatedCount} partidos procesados.`);
+      
+      // --- TRIGGER INTELIGENTE DE ORÁCULO POR EVENTO ---
+      let oracleTriggered = false;
+      try {
+        const supabase = createAdminClient();
+        // Buscar partidos finalizados en la BD cuya sincronización haya ocurrido en los últimos 3 minutos
+        const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000).toISOString();
+        const { data: recentlyFinished, error: checkError } = await supabase
+          .from('match_results')
+          .select('id')
+          .eq('status', 'finished')
+          .gte('last_sync', threeMinutesAgo);
+
+        if (checkError) throw checkError;
+
+        if (recentlyFinished && recentlyFinished.length > 0) {
+          console.log(`⚽ [API-Sync] DETECTADO PARTIDO FINALIZADO RECIENTEMENTE (IDs: ${recentlyFinished.map(m => m.id).join(', ')}). Gatillando Oráculo...`);
+          const oracleResult = await processFinishedMatches();
+          oracleTriggered = true;
+          console.log("[API-Sync] Oráculo completado automáticamente:", oracleResult);
+        } else {
+          console.log("[API-Sync] No se detectaron nuevos partidos finalizados. Oráculo omitido para optimizar cómputo.");
+        }
+      } catch (oracleErr) {
+        console.error("❌ [API-Sync] Error al intentar ejecutar el Oráculo de forma automática:", oracleErr);
+        // No fallamos la petición de sync si sólo falló el oráculo automático
+      }
+
       return NextResponse.json({
         success: true,
         updatedCount: result.updatedCount,
+        oracleTriggered,
         timestamp: new Date().toISOString()
       });
     } else {

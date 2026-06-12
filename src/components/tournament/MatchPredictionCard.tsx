@@ -169,6 +169,11 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
 
   const isEntryDisabled = isSealed || isLockedByTime;
 
+  // ⚠️ SAFETY GATE: Si la fecha del partido es en el futuro, NUNCA mostrar resultado real
+  // independientemente de lo que diga Supabase. Previene que datos mock contaminen la UX.
+  const isMatchInFuture = matchInfo.fecha ? new Date(matchInfo.fecha) > new Date() : false;
+  const displayRealResult = isMatchInFuture ? null : realResult;
+
   // Use trim() to fix mobile keyboards appending spaces
   const hasBothScores = homeScore.trim().length > 0 && awayScore.trim().length > 0;
 
@@ -249,24 +254,24 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
         isEntryDisabled ? "bg-card-body/10 opacity-80" : "opacity-100"
       )}>
         {/* Banner de Resultado Real Oficial (API o Simulador) */}
-        {realResult && realResult.status !== 'pending' && (
+        {displayRealResult && displayRealResult.status !== 'pending' && (
           <div className={cn(
             "px-4 py-3 rounded-2xl flex items-center justify-between border text-[10px] font-black uppercase tracking-wider animate-in fade-in slide-in-from-top-2 duration-500",
-            !['finished', 'pending', 'bloqueado'].includes(realResult.status)
+            !['finished', 'pending', 'bloqueado'].includes(displayRealResult.status)
               ? "bg-red-500/10 border-red-500/20 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.15)]" 
               : "bg-white/5 border-white/5 text-slate-300"
           )}>
             <span className="flex items-center gap-1.5">
-              {!['finished', 'pending', 'bloqueado'].includes(realResult.status) ? (
+              {!['finished', 'pending', 'bloqueado'].includes(displayRealResult.status) ? (
                 <>
                   <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                   <span>
-                    {realResult.status === '1H' ? `1T • ${realResult.elapsed}'` :
-                     realResult.status === 'HT' ? "Entretiempo" :
-                     realResult.status === '2H' ? `2T • ${realResult.elapsed}'` :
-                     realResult.status === 'ET' ? `T. Extra • ${realResult.elapsed}'` :
-                     realResult.status === 'P' ? "Penales" :
-                     `En Vivo • ${realResult.elapsed}'`}
+                      {displayRealResult.status === '1H' ? `1T • ${displayRealResult.elapsed}'` :
+                     displayRealResult.status === 'HT' ? "Entretiempo" :
+                     displayRealResult.status === '2H' ? `2T • ${displayRealResult.elapsed}'` :
+                     displayRealResult.status === 'ET' ? `T. Extra • ${displayRealResult.elapsed}'` :
+                     displayRealResult.status === 'P' ? "Penales" :
+                     `En Vivo • ${displayRealResult.elapsed}'`}
                   </span>
                 </>
               ) : (
@@ -275,7 +280,7 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
             </span>
             <div className="flex items-center gap-2">
               <span className="text-sm font-black tracking-widest text-white bg-black/40 px-3 py-1 rounded-xl">
-                {realResult.home_score} - {realResult.away_score}
+                {displayRealResult.home_score} - {displayRealResult.away_score}
               </span>
               {pointsEarned !== null && (
                 <span className={cn(
@@ -362,9 +367,9 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
       {/* Footer: Dynamic Actions or Timezone */}
       <div className={cn(
         "px-6 py-3 border-t flex flex-col items-center justify-center transition-all duration-300 mt-auto min-h-[50px]",
-        realResult?.status === 'finished'
+        displayRealResult?.status === 'finished'
           ? "bg-black/60 border-white/5"
-          : realResult && !['finished', 'pending', 'bloqueado'].includes(realResult.status)
+          : displayRealResult && !['finished', 'pending', 'bloqueado'].includes(displayRealResult.status)
           ? "bg-red-950/20 border-red-900/30 shadow-[0_0_15px_rgba(239,68,68,0.05)]"
           : isSealed
           ? "bg-green-500/5 border-green-500/10"
@@ -374,7 +379,7 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
           ? "bg-primary/10 border-primary/20"
           : "bg-black/40 border-white/5 group-hover:bg-primary/5"
       )}>
-        {realResult?.status === 'finished' ? (
+        {displayRealResult?.status === 'finished' ? (
           <div className="flex items-center justify-between w-full h-full text-white/50">
             <div className="flex items-center gap-2">
               <Trophy className="w-4 h-4 text-yellow-500/80 flex-shrink-0" />
@@ -382,7 +387,7 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
             </div>
             <span className="text-[9px] text-white/40 font-bold uppercase tracking-wider">Resultados Oficiales</span>
           </div>
-        ) : realResult && !['finished', 'pending', 'bloqueado'].includes(realResult.status) ? (
+        ) : displayRealResult && !['finished', 'pending', 'bloqueado'].includes(displayRealResult.status) ? (
           <div className="flex items-center justify-between w-full h-full">
             <div className="flex items-center gap-2 text-red-500">
               <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse flex-shrink-0" />

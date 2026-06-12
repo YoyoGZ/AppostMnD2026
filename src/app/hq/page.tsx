@@ -255,6 +255,12 @@ export default function HQPage() {
               <div className="flex flex-col gap-3">
                 <button 
                   onClick={async () => {
+                    const confirmed = confirm(
+                      "⚠️ PELIGRO: Este botón SOLO funciona correctamente en dev local SIN API key real.\n\n" +
+                      "En producción escribirá resultados FALSOS a Supabase y contaminará la app.\n\n" +
+                      "¿Confirmas que estás en DEV LOCAL y sabés lo que hacés?"
+                    );
+                    if (!confirmed) return;
                     const { forceMockSyncAction } = await import('@/app/actions/sync');
                     const res = await forceMockSyncAction();
                     if (res.success) {
@@ -263,9 +269,9 @@ export default function HQPage() {
                       alert("Error sincronizando: " + res.error);
                     }
                   }}
-                  className="w-full bg-green-500/20 text-green-400 hover:bg-green-500/40 transition-colors font-black py-4 rounded-xl uppercase tracking-widest text-xs border border-green-500/30 shadow-[0_0_15px_rgba(34,197,94,0.1)] active:scale-95"
+                  className="w-full bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/40 transition-colors font-black py-4 rounded-xl uppercase tracking-widest text-xs border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)] active:scale-95"
                 >
-                  Inyectar Grupos Completos
+                  ⚠️ [DEV ONLY] Inyectar Mock Completo
                 </button>
 
                 <button 

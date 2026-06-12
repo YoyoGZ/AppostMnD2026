@@ -102,16 +102,19 @@
   - [x] **Scripts de Aprovisionamiento y Siembra**: Desarrollo de scripts locales robustos con bypass SSL/WS para poblar ligas de prueba (`seed-members-test.js`).
 
 ## Current Trajectory
-**Status**: Hito 13 **VERIFIED & POLISHED** localmente. Implementadas todas las páginas institucionales (`/terms`, `/privacy`, `/support`), panel de tickets en el `/hq`, limitación híbrida de capacidad para ligas corporativas y scripts de desarrollo local. El proyecto compila en su totalidad sin advertencias de tipado.
+**Status**: Hito 13 & Estabilización de Fixture **VERIFIED & POLISHED** localmente.
+* Corregido el orden cronológico y de jornadas en `/matches` y Dashboard.
+* Base de datos de Supabase saneada (limpieza de datos de prueba) y re-hidratada automáticamente con los resultados oficiales reales de ayer (sincronizados 72 partidos de grupos).
+* El proyecto compila al 100% en producción de forma limpia (`npm run build` exitoso).
 
 **Próximos Pasos:**
-1. Realizar el build de producción completo (`npm run build`) para verificar consistencia.
-2. [PENDIENTE] Diseñar e implementar el motor o flujo de respuesta a consultas de soporte directamente al correo registrado del usuario desde el panel HQ.
-3. Iniciar el sprint de **Hito 10: Pruebas de Estrés & Beta Testing Masivo** cuando el usuario lo solicite.
+1. Diseñar e implementar el motor o flujo de respuesta a consultas de soporte directamente al correo registrado del usuario desde el panel HQ.
+2. Iniciar el sprint de **Hito 10: Pruebas de Estrés & Beta Testing Masivo** cuando el usuario lo solicite.
 
 ## Squad Status
 | Agent | Task | Status |
 | :--- | :--- | :--- |
+| Builder | Saneamiento de BD, Alineación de Fechas del Fixture y Ordenamiento de Jornadas | ✅ VERIFIED & POLISHED |
 | Builder | Sistema de Afiliados, Fábrica de Códigos en HQ & Onboarding | ✅ VERIFIED & POLISHED |
 | Builder | Refinamientos de Fair Play y remoción de 5ª card Bento | ✅ VERIFIED & POLISHED |
 | Builder | Co-Branding Bypass & Onboarding | ✅ VERIFIED & POLISHED |

@@ -146,7 +146,8 @@ export default function Dashboard() {
   }
 
   // Se muestran todos los partidos correspondientes a la jornada activa
-  const filteredMatches = matchesByFase[activeFase] || [];
+  const filteredMatches = (matchesByFase[activeFase] || [])
+    .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
 
   return (
     <div className="relative pb-12">

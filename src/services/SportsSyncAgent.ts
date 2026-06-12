@@ -359,8 +359,19 @@ export class SportsSyncAgent {
           ? staticMatch.local === homeCode 
           : dbMatches?.find((m: any) => m.id === localMatchId)?.home_team_id === homeCode;
 
-        const homeScore = isHomeSame ? apiMatch.goals.home : apiMatch.goals.away;
-        const awayScore = isHomeSame ? apiMatch.goals.away : apiMatch.goals.home;
+        const rawHomeScore = isHomeSame ? apiMatch.goals.home : apiMatch.goals.away;
+        const rawAwayScore = isHomeSame ? apiMatch.goals.away : apiMatch.goals.home;
+        const apiStatus = this.mapStatusToInternal(apiMatch.fixture.status.short);
+
+        // ⚠️ ANTI-CONTAMINATION GUARD: Un partido que la API marca como 'NS' (Not Started)
+        // NO puede tener goles reales. Forzamos null para evitar que datos mock
+        // previos "sobrevivan" en la BD disfrazados de resultados reales.
+        const homeScore = apiStatus === 'pending' ? null : rawHomeScore;
+        const awayScore = apiStatus === 'pending' ? null : rawAwayScore;
+
+        if (apiStatus === 'pending' && (rawHomeScore !== null || rawAwayScore !== null)) {
+          console.warn(`🚨 [SportsSyncAgent] CONTAMINACIÓN DETECTADA: La API marcó ${homeName} vs ${awayName} como NS pero tenía goles (${rawHomeScore}-${rawAwayScore}). Se resetean a null.`);
+        }
 
         upserts.push({
           id: localMatchId,
@@ -369,7 +380,7 @@ export class SportsSyncAgent {
           away_team_id: awayCode,
           home_score: homeScore,
           away_score: awayScore,
-          status: this.mapStatusToInternal(apiMatch.fixture.status.short),
+          status: apiStatus,
           elapsed: apiMatch.fixture.status.elapsed ?? 0,
           last_sync: new Date().toISOString()
         });
@@ -471,8 +482,11 @@ export class SportsSyncAgent {
     const isBulkSimulation = fixtureIds.length > 10;
 
     return fixtureIds.map(id => {
-      // Si es simulación masiva (Fase de Grupos completa), finalizamos todos los partidos
+      // ⚠️ AVISO CRÍTICO: Esta simulación masiva marca TODOS los partidos como 'FT'.
+      // Si se ejecuta contra Supabase de producción, contamina con resultados falsos.
+      // SOLO debe usarse en entornos de desarrollo sin API key real.
       if (isBulkSimulation) {
+        console.warn(`⚠️ [MOCK] Generando resultado SIMULADO para partido ${id}. NUNCA hacer esto en producción con datos reales.`);
         // Marcadores estables basados en el ID para evitar empates masivos y tener variedad
         const homeScore = (id % 3);
         const awayScore = ((id + 2) % 3);

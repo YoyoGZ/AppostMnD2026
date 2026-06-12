@@ -111,3 +111,18 @@ Este documento centraliza los problemas técnicos y bugs encontrados durante el 
 1. **Integración de Email Real**: Se agregó el campo de `Email` obligatorio en el componente `JoinClient.tsx`.
 2. **Eliminación de la Deuda**: Se erradicó la lógica de sanitización que creaba el `pseudoEmail` y ahora el registro se realiza usando el correo real del usuario.
 3. **Flujo Protegido**: Ahora los invitados tienen la misma capacidad de recuperar su cuenta e iniciar sesión desde el `LoginShield` que los usuarios Fundadores.
+
+---
+
+## 🚀 NUEVOS DESAFÍOS (Fase 3 - Sincronización de Grupos & Duelos)
+
+### 9. Mezcla de Jornadas y Desalineación del Fixture en Vistas de Partidos
+#### Síntomas Detectados (2026-06-12)
+- En la sección de Partidos (dentro de los detalles de grupos A-L), se observan incoherencias en la distribución de partidos: algunos grupos muestran 3 o más partidos asignados a la Jornada 1 (J1), cuando el diseño reglamentario es de exactamente 2 partidos por jornada.
+- **Causa Raíz preliminar**: El script de sincronización de fechas (`align-fixture-dates.js`) no poseía los mapeos correctos para los 11 equipos nuevos. Al ignorarlos en la traducción, omitió actualizar la fecha y fase (`round`) de sus partidos en el archivo estático `world-cup-2026.json`. Esto causó que algunos partidos mantuvieran su estado desalineado original, resultando en un fixture desbalanceado a nivel de UI.
+
+### 10. Datos de Pronósticos y Taunts Ausentes en el Coliseo de La Liga (Bento Grid)
+#### Síntomas Detectados (2026-06-12)
+- En el Bento Grid de la Liga (componente `DuelsColiseum` dentro de la vista `/standings`), las tarjetas de los enfrentamientos activos o resueltos no muestran los goles pronosticados por cada jugador para ese partido, los puntos otorgados ni los mensajes de burla (taunts) correspondientes.
+- **Causa Raíz preliminar**: La interfaz visual del componente `DuelsColiseum.tsx` carece de la lógica de renderizado y el enlace de datos para inyectar y pintar los goles pronosticados de los contrincantes (`predictions`), los puntos asignados y los taunts (los cuales actualmente se computan solo en el perfil del usuario a través de `DuelChronicles.tsx`).
+

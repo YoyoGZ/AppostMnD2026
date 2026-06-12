@@ -21,7 +21,22 @@ export default function MatchesPage() {
     return acc;
   }, {} as Record<string, any>);
 
-  const filteredMatches = partidos.filter(p => p.grupo === selectedGroup);
+  const phaseOrder: Record<string, number> = {
+    "Grupos - J1": 1,
+    "Grupos - J2": 2,
+    "Grupos - J3": 3
+  };
+
+  const filteredMatches = partidos
+    .filter(p => p.grupo === selectedGroup)
+    .sort((a, b) => {
+      const orderA = phaseOrder[a.fase] || 99;
+      const orderB = phaseOrder[b.fase] || 99;
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      return new Date(a.fecha).getTime() - new Date(b.fecha).getTime();
+    });
 
   return (
     <div className="relative pb-12">
