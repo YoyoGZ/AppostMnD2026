@@ -2,6 +2,7 @@
 
 import { sportsSyncAgent } from "@/services/SportsSyncAgent";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { calculateGroupStandings } from "./tournament-engine";
 
 export async function forceMockSyncAction(): Promise<
   | { success: true; updatedCount: number }
@@ -46,6 +47,58 @@ export async function getStandingsAction(): Promise<{ success: boolean; standing
     const standings = await sportsSyncAgent.getStandings(1, 2026);
     return { success: true, standings };
   } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getStandingsLocalAction(): Promise<{ success: boolean; standings?: any[]; error?: string }> {
+  try {
+    const localStandings = await calculateGroupStandings();
+    
+    // Transformar Record<string, TeamStanding[]> al formato array de arrays (any[][])
+    // esperado por el Dashboard para no romper compatibilidad.
+    const formattedStandings = Object.entries(localStandings).map(([groupLetter, teams]) => {
+      return teams.map(t => ({
+        team: {
+          id: t.teamId,
+          name: t.nombre
+        },
+        points: t.pts,
+        group: `Grupo ${groupLetter}`
+      }));
+    });
+
+    return { success: true, standings: formattedStandings };
+  } catch (error: any) {
+    console.error("Error en getStandingsLocalAction:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getRecentGoalsAction(): Promise<{ success: boolean; goals?: Record<string, any>; error?: string }> {
+  try {
+    const supabase = createAdminClient();
+
+    const { data, error } = await supabase
+      .from('app_settings')
+      .select('key, value')
+      .like('key', 'goal_%');
+
+    if (error) throw error;
+
+    const goals: Record<string, any> = {};
+    data?.forEach(row => {
+      const matchId = row.key.replace('goal_', '');
+      try {
+        goals[matchId] = JSON.parse(row.value);
+      } catch (e) {
+        console.error("Error parsing goal JSON:", e);
+      }
+    });
+
+    return { success: true, goals };
+  } catch (error: any) {
+    console.error("Error en getRecentGoalsAction:", error);
     return { success: false, error: error.message };
   }
 }

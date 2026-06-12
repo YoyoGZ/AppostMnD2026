@@ -18,12 +18,14 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showConfirmMode, setShowConfirmMode] = useState<boolean>(false);
   
-  const [realResult, setRealResult] = useState<{ home_score: number; away_score: number; status: string } | null>(null);
+  const [realResult, setRealResult] = useState<{ home_score: number; away_score: number; status: string; elapsed?: number } | null>(null);
   const [pointsEarned, setPointsEarned] = useState<number | null>(null);
+  const [liveGoal, setLiveGoal] = useState<{ team: string; player: string; minute: string; timestamp: string } | null>(null);
+  const [isGoalRecent, setIsGoalRecent] = useState<boolean>(false);
 
   const supabase = createClient();
 
-  // 1. Cargar apuesta, resultado real y escuchar cambios en vivo
+  // 1. Cargar apuesta, resultado real, goles y escuchar cambios en vivo
   useEffect(() => {
     const fetchPredictionAndResult = async () => {
       if (userId) {
@@ -42,10 +44,10 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
         }
       }
 
-      // Cargar resultado oficial
+      // Cargar resultado oficial con elapsed
       const { data: resultData } = await supabase
         .from('match_results')
-        .select('home_score, away_score, status')
+        .select('home_score, away_score, status, elapsed')
         .eq('id', parseInt(matchInfo.id))
         .maybeSingle();
 
@@ -53,8 +55,24 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
         setRealResult({
           home_score: resultData.home_score ?? 0,
           away_score: resultData.away_score ?? 0,
-          status: resultData.status
+          status: resultData.status,
+          elapsed: resultData.elapsed ?? 0
         });
+      }
+
+      // Cargar gol reciente de app_settings
+      const { data: settingData } = await supabase
+        .from('app_settings')
+        .select('value')
+        .eq('key', `goal_${matchInfo.id}`)
+        .maybeSingle();
+
+      if (settingData?.value) {
+        try {
+          setLiveGoal(JSON.parse(settingData.value));
+        } catch (e) {
+          console.error("Error parsing goal:", e);
+        }
       }
       
       setIsLoading(false);
@@ -76,16 +94,56 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
           setRealResult({
             home_score: newRecord.home_score ?? 0,
             away_score: newRecord.away_score ?? 0,
-            status: newRecord.status
+            status: newRecord.status,
+            elapsed: newRecord.elapsed ?? 0
           });
+        }
+      })
+      .subscribe();
+
+    // Suscribirse a realtime para goles en app_settings
+    const goalChannel = supabase
+      .channel(`match-goal-${matchInfo.id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'app_settings',
+        filter: `key=eq.goal_${matchInfo.id}`
+      }, (payload: any) => {
+        const newRecord = payload.new;
+        if (newRecord?.value) {
+          try {
+            setLiveGoal(JSON.parse(newRecord.value));
+          } catch (e) {
+            console.error("Error parsing goal realtime:", e);
+          }
         }
       })
       .subscribe();
 
     return () => {
       channel.unsubscribe();
+      goalChannel.unsubscribe();
     };
   }, [matchInfo.id, supabase, userId]);
+
+  // Chequear periodicamente si el gol es reciente (< 5 minutos)
+  useEffect(() => {
+    if (!liveGoal) {
+      setIsGoalRecent(false);
+      return;
+    }
+
+    const checkRecency = () => {
+      const diff = new Date().getTime() - new Date(liveGoal.timestamp).getTime();
+      const isRecent = diff > 0 && diff < 5 * 60 * 1000; // 5 minutos
+      setIsGoalRecent(isRecent);
+    };
+
+    checkRecency();
+    const interval = setInterval(checkRecency, 10000); // cada 10s
+    return () => clearInterval(interval);
+  }, [liveGoal]);
 
 
   // 2. Motor de Tiempo: Bloqueo 5 min antes
@@ -194,15 +252,22 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
         {realResult && realResult.status !== 'pending' && (
           <div className={cn(
             "px-4 py-3 rounded-2xl flex items-center justify-between border text-[10px] font-black uppercase tracking-wider animate-in fade-in slide-in-from-top-2 duration-500",
-            realResult.status === 'playing' 
+            !['finished', 'pending', 'bloqueado'].includes(realResult.status)
               ? "bg-red-500/10 border-red-500/20 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.15)]" 
               : "bg-white/5 border-white/5 text-slate-300"
           )}>
             <span className="flex items-center gap-1.5">
-              {realResult.status === 'playing' ? (
+              {!['finished', 'pending', 'bloqueado'].includes(realResult.status) ? (
                 <>
                   <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                  <span>En Vivo</span>
+                  <span>
+                    {realResult.status === '1H' ? `1T • ${realResult.elapsed}'` :
+                     realResult.status === 'HT' ? "Entretiempo" :
+                     realResult.status === '2H' ? `2T • ${realResult.elapsed}'` :
+                     realResult.status === 'ET' ? `T. Extra • ${realResult.elapsed}'` :
+                     realResult.status === 'P' ? "Penales" :
+                     `En Vivo • ${realResult.elapsed}'`}
+                  </span>
                 </>
               ) : (
                 <span>Resultado Real</span>
@@ -225,6 +290,19 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
                 </span>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Banner de Gol Reciente (Micro-animación premium) */}
+        {isGoalRecent && liveGoal && (
+          <div className="bg-gradient-to-r from-green-500/20 to-emerald-600/5 border border-green-500/30 rounded-2xl px-4 py-3 flex items-center justify-between text-[10px] font-black uppercase text-green-400 tracking-wider shadow-[0_0_15px_rgba(34,197,94,0.15)] animate-pulse">
+            <span className="flex items-center gap-1.5 shrink-0">
+              <span className="text-sm">⚽</span>
+              <span>¡GOL DE {liveGoal.team === 'MEX' ? 'MÉXICO' : liveGoal.team === 'RSA' ? 'SUDÁFRICA' : liveGoal.team === 'CAN' ? 'CANADÁ' : liveGoal.team}!</span>
+            </span>
+            <span className="text-[9px] bg-green-500/20 px-2.5 py-1 rounded-xl text-green-300 border border-green-500/10 truncate max-w-[180px]">
+              {liveGoal.player} ({liveGoal.minute}')
+            </span>
           </div>
         )}
 

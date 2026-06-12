@@ -10,7 +10,7 @@ import { Info } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { InstallAppButton } from "@/components/pwa/InstallAppButton";
 import { PushOptInButton } from "@/components/pwa/PushOptInButton";
-import { getStandingsAction } from "@/app/actions/sync";
+import { getStandingsLocalAction } from "@/app/actions/sync";
 import { CorporateBentoHeader } from "@/components/dashboard/CorporateBentoHeader";
 import { useSidebar } from "@/context/SidebarContext";
 import { useAuth } from "@/context/AuthContext";
@@ -21,18 +21,67 @@ export default function Dashboard() {
   const [activeGroup, setActiveGroup] = useState("A");
   const [showRules, setShowRules] = useState(false);
   const [standings, setStandings] = useState<any[]>([]);
+  const [dbMatches, setDbMatches] = useState<any[]>([]);
 
+  // 1. Cargar las standings calculadas localmente
   useEffect(() => {
-    getStandingsAction().then((res) => {
+    getStandingsLocalAction().then((res) => {
       if (res.success && res.standings) {
         setStandings(res.standings);
       }
     });
   }, []);
 
+  // 2. Cargar en caliente los resultados reales y suscribirnos a realtime
+  useEffect(() => {
+    const supabase = createClient();
+    
+    // Carga inicial
+    const fetchInitialMatches = async () => {
+      const { data } = await supabase.from('match_results').select('*');
+      if (data) setDbMatches(data);
+    };
+    fetchInitialMatches();
+
+    // Suscripción Realtime
+    const channel = supabase
+      .channel('dashboard_matches_channel')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'match_results' },
+        (payload: any) => {
+          // Actualizar partido cambiado
+          setDbMatches((prev) => {
+            const updated = [...prev];
+            const idx = updated.findIndex((m) => m.id === payload.new.id);
+            if (idx >= 0) {
+              updated[idx] = payload.new;
+            } else {
+              updated.push(payload.new);
+            }
+            return updated;
+          });
+          
+          // Refrescar standings si se finalizó un partido
+          if (payload.new.status === 'finished') {
+            getStandingsLocalAction().then((res) => {
+              if (res.success && res.standings) {
+                setStandings(res.standings);
+              }
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const userId = user?.id || null;
 
-  // 1. Organizar grupos en orden alfabético
+  // 3. Organizar grupos en orden alfabético
   const groupedTeams = worldCupData.equipos.reduce((acc: any, team: any) => {
     if (!acc[team.grupo]) {
       acc[team.grupo] = [];
@@ -63,23 +112,41 @@ export default function Dashboard() {
       };
     });
 
-  // 2. Filtrar próximos partidos para el grupo activo (Motor Temporal)
+  // 4. Filtrar próximos partidos para el grupo activo (Motor de Jornada Activa)
   const groupMatches = worldCupData.partidos.filter((m: any) => m.grupo === activeGroup);
-  
-  // Usar fecha actual para ver cuáles ya pasaron (sumamos 2 horas de duración del partido)
-  const now = new Date();
-  let upcomingMatches = groupMatches.filter(
-    (m: any) => new Date(m.fecha).getTime() + (2 * 60 * 60 * 1000) > now.getTime()
-  );
 
-  // Si todos pasaron, mostramos los últimos
-  if (upcomingMatches.length === 0) {
-    upcomingMatches = groupMatches.slice(-2);
+  // Agrupar partidos por jornada/fase
+  const matchesByFase: Record<string, any[]> = {};
+  groupMatches.forEach((m: any) => {
+    if (!matchesByFase[m.fase]) {
+      matchesByFase[m.fase] = [];
+    }
+    matchesByFase[m.fase].push(m);
+  });
+
+  // Determinar la jornada activa del grupo (J1, J2 o J3)
+  const fasesOrdered = ["Jornada 1", "Jornada 2", "Jornada 3"];
+  let activeFase = fasesOrdered[0];
+
+  for (const fase of fasesOrdered) {
+    const faseMatches = matchesByFase[fase] || [];
+    if (faseMatches.length === 0) continue;
+
+    // Verificar si todos los partidos de esta jornada ya han finalizado en la BD
+    const allFinished = faseMatches.every(m => {
+      const dbMatch = dbMatches.find(dbM => dbM.id === m.id);
+      return dbMatch && dbMatch.status === 'finished';
+    });
+
+    activeFase = fase;
+    if (!allFinished) {
+      // Si hay al menos un partido pendiente o en vivo, esta es la jornada activa actual
+      break;
+    }
   }
 
-  // Identificamos cuál es la "Próxima Fase" (J1, J2 o J3) en base al primer partido no finalizado
-  const nextFase = upcomingMatches[0]?.fase;
-  const filteredMatches = upcomingMatches.filter((m: any) => m.fase === nextFase);
+  // Se muestran todos los partidos correspondientes a la jornada activa
+  const filteredMatches = matchesByFase[activeFase] || [];
 
   return (
     <div className="relative pb-12">

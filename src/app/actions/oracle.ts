@@ -14,16 +14,38 @@ export async function processFinishedMatches(leagueId?: string) {
     // Usamos el cliente admin para evitar fallos de RLS silenciosos (Lección LT-2)
     const supabase = createAdminClient();
 
-    // 1. Partidos finalizados (Combinamos Grupos + Eliminatorias)
-    const groupMatches: any[] = worldCupData.partidos.filter((m: any) => m.estado === "finalizado");
-    const knockoutMatches: any[] = knockoutData.rondas.flatMap(r => r.partidos).filter((m: any) => m.estado === "finalizado");
-    
-    const finishedMatches: any[] = [...groupMatches, ...knockoutMatches];
+    // 1. Obtener partidos finalizados reales de Supabase
+    const { data: dbFinished, error: dbFinishedError } = await supabase
+      .from('match_results')
+      .select('*')
+      .eq('status', 'finished');
 
-    if (finishedMatches.length === 0) {
-      return { success: true, message: "No hay partidos finalizados." };
+    if (dbFinishedError) throw dbFinishedError;
+    
+    if (!dbFinished || dbFinished.length === 0) {
+      return { success: true, message: "No hay partidos finalizados en base de datos." };
     }
-    const finishedMatchIds = finishedMatches.map((m: any) => m.id.toString());
+
+    // Para cada partido finalizado en DB, buscamos sus metadatos en los JSON de configuración
+    // y construimos la estructura compatible con el resto de la función.
+    const finishedMatches = dbFinished.map(res => {
+      const groupMatch = worldCupData.partidos.find(m => m.id === res.id);
+      const koMatch = knockoutData.rondas.flatMap(r => r.partidos).find(m => m.id === res.id);
+      const meta = groupMatch || koMatch;
+
+      return {
+        id: res.id,
+        goles_local: res.home_score ?? 0,
+        goles_visitante: res.away_score ?? 0,
+        equipo_local: res.home_team_id || (meta as any)?.local || 'TBD',
+        equipo_visitante: res.away_team_id || (meta as any)?.visitante || 'TBD',
+        estado: 'finalizado',
+        path: (meta as any)?.path,
+        winner_id_manual: (meta as any)?.winner_id_manual
+      };
+    });
+
+    const finishedMatchIds = finishedMatches.map(m => m.id.toString());
     
     // 2. Actualizar Puntos de Predicciones (BULK)
     const { data: pendingPredictions } = await supabase
@@ -134,7 +156,7 @@ export async function processFinishedMatches(leagueId?: string) {
     }
 
     // 6. --- AVANCE DE LLAVES (KNOCKOUT PROGRESSION) ---
-    const knockoutFinalized = knockoutMatches.filter(m => (m as any).path);
+    const knockoutFinalized = finishedMatches.filter(m => (m as any).path);
     console.log(`[Oráculo] Procesando ${knockoutFinalized.length} partidos knockout finalizados...`);
     
     if (knockoutFinalized.length > 0) {

@@ -209,12 +209,14 @@ export class SportsSyncAgent {
    * Transforma el status corto de la API a nuestro modelo interno.
    */
   mapStatusToInternal(apiShortStatus: string): MatchStatus {
-    const playingStatuses = ["1H", "HT", "2H", "ET", "P", "PEN"];
+    const playingStatuses = ["1H", "HT", "2H", "ET", "P", "PEN", "BT", "LIVE"];
     const finishedStatuses = ["FT", "AET", "PEN"]; // Finalizado regular, alargue, o penales
 
     if (apiShortStatus === "NS") return "pending";
     if (finishedStatuses.includes(apiShortStatus)) return "finished";
-    if (playingStatuses.includes(apiShortStatus)) return "playing";
+    if (playingStatuses.includes(apiShortStatus)) {
+      return (apiShortStatus === "LIVE" ? "playing" : apiShortStatus) as MatchStatus;
+    }
     
     return "pending"; // Default fallback
   }
@@ -225,7 +227,7 @@ export class SportsSyncAgent {
    * Utiliza el Admin Client para evitar bloqueos de RLS.
    */
   async syncMatchesToDatabase(fixtureIds: number[]): Promise<{ success: boolean; updatedCount: number }> {
-    console.log(`🔄 Iniciando sincronización de ${fixtureIds.length} partidos...`);
+    console.log(`🔄 Sincronizando partidos con Supabase...`);
     
     let liveData: APIFootballFixtureResponse[] = [];
     
@@ -277,9 +279,12 @@ export class SportsSyncAgent {
         const localMatch = worldCupData.partidos.find(m => m.id === apiMatch.fixture.id);
         const item: any = {
           id: apiMatch.fixture.id,
+          api_fixture_id: apiMatch.fixture.id,
           home_score: apiMatch.goals.home,
           away_score: apiMatch.goals.away,
-          status: this.mapStatusToInternal(apiMatch.fixture.status.short)
+          status: this.mapStatusToInternal(apiMatch.fixture.status.short),
+          elapsed: apiMatch.fixture.status.elapsed ?? 0,
+          last_sync: new Date().toISOString()
         };
 
         if (localMatch) {
@@ -337,11 +342,14 @@ export class SportsSyncAgent {
 
         upserts.push({
           id: localMatchId,
+          api_fixture_id: apiMatch.fixture.id,
           home_team_id: homeCode,
           away_team_id: awayCode,
           home_score: homeScore,
           away_score: awayScore,
-          status: this.mapStatusToInternal(apiMatch.fixture.status.short)
+          status: this.mapStatusToInternal(apiMatch.fixture.status.short),
+          elapsed: apiMatch.fixture.status.elapsed ?? 0,
+          last_sync: new Date().toISOString()
         });
       }
     }
@@ -362,6 +370,76 @@ export class SportsSyncAgent {
     }
 
     console.log(`✅ Sincronización exitosa: ${upserts.length} partidos procesados y actualizados en BD.`);
+
+    // --- PROCESAMIENTO DE GOLES EN VIVO Y EVENTOS ---
+    try {
+      const activeMatches = upserts.filter(m => 
+        m.status !== 'finished' && m.status !== 'pending' && m.status !== 'bloqueado'
+      );
+
+      for (const match of activeMatches) {
+        if (this.isMockMode) {
+          // En modo Mock, si el partido 2 (CAN vs SUI) está activo, simulamos un gol
+          if (match.id === 2 && match.home_score > 0) {
+            const mockGoal = {
+              team: 'CAN',
+              player: 'Alphonso Davies',
+              minute: 72,
+              timestamp: new Date().toISOString()
+            };
+            await supabase
+              .from('app_settings')
+              .upsert({
+                key: `goal_${match.id}`,
+                value: JSON.stringify(mockGoal)
+              }, { onConflict: 'key' });
+            console.log(`ℹ️ [SportsSyncAgent] Mock goal simulated for match ${match.id}`);
+          }
+        } else if (match.api_fixture_id) {
+          // En modo real, consultamos los detalles específicos de este partido por su ID
+          const response = await fetch(`${this.baseUrl}/fixtures?id=${match.api_fixture_id}`, {
+            method: "GET",
+            headers: {
+              "x-rapidapi-host": "v3.football.api-sports.io",
+              "x-rapidapi-key": this.apiKey as string,
+            },
+            next: { revalidate: 0 } // Datos totalmente en vivo, sin cache
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            const apiMatchDetail = data.response?.[0];
+            if (apiMatchDetail && apiMatchDetail.events) {
+              const goals = apiMatchDetail.events.filter((ev: any) => ev.type === 'Goal');
+              if (goals.length > 0) {
+                // Ordenar por el minuto más reciente
+                goals.sort((a: any, b: any) => (b.time.elapsed + (b.time.extra || 0)) - (a.time.elapsed + (a.time.extra || 0)));
+                const lastGoal = goals[0];
+                const teamCode = mapApiTeamToLocalCode(lastGoal.team.name) || lastGoal.team.name;
+                
+                const goalInfo = {
+                  team: teamCode,
+                  player: lastGoal.player.name || 'Desconocido',
+                  minute: lastGoal.time.elapsed + (lastGoal.time.extra ? `+${lastGoal.time.extra}` : ''),
+                  timestamp: new Date().toISOString()
+                };
+
+                await supabase
+                  .from('app_settings')
+                  .upsert({
+                    key: `goal_${match.id}`,
+                    value: JSON.stringify(goalInfo)
+                  }, { onConflict: 'key' });
+                console.log(`⚽ [SportsSyncAgent] Gol en vivo registrado para partido ${match.id}:`, goalInfo);
+              }
+            }
+          }
+        }
+      }
+    } catch (eventsError) {
+      console.error("⚠️ Error procesando goles en vivo en SportsSyncAgent:", eventsError);
+    }
+
     return { success: true, updatedCount: upserts.length };
   }
 
