@@ -125,7 +125,7 @@ export default function Dashboard() {
   });
 
   // Determinar la jornada activa del grupo (J1, J2 o J3)
-  const fasesOrdered = ["Jornada 1", "Jornada 2", "Jornada 3"];
+  const fasesOrdered = ["Grupos - J1", "Grupos - J2", "Grupos - J3"];
   let activeFase = fasesOrdered[0];
 
   for (const fase of fasesOrdered) {

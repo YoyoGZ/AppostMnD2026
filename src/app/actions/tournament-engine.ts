@@ -30,6 +30,7 @@ export async function calculateGroupStandings(): Promise<Record<string, TeamStan
   });
 
   results?.forEach(res => {
+    if (res.status !== 'finished') return;
     const match = worldCupData.partidos.find(m => m.id === res.id);
     if (!match || !match.grupo) return;
 
