@@ -653,3 +653,15 @@ La lógica de control de tiempo (`isLockedByTime`) en `MatchPredictionCard.tsx` 
 ### Resolución (The House Way)
 1. **Alineación Dinámica del Calendario (`align-fixture-dates.js`)**: Escribimos y ejecutamos el script `scratch/align-fixture-dates.js` para consultar el fixture real del mundial en API-Football, cruzar los partidos por los equipos y sobreescribir automáticamente las fechas en `world-cup-2026.json`. Se actualizaron 43 partidos en total.
 2. **Sincronización Atómica en Caliente**: Corrimos `npx -y tsx scratch/run-real-sync.ts` en la base de datos de producción de Supabase para forzar la bajada en vivo del fixture completo (sincronizando exitosamente 55 partidos). El partido 13 de Corea vs Rep. Checa cambió de estado de forma real a `finished: 2 - 1` e impactó en los standings correspondientes sin bucles.
+
+## 2026-06-12: Limitación de Cron Jobs en Plan Vercel Hobby y Solución Externa (LL-26)
+
+### Síntoma
+Vercel abortaba o bloqueaba la compilación/despliegue del proyecto con el error: `Hobby accounts are limited to daily cron jobs. This cron expression (*/1 * * * *) would run more than once per day`.
+
+### Diagnóstico
+Vercel limita de forma estricta el uso de Cron Jobs en las cuentas gratuitas (Hobby) a un máximo de una ejecución por día. Si el archivo `vercel.json` declara una expresión que corre con más frecuencia (como `*/1 * * * *` o `*/2 * * * *`), el despliegue es rechazado inmediatamente.
+
+### Resolución (The House Way)
+1. **Configuración Diaria en Next.js**: Modificamos `vercel.json` para definir la frecuencia a una vez al día (`"schedule": "0 12 * * *"`), lo que desbloquea y permite pasar las reglas de validación de Vercel Hobby.
+2. **Orquestación Externa Gratuita**: En lugar de pagar un plan Pro, se delegan las llamadas recurrentes de alta frecuencia (cada 1 o 2 minutos) a un servicio de automatización externo gratuito (como `cron-job.org`). Este orquestador externo se configura para llamar vía HTTP GET al endpoint seguro `https://mundiapp26.com/api/sync` inyectando la cabecera `Authorization: Bearer <CRON_SECRET>` para mantener la seguridad e integridad del Oráculo.
