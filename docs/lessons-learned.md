@@ -586,6 +586,23 @@ Al habilitar la API Key real de API-Football, las actualizaciones de partidos de
 2. **Visualización y Suscripción del Marcador Real**: Actualizamos `MatchPredictionCard.tsx` para consultar el marcador de `match_results` al montar el componente. Integramos una suscripción en caliente mediante WebSockets (`postgres_changes` filtrado por ID de partido) para actualizar los goles en tiempo real en la UI en menos de 100ms.
 3. **Banner de Feedback e IA de Puntos**: Si el partido está `"playing"` o `"finished"`, la card dibuja un banner superior con el estado ("En Vivo" con animación roja, o "Resultado Real") junto con el marcador oficial y una badge premium indicando los puntos ganados (e.g., `🏆 +5 PTS` por pleno o `🏆 +2 PTS` por acierto).
 
+## 2026-06-11: Desaparición de Cards, Standings Rotos en Grupo A, Oráculo Acoplado y Ticker de Goles en Vivo (LL-22)
 
+### Síntoma
+1. Al terminar el primer tiempo del partido inaugural (MEX vs RSA), la card del partido desapareció del Dashboard y no volvió a mostrarse.
+2. La tabla de posiciones del Grupo A de la Copa del Mundo se cayó a 0 puntos al pasar a la API real, pero se mostró un Grupo B mockeado con puntos.
+3. El Oráculo no calculó ni sumó los puntos de los pronósticos de los usuarios de La Liga tras finalizar el partido inaugural.
+4. No se mostraba el minuto transcurrido ni la información detallada del último gol metido en vivo.
 
+### Diagnóstico
+1. **Cards**: El Dashboard filtraba partidos basándose únicamente en la hora programada (`fecha + 2 horas > now`) sin consultar el estado real del partido en la base de datos `match_results`. Al cumplirse las 2 horas, la card se ocultaba de inmediato, ignorando si estaba en entretiempo o tiempo extra.
+2. **Standings**: El Dashboard hacía fetch de `/standings` a la API real, la cual devolvía IDs de equipos numéricos e inglés (`"Group A"`). El frontend buscaba `"Grupo A"` y mapeaba con códigos FIFA de 3 letras (`"MEX"`), provocando desajuste de datos y caída a 0.
+3. **Oráculo**: Estaba acoplado al JSON inmutable de configuración local buscando `m.estado === 'finalizado'`, el cual nunca cambia dinámicamente en producción, ignorando la base de datos `match_results`.
+4. **Goles**: La base de datos no almacenaba el minuto (`elapsed`) de la API, ni el ticker de goles recientes con el autor del gol en vivo.
 
+### Resolución (The House Way)
+1. **Motor de Jornada Activa en Dashboard**: Rediseñamos el motor de filtrado del Dashboard en `page.tsx` para que consulte el estado de `match_results` de Supabase. Los partidos de una jornada se mantienen visibles hasta que todos los partidos de esa jornada estén finalizados en la BD, evitando que desaparezcan en vivo.
+2. **Cálculo Local de Standings**: Reemplazamos la llamada a standings externa por la Server Action local `getStandingsLocalAction()`, la cual calcula las clasificaciones dinámicamente sobre `match_results` usando códigos FIFA.
+3. **Oráculo Resiliente**: Modificamos `oracle.ts` para que obtenga los partidos finalizados desde `match_results` con `status === 'finished'` y calcule los puntos de quiniela sobre los marcadores reales de Supabase.
+4. **Minuto y Ticker en Vivo**: Sincronizamos `elapsed` y estados detallados de API (`1H`, `HT`, etc.). Cuando hay partido activo, se consultan sus eventos de gol y se persisten temporalmente en `app_settings` con `key: goal_<id>`, habilitando un ticker animado de gol reciente en la card por 5 minutos.
+5. **Bypass SSL en Push y Commits con Comillas**: En Power Shell local, las rutas con paréntesis `(dashboard)` deben ir entre comillas para evitar errores sintácticos de cmdlet, y se puede omitir temporalmente la verificación SSL local al empujar con `git -c http.sslVerify=false push`.
