@@ -606,3 +606,21 @@ Al habilitar la API Key real de API-Football, las actualizaciones de partidos de
 3. **Oráculo Resiliente**: Modificamos `oracle.ts` para que obtenga los partidos finalizados desde `match_results` con `status === 'finished'` y calcule los puntos de quiniela sobre los marcadores reales de Supabase.
 4. **Minuto y Ticker en Vivo**: Sincronizamos `elapsed` y estados detallados de API (`1H`, `HT`, etc.). Cuando hay partido activo, se consultan sus eventos de gol y se persisten temporalmente en `app_settings` con `key: goal_<id>`, habilitando un ticker animado de gol reciente en la card por 5 minutos.
 5. **Bypass SSL en Push y Commits con Comillas**: En Power Shell local, las rutas con paréntesis `(dashboard)` deben ir entre comillas para evitar errores sintácticos de cmdlet, y se puede omitir temporalmente la verificación SSL local al empujar con `git -c http.sslVerify=false push`.
+
+## 2026-06-11: Filtrado de Status en Standings de Países y Corrección de Claves de Fases en Dashboard (LL-23)
+
+### Síntoma
+1. Todos los equipos de todos los grupos del Mundial aparecían con puntos acumulados y partidos jugados en la tabla de posiciones, a pesar de que sus partidos no habían comenzado.
+2. La sección de próximos partidos del Dashboard mostraba la leyenda "No se encontraron encuentros programados para esta fase en el Grupo A" y ocultaba las cards.
+3. El partido inaugural MEX vs RSA quedó grabado en la base de datos de Supabase como `1 - 0` y no permitía su edición manual desde la consola web debido a errores de escritura.
+
+### Diagnóstico
+1. **Standings**: La función `calculateGroupStandings` procesaba en bloque todos los partidos devueltos por `match_results` sin validar su estado. Al no validar `status === 'finished'`, los partidos pendientes (`pending`) con marcadores `null` se interpretaban como empates (`0 - 0`), sumando erróneamente 1 punto por empate a cada equipo de todos los grupos.
+2. **Fases**: En la lógica del motor de jornada activa del Dashboard, buscábamos las jornadas bajo las claves `["Jornada 1", "Jornada 2", "Jornada 3"]`. Sin embargo, en el JSON de configuración oficial `world-cup-2026.json`, las fases de grupo se llaman `"Grupos - J1"`, `"Grupos - J2"`, y `"Grupos - J3"`. Al no haber coincidencia, la consulta del Dashboard devolvía un conjunto vacío.
+3. **Bloqueo RLS de Edición**: Las políticas de RLS (Row Level Security) bloqueaban la edición directa de marcadores desde interfaces web que no contaran con bypass de superusuario para evitar alteraciones de terceros.
+
+### Resolución (The House Way)
+1. **Validación de Partido Terminado**: Agregamos una directiva de guarda `if (res.status !== 'finished') return;` en `calculateGroupStandings` (`tournament-engine.ts`) para que sólo los partidos finalizados sumen puntos en el carrusel de grupos.
+2. **Nomenclatura Exacta de Jornadas**: Actualizamos el arreglo `fasesOrdered` en `page.tsx` a `["Grupos - J1", "Grupos - J2", "Grupos - J3"]` para que mapee exactamente con el JSON de datos.
+3. **Script de superusuario para Corrección de Marcador**: Escribimos y ejecutamos un script en consola de Node (`scratch/fix-match-1.js`) que realiza un `PATCH` a la API REST de Supabase utilizando la Service Role Key, evadiendo de forma segura el RLS en el servidor para establecer el marcador real de México a `2 - 0` y su estado a `finished`.
+
