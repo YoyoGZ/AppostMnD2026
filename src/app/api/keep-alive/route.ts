@@ -1,6 +1,8 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/keep-alive
  * Endpoint invocado por Vercel Cron cada 3 días.

@@ -254,7 +254,7 @@ export class SportsSyncAgent {
           "x-rapidapi-host": "v3.football.api-sports.io",
           "x-rapidapi-key": this.apiKey,
         },
-        next: { revalidate: 60 } 
+        cache: "no-store"
       });
 
       if (!response.ok) {
@@ -277,7 +277,7 @@ export class SportsSyncAgent {
     
     const { data: dbMatches } = await supabase
       .from('match_results')
-      .select('id, home_team_id, away_team_id');
+      .select('id, home_team_id, away_team_id, status');
     
     const dbMatchesMap = new Map(dbMatches?.map((m: any) => [`${m.home_team_id}-${m.away_team_id}`, m.id]) || []);
     
@@ -365,11 +365,16 @@ export class SportsSyncAgent {
 
     // --- PROCESAMIENTO DE GOLES EN VIVO Y EVENTOS ---
     try {
-      const activeMatches = upserts.filter(m => 
-        m.status !== 'finished' && m.status !== 'pending' && m.status !== 'bloqueado'
-      );
+      const dbMatchesStatusMap = new Map(dbMatches?.map((m: any) => [m.id, m.status]) || []);
 
-      for (const match of activeMatches) {
+      const matchesToProcessGoals = upserts.filter(m => {
+        const previousStatus = dbMatchesStatusMap.get(m.id);
+        const isActive = m.status !== 'finished' && m.status !== 'pending' && m.status !== 'bloqueado';
+        const isNewlyFinished = m.status === 'finished' && previousStatus !== 'finished';
+        return isActive || isNewlyFinished;
+      });
+
+      for (const match of matchesToProcessGoals) {
         if (match.api_fixture_id) {
           const response = await fetch(`${this.baseUrl}/fixtures?id=${match.api_fixture_id}`, {
             method: "GET",
@@ -385,15 +390,38 @@ export class SportsSyncAgent {
             const apiMatchDetail = data.response?.[0];
             if (apiMatchDetail && apiMatchDetail.events) {
               const goals = apiMatchDetail.events.filter((ev: any) => ev.type === 'Goal');
-              if (goals.length > 0) {
-                goals.sort((a: any, b: any) => (b.time.elapsed + (b.time.extra || 0)) - (a.time.elapsed + (a.time.extra || 0)));
-                const lastGoal = goals[0];
-                const teamCode = mapApiTeamToLocalCode(lastGoal.team.name) || lastGoal.team.name;
-                
-                const goalInfo = {
+              
+              const goalsList = goals.map((ev: any) => {
+                const teamCode = mapApiTeamToLocalCode(ev.team.name) || ev.team.name;
+                return {
                   team: teamCode,
-                  player: lastGoal.player.name || 'Desconocido',
-                  minute: lastGoal.time.elapsed + (lastGoal.time.extra ? `+${lastGoal.time.extra}` : ''),
+                  player: ev.player.name || 'Desconocido',
+                  minute: ev.time.elapsed + (ev.time.extra ? `+${ev.time.extra}` : '')
+                };
+              }).sort((a: any, b: any) => {
+                const minA = parseInt(a.minute) || 0;
+                const minB = parseInt(b.minute) || 0;
+                return minA - minB;
+              });
+
+              if (goalsList.length > 0) {
+                // 1. Guardar la lista completa de goles
+                await supabase
+                  .from('app_settings')
+                  .upsert({
+                    key: `goals_${match.id}`,
+                    value: JSON.stringify(goalsList)
+                  }, { onConflict: 'key' });
+
+                // 2. Guardar el último gol para la animación de gol reciente
+                const sortedDesc = [...goalsList].sort((a: any, b: any) => {
+                  const minA = parseInt(a.minute) || 0;
+                  const minB = parseInt(b.minute) || 0;
+                  return minB - minA;
+                });
+                const lastGoal = sortedDesc[0];
+                const goalInfo = {
+                  ...lastGoal,
                   timestamp: new Date().toISOString()
                 };
 
@@ -403,7 +431,8 @@ export class SportsSyncAgent {
                     key: `goal_${match.id}`,
                     value: JSON.stringify(goalInfo)
                   }, { onConflict: 'key' });
-                console.log(`⚽ [SportsSyncAgent] Gol en vivo registrado para partido ${match.id}:`, goalInfo);
+
+                console.log(`⚽ [SportsSyncAgent] Goles grabados para partido ${match.id}:`, goalsList);
               }
             }
           }

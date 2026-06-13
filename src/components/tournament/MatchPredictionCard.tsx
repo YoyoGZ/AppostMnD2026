@@ -22,6 +22,7 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
   const [pointsEarned, setPointsEarned] = useState<number | null>(null);
   const [liveGoal, setLiveGoal] = useState<{ team: string; player: string; minute: string; timestamp: string } | null>(null);
   const [isGoalRecent, setIsGoalRecent] = useState<boolean>(false);
+  const [goalsList, setGoalsList] = useState<{ team: string; player: string; minute: string }[]>([]);
 
   const supabase = createClient();
 
@@ -74,6 +75,21 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
           console.error("Error parsing goal:", e);
         }
       }
+
+      // Cargar lista completa de goles de app_settings
+      const { data: goalsData } = await supabase
+        .from('app_settings')
+        .select('value')
+        .eq('key', `goals_${matchInfo.id}`)
+        .maybeSingle();
+
+      if (goalsData?.value) {
+        try {
+          setGoalsList(JSON.parse(goalsData.value));
+        } catch (e) {
+          console.error("Error parsing goals list:", e);
+        }
+      }
       
       setIsLoading(false);
     };
@@ -121,9 +137,30 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
       })
       .subscribe();
 
+    // Suscribirse a realtime para la lista completa de goles en app_settings
+    const goalsChannel = supabase
+      .channel(`match-goals-${matchInfo.id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'app_settings',
+        filter: `key=eq.goals_${matchInfo.id}`
+      }, (payload: any) => {
+        const newRecord = payload.new;
+        if (newRecord?.value) {
+          try {
+            setGoalsList(JSON.parse(newRecord.value));
+          } catch (e) {
+            console.error("Error parsing goals realtime:", e);
+          }
+        }
+      })
+      .subscribe();
+
     return () => {
       channel.unsubscribe();
       goalChannel.unsubscribe();
+      goalsChannel.unsubscribe();
     };
   }, [matchInfo.id, supabase, userId]);
 
@@ -298,8 +335,8 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
           </div>
         )}
 
-        {/* Banner de Gol Reciente (Micro-animación premium) */}
-        {isGoalRecent && liveGoal && (
+        {/* Banner de Gol Reciente (Micro-animación premium) - Solo en juego */}
+        {isGoalRecent && liveGoal && displayRealResult && !['finished', 'pending', 'bloqueado'].includes(displayRealResult.status) && (
           <div className="bg-gradient-to-r from-green-500/20 to-emerald-600/5 border border-green-500/30 rounded-2xl px-4 py-3 flex items-center justify-between text-[10px] font-black uppercase text-green-400 tracking-wider shadow-[0_0_15px_rgba(34,197,94,0.15)] animate-pulse">
             <span className="flex items-center gap-1.5 shrink-0">
               <span className="text-sm">⚽</span>
@@ -313,15 +350,23 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
 
         {/* Home Team */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className={`w-10 h-6 rounded overflow-hidden flex items-center justify-center border border-white/5 ${isEntryDisabled ? "bg-white/5" : "bg-primary/10"}`}>
+          <div className="flex items-center gap-4 min-w-0">
+            <div className={`w-10 h-6 rounded overflow-hidden flex items-center justify-center border border-white/5 flex-shrink-0 ${isEntryDisabled ? "bg-white/5" : "bg-primary/10"}`}>
               {getTeamFlagUrl(matchInfo.home.id) ? (
                 <img src={getTeamFlagUrl(matchInfo.home.id)!} alt={matchInfo.home.nombre} className="w-full h-full object-cover" />
               ) : (
                 <span className={`text-[10px] font-black ${isEntryDisabled ? "text-white/40" : "text-primary/60"}`}>{matchInfo.home.id !== "TBD" ? matchInfo.home.id.slice(0, 3) : "?"}</span>
               )}
             </div>
-            <span className="font-bold text-lg tracking-tight text-white">{matchInfo.home.nombre}</span>
+            <div className="flex flex-col min-w-0">
+              <span className="font-bold text-lg tracking-tight text-white truncate">{matchInfo.home.nombre}</span>
+              {/* Goles del equipo local compactos */}
+              {displayRealResult && displayRealResult.status !== 'pending' && goalsList && goalsList.length > 0 && (
+                <span className="text-[10px] text-white/50 font-medium tracking-tight mt-0.5 truncate" title={goalsList.filter((g: any) => g.team === matchInfo.home.id).map((g: any) => `${g.player} (${g.minute}')`).join(', ')}>
+                  {goalsList.filter((g: any) => g.team === matchInfo.home.id).map((g: any) => `${g.player} (${g.minute}')`).join(', ')}
+                </span>
+              )}
+            </div>
           </div>
           <input
             type="text"
@@ -339,15 +384,23 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
 
         {/* Away Team */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className={`w-10 h-6 rounded overflow-hidden flex items-center justify-center border border-white/5 ${isEntryDisabled ? "bg-white/5" : "bg-primary/10"}`}>
+          <div className="flex items-center gap-4 min-w-0">
+            <div className={`w-10 h-6 rounded overflow-hidden flex items-center justify-center border border-white/5 flex-shrink-0 ${isEntryDisabled ? "bg-white/5" : "bg-primary/10"}`}>
               {getTeamFlagUrl(matchInfo.away.id) ? (
                 <img src={getTeamFlagUrl(matchInfo.away.id)!} alt={matchInfo.away.nombre} className="w-full h-full object-cover" />
               ) : (
                 <span className={`text-[10px] font-black ${isEntryDisabled ? "text-white/40" : "text-primary/60"}`}>{matchInfo.away.id !== "TBD" ? matchInfo.away.id.slice(0, 3) : "?"}</span>
               )}
             </div>
-            <span className="font-bold text-lg tracking-tight text-white">{matchInfo.away.nombre}</span>
+            <div className="flex flex-col min-w-0">
+              <span className="font-bold text-lg tracking-tight text-white truncate">{matchInfo.away.nombre}</span>
+              {/* Goles del equipo visitante compactos */}
+              {displayRealResult && displayRealResult.status !== 'pending' && goalsList && goalsList.length > 0 && (
+                <span className="text-[10px] text-white/50 font-medium tracking-tight mt-0.5 truncate" title={goalsList.filter((g: any) => g.team === matchInfo.away.id).map((g: any) => `${g.player} (${g.minute}')`).join(', ')}>
+                  {goalsList.filter((g: any) => g.team === matchInfo.away.id).map((g: any) => `${g.player} (${g.minute}')`).join(', ')}
+                </span>
+              )}
+            </div>
           </div>
           <input
             type="text"

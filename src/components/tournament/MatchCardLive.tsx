@@ -32,6 +32,8 @@ export function MatchCardLive() {
   const [liveGoal, setLiveGoal] = useState<GoalEvent | null>(null);
   const [isGoalRecent, setIsGoalRecent] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [localElapsed, setLocalElapsed] = useState<number>(0);
+  const [goalsList, setGoalsList] = useState<any[]>([]);
 
   const supabase = createClient();
 
@@ -68,6 +70,8 @@ export function MatchCardLive() {
             api_fixture_id: activeMatch.api_fixture_id
           });
 
+          setLocalElapsed(activeMatch.elapsed ?? 0);
+
           // Cargar gol reciente para este partido
           const { data: goalData } = await supabase
             .from("app_settings")
@@ -80,6 +84,21 @@ export function MatchCardLive() {
               setLiveGoal(JSON.parse(goalData.value));
             } catch (e) {
               console.error("Error parsing goal:", e);
+            }
+          }
+
+          // Cargar lista completa de goles
+          const { data: goalsData } = await supabase
+            .from("app_settings")
+            .select("value")
+            .eq("key", `goals_${activeMatch.id}`)
+            .maybeSingle();
+
+          if (goalsData?.value) {
+            try {
+              setGoalsList(JSON.parse(goalsData.value));
+            } catch (e) {
+              console.error("Error parsing goals:", e);
             }
           }
         } else {
@@ -139,6 +158,7 @@ export function MatchCardLive() {
             status: newRecord.status,
             elapsed: newRecord.elapsed ?? 0
           } : null);
+          setLocalElapsed(newRecord.elapsed ?? 0);
         }
       })
       .subscribe();
@@ -163,11 +183,50 @@ export function MatchCardLive() {
       })
       .subscribe();
 
+    // Escuchar lista completa de goles en realtime
+    const goalsChannel = supabase
+      .channel(`live-hub-goals-${liveMatch.id}`)
+      .on("postgres_changes", {
+        event: "*",
+        schema: "public",
+        table: "app_settings",
+        filter: `key=eq.goals_${liveMatch.id}`
+      }, (payload: any) => {
+        const newRecord = payload.new;
+        if (newRecord?.value) {
+          try {
+            setGoalsList(JSON.parse(newRecord.value));
+          } catch (e) {
+            console.error("Error parsing realtime goals:", e);
+          }
+        }
+      })
+      .subscribe();
+
     return () => {
       matchChannel.unsubscribe();
       goalChannel.unsubscribe();
+      goalsChannel.unsubscribe();
     };
   }, [liveMatch?.id, supabase]);
+
+  // Reloj Optimista: Avanza el tiempo transcurrido local cada 60s si el partido está en juego
+  useEffect(() => {
+    if (!liveMatch) return;
+    
+    setLocalElapsed(liveMatch.elapsed);
+
+    const activeStatuses = ["1H", "2H", "ET", "playing"];
+    if (!activeStatuses.includes(liveMatch.status)) {
+      return; // No avanza en HT, P o finished
+    }
+
+    const interval = setInterval(() => {
+      setLocalElapsed(prev => prev + 1);
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [liveMatch?.elapsed, liveMatch?.status]);
 
   // Controlar si el gol es reciente (< 5 minutos)
   useEffect(() => {
@@ -263,7 +322,7 @@ export function MatchCardLive() {
           <Clock className="w-3.5 h-3.5 text-primary" />
           {mapStatusToEsp(liveMatch.status)}
           {liveMatch.status !== "HT" && (
-            <span>• {liveMatch.elapsed}'</span>
+            <span>• {localElapsed}'</span>
           )}
         </span>
       </div>
@@ -293,7 +352,19 @@ export function MatchCardLive() {
             )}
           </div>
           <span className="text-lg font-black text-white tracking-tight leading-none">{homeName}</span>
-          <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Local</span>
+          
+          {/* Goles del equipo local (permanente) */}
+          {goalsList && goalsList.length > 0 && (
+            <div className="flex flex-col gap-0.5 mt-1 animate-in fade-in duration-300">
+              {goalsList.filter((g: any) => g.team === liveMatch.home_team_id).map((g: any, idx: number) => (
+                <span key={idx} className="text-[10px] text-white/50 font-bold tracking-tight">
+                  ⚽ {g.player} ({g.minute}')
+                </span>
+              ))}
+            </div>
+          )}
+
+          <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">Local</span>
         </div>
 
         {/* Marcador Gigante */}
@@ -320,7 +391,19 @@ export function MatchCardLive() {
             )}
           </div>
           <span className="text-lg font-black text-white tracking-tight leading-none">{awayName}</span>
-          <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Visitante</span>
+
+          {/* Goles del equipo visitante (permanente) */}
+          {goalsList && goalsList.length > 0 && (
+            <div className="flex flex-col gap-0.5 mt-1 animate-in fade-in duration-300">
+              {goalsList.filter((g: any) => g.team === liveMatch.away_team_id).map((g: any, idx: number) => (
+                <span key={idx} className="text-[10px] text-white/50 font-bold tracking-tight">
+                  ⚽ {g.player} ({g.minute}')
+                </span>
+              ))}
+            </div>
+          )}
+
+          <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">Visitante</span>
         </div>
       </div>
 

@@ -678,3 +678,24 @@ Al alinear las fechas de los partidos en `world-cup-2026.json` mediante el scrip
 1. **Alineación de Fases vía `league.round` de la API**: Refactorizamos el script `scratch/align-fixture-dates.js` para capturar la propiedad `league.round` de la API de fútbol (la cual reporta `"Group Stage - 1"`, `"Group Stage - 2"` o `"Group Stage - 3"`).
 2. **Mapeo de Nomenclatura**: Traducimos dinámicamente `"Group Stage - X"` a la nomenclatura local `"Grupos - JX"` y reescribimos el campo `localMatch.fase` en el JSON.
 3. **Resultado Estético e Integración**: Al correr el script se reasignaron correctamente las fases de 14 partidos desfasados. Ahora Canadá vs Bosnia (12 de junio) se agrupa correctamente en `GRUPOS - J1` y Canadá vs Suiza (24 de junio) en `GRUPOS - J3`.
+
+## 2026-06-13: Ventana de Inactividad de Sincronización, Reloj Optimista Calibrado y Cronología Permanente de Goles (LL-28)
+
+### Síntoma
+1. Necesidad de optimizar y reducir al máximo las llamadas periódicas del Cron a la API externa de deportes para cuidar los límites de la suscripción paga.
+2. El reloj de minutos transcurridos (`elapsed`) en la tarjeta en vivo del Live Hub aparecía estático entre las actualizaciones del Cron (cada 2 minutos), ofreciendo una experiencia poco responsiva.
+3. El banner de gol en vivo de la tarjeta era una animación efímera que desaparecía, y las tarjetas de predicciones de partidos pasados o finalizados no mostraban los goles y autores de manera estructurada e histórica.
+
+### Diagnóstico
+1. **Período Ocioso de Partidos**: Analizando el fixture completo de grupos, los partidos ocurren en una ventana específica diaria (desde las 13:00 hs ARG hasta las 03:00 hs AM ARG del día siguiente cuando terminan los últimos partidos que inician a la 01:00 hs AM). Entre las 03:00 AM y las 12:00 PM (mediodía) hora de Argentina, no hay partidos jugándose ni programados, configurando una ventana de inactividad garantizada del 37.5% del día.
+2. **Reloj Desconectado**: La UI no realizaba ningún incremento local de tiempo en el cliente entre las llamadas websocket de Supabase, lo que dejaba el segundero y minutero "muertos" para el usuario activo.
+3. **Pérdida de Historial de Goles**: La base de datos no almacenaba el historial estructurado de goles de forma acumulativa (solo guardaba el último gol en `goal_${matchId}` para la animación), impidiendo pintar de forma permanente quién anotó y en qué minuto en las tarjetas de juego.
+
+### Resolución (The House Way)
+1. **Bloqueo Horario en Sincronizador**: Modificamos `/api/sync/route.ts` para obtener la hora en la zona de Argentina (`America/Argentina/Buenos_Aires`). Si la hora actual está entre las 3 AM y las 12 PM ARG, se aborta la sincronización de inmediato ahorrando un 37.5% de ejecuciones del Cron.
+2. **Reloj Optimista Calibrado**: Implementamos un temporizador de React (`setInterval` de 60s) en `MatchCardLive.tsx` sobre el estado `localElapsed` que avanza de a 1 minuto solo en estados activos (`1H`, `2H`, `ET`). Al recibir una actualización por realtime de Supabase, el reloj local se calibra automáticamente con el valor oficial de la BD, manteniendo sincronía y certeza absoluta.
+3. **Persistencia Cronológica de Goles**: Modificamos `SportsSyncAgent.ts` para capturar la lista de goles de la API, ordenarla ascendentemente e inyectarla como JSON en `app_settings` con la clave `goals_${matchId}` para partidos activos y partidos que acaban de finalizar (`isNewlyFinished`).
+4. **Visualización Compacta e Integrada de Goles (Ajuste UX)**:
+   - En `MatchCardLive.tsx` se renderizan los goles permanentemente debajo del nombre de cada selección de forma clara (estilo transmisión de TV).
+   - En `MatchPredictionCard.tsx` se eliminó el bloque Bento Grid gris que estiraba la tarjeta, integrando los goleadores en una sola línea muy compacta debajo de cada selección nacional. Esto previene descompensaciones de altura y vistas vacías en el flex/grid del Dashboard. También se deshabilitó el banner verde de gol reciente si el partido ya está finalizado.
+5. **Poblado Masivo de Históricos y Mapeo de Corea (KOR)**: Ejecutamos el script puntual `scratch/populate_past_match_goals.js` que sincronizó los goles de los 5 partidos finalizados. Corregimos el script para que nombres devueltos por la API como `"South Korea"` o `"Korea"` se mapeen unívocamente a `'KOR'` (en la primera corrida se guardó como `'SOU'`, impidiendo mostrar los goles de Corea en la tarjeta KOR vs CZE). Volvimos a correr la migración y la base de datos Supabase ya tiene los goles asociados correctamente.
