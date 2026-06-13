@@ -136,34 +136,54 @@ export function MatchCardLive() {
     fetchLiveAndNext();
   }, [supabase]);
 
-  // Suscribirse a realtime si hay un partido activo
+  // 1. Suscripción global a match_results para detectar cuando un partido entra en juego o cambia su estado
   useEffect(() => {
-    if (!liveMatch) return;
-
-    // Escuchar cambios de marcador en Supabase
     const matchChannel = supabase
-      .channel(`live-hub-match-${liveMatch.id}`)
+      .channel("live-hub-global-matches")
       .on("postgres_changes", {
         event: "*",
         schema: "public",
-        table: "match_results",
-        filter: `id=eq.${liveMatch.id}`
+        table: "match_results"
       }, (payload: any) => {
         const newRecord = payload.new;
         if (newRecord) {
-          setLiveMatch(prev => prev ? {
-            ...prev,
-            home_score: newRecord.home_score,
-            away_score: newRecord.away_score,
-            status: newRecord.status,
-            elapsed: newRecord.elapsed ?? 0
-          } : null);
-          setLocalElapsed(newRecord.elapsed ?? 0);
+          const isActive = newRecord.status && !["pending", "finished", "bloqueado"].includes(newRecord.status);
+          if (isActive) {
+            // El partido está en juego: actualizar liveMatch de inmediato
+            setLiveMatch({
+              id: newRecord.id,
+              home_team_id: newRecord.home_team_id || "TBD",
+              away_team_id: newRecord.away_team_id || "TBD",
+              home_score: newRecord.home_score,
+              away_score: newRecord.away_score,
+              status: newRecord.status,
+              elapsed: newRecord.elapsed ?? 0,
+              last_sync: newRecord.last_sync,
+              api_fixture_id: newRecord.api_fixture_id
+            });
+            setLocalElapsed(newRecord.elapsed ?? 0);
+          } else {
+            // Si el partido en vivo actual finalizó o volvió a pendiente, removerlo de la vista
+            setLiveMatch(prev => (prev && prev.id === newRecord.id) ? null : prev);
+          }
         }
       })
       .subscribe();
 
-    // Escuchar goles en realtime
+    return () => {
+      matchChannel.unsubscribe();
+    };
+  }, [supabase]);
+
+  // 2. Suscripción dinámica para goles del partido activo actual
+  useEffect(() => {
+    if (!liveMatch) {
+      setGoalsList([]);
+      setLiveGoal(null);
+      return;
+    }
+
+    // Escuchar cambios del gol más reciente en vivo (alerta rápida)
     const goalChannel = supabase
       .channel(`live-hub-goal-${liveMatch.id}`)
       .on("postgres_changes", {
@@ -183,7 +203,7 @@ export function MatchCardLive() {
       })
       .subscribe();
 
-    // Escuchar lista completa de goles en realtime
+    // Escuchar lista completa de goles en vivo
     const goalsChannel = supabase
       .channel(`live-hub-goals-${liveMatch.id}`)
       .on("postgres_changes", {
@@ -204,7 +224,6 @@ export function MatchCardLive() {
       .subscribe();
 
     return () => {
-      matchChannel.unsubscribe();
       goalChannel.unsubscribe();
       goalsChannel.unsubscribe();
     };
