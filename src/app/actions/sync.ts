@@ -4,23 +4,21 @@ import { sportsSyncAgent } from "@/services/SportsSyncAgent";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { calculateGroupStandings } from "./tournament-engine";
 
-export async function forceMockSyncAction(): Promise<
-  | { success: true; updatedCount: number }
-  | { success: false; error: string }
-> {
+export async function syncLiveMatchesAction(): Promise<{ success: boolean; updatedCount: number; error?: string }> {
   try {
     // Generamos los IDs de los 72 partidos de la Fase de Grupos
     const fixtureIds = Array.from({ length: 72 }, (_, i) => i + 1);
     
+    // Sincronización 100% real de marcadores desde la API
     const result = await sportsSyncAgent.syncMatchesToDatabase(fixtureIds);
     if (result.success) {
       return { success: true, updatedCount: result.updatedCount };
     } else {
-      return { success: false, error: "Sincronización fallida sin detalles." };
+      return { success: false, updatedCount: 0, error: "La sincronización falló. Verifique su API Key de deportes." };
     }
   } catch (error: any) {
-    console.error("Error forzando sincronización:", error);
-    return { success: false, error: error.message || "Error desconocido" };
+    console.error("Error en syncLiveMatchesAction:", error);
+    return { success: false, updatedCount: 0, error: error.message || "Error desconocido" };
   }
 }
 

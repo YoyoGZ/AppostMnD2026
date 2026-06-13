@@ -28,6 +28,7 @@
   - [x] Sincronización de marcadores en tiempo real (Supabase).
   - [x] Actualización dinámica de tablas de posiciones (FIFA).
   - [x] **Live Match Test (Admin HQ)**: Modal con Glassmorphism conectado al endpoint en vivo real para testear renderizado de escudos, layout numérico y traducción inteligente de estado del partido (1H -> 1T).
+  - [x] **Live Hub (En Vivo)**: Módulo de visualización en vivo para el usuario final. Permite abrir una tarjeta de partido en tiempo real con marcadores, goles y eventos en vivo mediante suscripciones realtime de Supabase y notificaciones push.
 - [x] **Hito 6.5: Sistema de Autenticación & Roles** 🔐
   - [x] **Migración a Email Real**: Registro eliminó el sistema alias→pseudo-email. Usa email real en `supabase.auth.signUp()`.
   - [x] **Formulario Mejorado**: Campo email + alias/apodo (solo registro) + sugerencia de clave DNI + validaciones + Eye toggles en ambos campos de clave.
@@ -100,6 +101,10 @@
   - [x] **Límite de 10 Miembros Corporativos**: Lógica en `joinLeagueAction` y `getLeagueByInvite` para calcular la capacidad y bloquear el acceso si una liga Marca Blanca excede los 10 participantes (1 Capitán + 9 invitados).
   - [x] **UI Preventiva**: Bento card roja e inhabilitación de formularios en `/join/[code]` si el límite está al 100%.
   - [x] **Scripts de Aprovisionamiento y Siembra**: Desarrollo de scripts locales robustos con bypass SSL/WS para poblar ligas de prueba (`seed-members-test.js`).
+
+## 🛡️ Políticas de Datos y Decisiones de Arquitectura
+
+* **Erradicación Total de Mocks y Simulaciones (2026-06-13)**: Debido a colisiones de lógica y corrupción silenciosa de datos en la tabla de posiciones y el Oráculo durante el transcurso real de la Copa del Mundo 2026, se determinó eliminar de forma permanente todo el sistema de generación/inyección de datos mock y simulaciones artificiales del `SportsSyncAgent` y paneles administrativos. La base de datos de producción es 100% sagrada y debe alimentarse única y exclusivamente de la API real.
 
 ## Current Trajectory
 **Status**: Hito 13 & Estabilización de Fixture **VERIFIED & POLISHED** localmente.

@@ -23,14 +23,12 @@ export class SportsSyncAgent {
   async syncMatch(matchId: number, useMock: boolean = false): Promise<MatchResult | null> {
     console.log(`[SportsSyncAgent] Sincronizando partido ${matchId}...`);
 
-    let apiData;
-
     if (useMock || !this.apiKey) {
-      apiData = this.getMockData(matchId);
-    } else {
-      apiData = await this.fetchFromApi(matchId);
+      console.warn("[SportsSyncAgent] Uso de mocks deshabilitado o API Key ausente.");
+      return null;
     }
 
+    const apiData = await this.fetchFromApi(matchId);
     if (!apiData) return null;
 
     // Persistir en Supabase usando el Cliente Admin (Superusuario)
@@ -57,22 +55,9 @@ export class SportsSyncAgent {
     return data as MatchResult;
   }
 
-  private async fetchFromApi(matchId: number) {
-    // Aquí irá la lógica real de fetch a API-Football una vez configurada la Key
-    // Por ahora redirige al mock si no hay Key
-    return this.getMockData(matchId);
-  }
-
-  private getMockData(matchId: number) {
-    // Simulación de un partido en vivo (minuto aleatorio y goles)
-    const statuses: MatchStatus[] = ['live', 'halftime', 'live', 'finished'];
-    const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-    
-    return {
-      status: randomStatus,
-      home_score: Math.floor(Math.random() * 3),
-      away_score: Math.floor(Math.random() * 2),
-      elapsed: Math.floor(Math.random() * 90),
-    };
+  private async fetchFromApi(matchId: number): Promise<any> {
+    // La API de deportes alternativa no tiene endpoint real implementado aquí
+    console.warn("[SportsSyncAgent] fetchFromApi no implementado en el agente alternativo.");
+    return null;
   }
 }

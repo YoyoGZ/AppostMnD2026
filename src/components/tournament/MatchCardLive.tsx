@@ -83,8 +83,22 @@ export function MatchCardLive() {
             }
           }
         } else {
-          // Si no hay partido activo, buscamos el primer partido futuro programado
+          // Si no hay partido activo, verificamos si hay algún partido en juego según la hora local
           const now = new Date();
+          const inminentMatch = worldCupData.partidos.find(m => {
+            const matchDate = new Date(m.fecha);
+            const diffMinutes = (now.getTime() - matchDate.getTime()) / (60 * 1000);
+            return diffMinutes >= 0 && diffMinutes < 150; // ventana de 2.5 horas
+          });
+
+          if (inminentMatch) {
+            console.log("[MatchCardLive] Detectado partido inminente que debería estar en vivo según reloj. Disparando sync real...");
+            import('@/app/actions/sync').then(({ syncLiveMatchesAction }) => {
+              syncLiveMatchesAction();
+            });
+          }
+
+          // Buscamos el primer partido futuro programado
           const futureMatches = worldCupData.partidos
             .filter(m => new Date(m.fecha) > now)
             .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());

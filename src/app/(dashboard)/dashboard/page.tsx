@@ -82,9 +82,34 @@ export default function Dashboard() {
     };
   }, []);
 
+  // 3. Sincronización en caliente y en segundo plano de partidos si por fecha corresponde (sin mocks)
+  useEffect(() => {
+    if (dbMatches.length === 0) return;
+
+    const now = new Date();
+    const shouldSync = worldCupData.partidos.some(m => {
+      const matchDate = new Date(m.fecha);
+      const diffMinutes = (now.getTime() - matchDate.getTime()) / (60 * 1000);
+      
+      const dbMatch = dbMatches.find(dbM => dbM.id === m.id);
+      const isDbPending = !dbMatch || dbMatch.status === 'pending';
+      const isDbPlaying = dbMatch && !['pending', 'finished', 'bloqueado'].includes(dbMatch.status);
+      
+      // Si el partido comenzó y en la base de datos está pending o sigue en juego (para traer actualizaciones de gol en vivo)
+      return (diffMinutes >= 0 && (isDbPending || isDbPlaying));
+    });
+
+    if (shouldSync) {
+      console.log("[Dashboard] Detectados partidos en juego o desactualizados según horario. Ejecutando sync en caliente...");
+      import('@/app/actions/sync').then(({ syncLiveMatchesAction }) => {
+        syncLiveMatchesAction();
+      });
+    }
+  }, [dbMatches]);
+
   const userId = user?.id || null;
 
-  // 3. Organizar grupos en orden alfabético
+  // 4. Organizar grupos en orden alfabético
   const groupedTeams = worldCupData.equipos.reduce((acc: any, team: any) => {
     if (!acc[team.grupo]) {
       acc[team.grupo] = [];
@@ -173,22 +198,22 @@ export default function Dashboard() {
             <button
               onClick={() => setShowLiveMatch(true)}
               className={cn(
-                "flex items-center gap-1.5 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-[0.12em] sm:tracking-[0.15em] transition-all group w-fit border",
+                "flex items-center gap-1.5 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-[0.12em] sm:tracking-[0.15em] transition-all group w-fit border animate-pulse",
                 hasLiveMatch
-                  ? "bg-red-500/20 hover:bg-red-500/30 border-red-500/40 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.2)] animate-pulse"
-                  : "bg-white/10 hover:bg-white/20 border-white/20 text-white shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(56,189,248,0.1)]"
+                  ? "bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary shadow-[0_0_25px_rgba(250,204,21,0.45)]"
+                  : "bg-primary/10 hover:bg-primary/20 border-primary/20 text-primary/90 hover:text-primary shadow-[0_0_15px_rgba(250,204,21,0.15)] hover:shadow-[0_0_20px_rgba(250,204,21,0.3)]"
               )}
             >
               {hasLiveMatch ? (
                 <>
                   <span className="w-2 h-2 rounded-full bg-red-500 animate-ping shrink-0" />
                   <span className="inline sm:hidden">VIVO</span>
-                  <span className="hidden sm:inline">🔴 PARTIDO EN VIVO</span>
+                  <span className="hidden sm:inline">🔴 EN VIVO</span>
                 </>
               ) : (
                 <>
                   <span className="text-primary group-hover:scale-110 transition-transform">📡</span>
-                  <span>LIVE HUB</span>
+                  <span>EN VIVO</span>
                 </>
               )}
             </button>
@@ -223,7 +248,7 @@ export default function Dashboard() {
       <Modal 
         isOpen={showLiveMatch} 
         onClose={() => setShowLiveMatch(false)} 
-        title="Live Hub • Marcador en Tiempo Real"
+        title="En Vivo • Marcador en Tiempo Real"
       >
         <MatchCardLive />
       </Modal>

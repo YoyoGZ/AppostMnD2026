@@ -238,60 +238,7 @@ export default function HQPage() {
         <div className="space-y-6 lg:col-span-2">
           
           {/* Fila de Controles Secundarios */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Sync Agent */}
-            <div className="bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-3xl p-6 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-3xl -z-10 transition-transform group-hover:scale-150" />
-              <div className="flex items-center gap-3 mb-4">
-                <div className="bg-green-500/20 p-2 rounded-lg">
-                  <Activity className="w-5 h-5 text-green-500" />
-                </div>
-                <h2 className="text-lg font-black uppercase tracking-wide">Sync Agent (MOCK)</h2>
-              </div>
-              <p className="text-white/40 text-sm mb-6 leading-relaxed">
-                Simula y carga los resultados de los 72 partidos de la Fase de Grupos en Supabase para habilitar el bracket de eliminatorias.
-              </p>
-              
-              <div className="flex flex-col gap-3">
-                <button 
-                  onClick={async () => {
-                    const confirmed = confirm(
-                      "⚠️ PELIGRO: Este botón SOLO funciona correctamente en dev local SIN API key real.\n\n" +
-                      "En producción escribirá resultados FALSOS a Supabase y contaminará la app.\n\n" +
-                      "¿Confirmas que estás en DEV LOCAL y sabés lo que hacés?"
-                    );
-                    if (!confirmed) return;
-                    const { forceMockSyncAction } = await import('@/app/actions/sync');
-                    const res = await forceMockSyncAction();
-                    if (res.success) {
-                      alert(`¡Sincronización exitosa! ${res.updatedCount} partidos inyectados en Supabase con sus equipos. Revisa el Motor de Eliminatorias.`);
-                    } else {
-                      alert("Error sincronizando: " + res.error);
-                    }
-                  }}
-                  className="w-full bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/40 transition-colors font-black py-4 rounded-xl uppercase tracking-widest text-xs border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)] active:scale-95"
-                >
-                  ⚠️ [DEV ONLY] Inyectar Mock Completo
-                </button>
-
-                <button 
-                  onClick={async () => {
-                    if (!confirm("⚠️ ¿Estás seguro de resetear TODOS los resultados de partidos en la base de datos? Esto también limpiará los cruces de Eliminatorias desplegados.")) return;
-                    const { clearAllMatchResultsAction } = await import('@/app/actions/sync');
-                    const res = await clearAllMatchResultsAction();
-                    if (res.success) {
-                      alert("¡Base de datos de partidos reseteada con éxito (0 partidos en Supabase)!");
-                    } else {
-                      alert("Error al limpiar BD: " + res.error);
-                    }
-                  }}
-                  className="w-full bg-red-500/10 text-red-500 hover:bg-red-500/30 transition-colors font-black py-4 rounded-xl uppercase tracking-widest text-xs border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)] active:scale-95 flex items-center justify-center gap-2"
-                >
-                  <Trash2 className="w-4 h-4" /> Resetear Resultados (Limpiar BD)
-                </button>
-              </div>
-            </div>
-
+          <div className="grid grid-cols-1 gap-6">
             {/* Live API Test */}
             <div className="bg-gradient-to-b from-red-500/5 to-transparent border border-red-500/20 rounded-3xl p-6 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full blur-3xl -z-10 transition-transform group-hover:scale-150" />
