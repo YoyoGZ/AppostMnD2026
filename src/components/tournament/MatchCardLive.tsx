@@ -48,7 +48,8 @@ export function MatchCardLive() {
         // Los estados en vivo son aquellos que no son 'pending', 'finished' ni 'bloqueado'
         const { data: dbMatches, error } = await supabase
           .from("match_results")
-          .select("*");
+          .select("*")
+          .headers({ 'Cache-Control': 'no-cache' });
 
         if (error) throw error;
 
@@ -77,6 +78,7 @@ export function MatchCardLive() {
             .from("app_settings")
             .select("value")
             .eq("key", `goal_${activeMatch.id}`)
+            .headers({ 'Cache-Control': 'no-cache' })
             .maybeSingle();
 
           if (goalData?.value) {
@@ -92,6 +94,7 @@ export function MatchCardLive() {
             .from("app_settings")
             .select("value")
             .eq("key", `goals_${activeMatch.id}`)
+            .headers({ 'Cache-Control': 'no-cache' })
             .maybeSingle();
 
           if (goalsData?.value) {
@@ -233,7 +236,27 @@ export function MatchCardLive() {
   useEffect(() => {
     if (!liveMatch) return;
     
-    setLocalElapsed(liveMatch.elapsed);
+    // Función para calcular el elapsed ajustado según el last_sync de Supabase y el reloj del navegador
+    const getAdjustedElapsed = (dbElapsed: number, lastSyncStr: string) => {
+      const activeStatuses = ["1H", "2H", "ET", "playing"];
+      if (!activeStatuses.includes(liveMatch.status) || !lastSyncStr) {
+        return dbElapsed;
+      }
+      
+      const lastSync = new Date(lastSyncStr);
+      const now = new Date();
+      const diffMs = now.getTime() - lastSync.getTime();
+      const diffMinutes = Math.floor(diffMs / (60 * 1000));
+      
+      // Ajuste de seguridad: si el desfase es coherente (mayor a 0 y menor a 60 minutos)
+      if (diffMinutes > 0 && diffMinutes < 60) {
+        return dbElapsed + diffMinutes;
+      }
+      return dbElapsed;
+    };
+
+    const initialElapsed = getAdjustedElapsed(liveMatch.elapsed, liveMatch.last_sync);
+    setLocalElapsed(initialElapsed);
 
     const activeStatuses = ["1H", "2H", "ET", "playing"];
     if (!activeStatuses.includes(liveMatch.status)) {
@@ -245,7 +268,7 @@ export function MatchCardLive() {
     }, 60000);
 
     return () => clearInterval(interval);
-  }, [liveMatch?.elapsed, liveMatch?.status]);
+  }, [liveMatch?.elapsed, liveMatch?.status, liveMatch?.last_sync]);
 
   // Controlar si el gol es reciente (< 5 minutos)
   useEffect(() => {
