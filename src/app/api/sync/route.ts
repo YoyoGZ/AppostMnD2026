@@ -73,23 +73,38 @@ export async function GET(request: Request) {
       let oracleTriggered = false;
       try {
         const supabase = createAdminClient();
-        // Buscar partidos finalizados en la BD cuya sincronización haya ocurrido en los últimos 3 minutos
-        const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000).toISOString();
-        const { data: recentlyFinished, error: checkError } = await supabase
+        
+        // 1. Obtener todos los IDs de partidos en estado 'finished'
+        const { data: finishedMatches, error: matchesErr } = await supabase
           .from('match_results')
           .select('id')
-          .eq('status', 'finished')
-          .gte('last_sync', threeMinutesAgo);
+          .eq('status', 'finished');
 
-        if (checkError) throw checkError;
+        if (matchesErr) throw matchesErr;
 
-        if (recentlyFinished && recentlyFinished.length > 0) {
-          console.log(`⚽ [API-Sync] DETECTADO PARTIDO FINALIZADO RECIENTEMENTE (IDs: ${recentlyFinished.map(m => m.id).join(', ')}). Gatillando Oráculo...`);
+        const finishedIds = finishedMatches?.map(m => m.id) || [];
+        let pendingCount = 0;
+
+        if (finishedIds.length > 0) {
+          // 2. Verificar si hay predicciones asociadas que tengan points_earned en null
+          const { data: pendingPreds, error: predsErr } = await supabase
+            .from('predictions')
+            .select('id')
+            .in('match_id', finishedIds)
+            .is('points_earned', null)
+            .limit(1);
+
+          if (predsErr) throw predsErr;
+          pendingCount = pendingPreds?.length || 0;
+        }
+
+        if (pendingCount > 0) {
+          console.log(`⚽ [API-Sync] DETECTADO(S) PARTIDO(S) FINALIZADO(S) CON PREDICCIONES SIN PUNTUAR. Gatillando Oráculo...`);
           const oracleResult = await processFinishedMatches();
           oracleTriggered = true;
           console.log("[API-Sync] Oráculo completado automáticamente:", oracleResult);
         } else {
-          console.log("[API-Sync] No se detectaron nuevos partidos finalizados. Oráculo omitido para optimizar cómputo.");
+          console.log("[API-Sync] No se encontraron predicciones pendientes de puntuar en partidos finalizados. Oráculo omitido.");
         }
       } catch (oracleErr) {
         console.error("❌ [API-Sync] Error al intentar ejecutar el Oráculo de forma automática:", oracleErr);

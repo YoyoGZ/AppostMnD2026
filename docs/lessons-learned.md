@@ -837,3 +837,64 @@ Al alinear las fechas de los partidos en `world-cup-2026.json` mediante el scrip
 2. **Ajuste Temporal Relativo (`last_sync`)**: Modificamos la calibración del reloj optimista en `MatchCardLive.tsx`. Al montarse (y al recibir eventos), calcula la diferencia en minutos entre el timestamp `last_sync` (hora del servidor al sincronizar) y `new Date()` (hora local del cliente). Si el desfase es positivo y coherente, se suma al `elapsed` inicial (`elapsed + minutosTranscurridos`). Esto garantiza que el reloj muestre el minuto exacto del encuentro, auto-calibrándose a cero cuando llega la actualización real por realtime.
 3. **Habilitación de Realtime en Supabase**: Creamos la migración SQL `docs/sql-migrations/enable-realtime-replication.sql` para habilitar la replicación de realtime en las tablas `match_results` y `app_settings`.
 
+## 2026-06-15: Error de Tipo en Runtime por Uso de .headers() en Supabase Query Builder (LL-30)
+
+### Síntoma
+
+Al intentar deshabilitar la caché HTTP en el cliente de Supabase usando el Query Builder `.headers({ 'Cache-Control': 'no-cache' })` en `MatchCardLive.tsx` y `MatchPredictionCard.tsx`, la consola del navegador arroja un error crítico de JavaScript/TypeScript: `TypeError: supabase.from(...).select(...).eq(...).eq(...).headers is not a function`.
+
+### Diagnóstico
+
+El SDK cliente de Supabase (`@supabase/supabase-js`) para interactuar con PostgREST no provee un método `.headers()` en su constructor de consultas (Query Builder) en llamadas encadenadas individuales. Los métodos válidos para construir filtros y operaciones no incluyen la alteración directa de cabeceras HTTP de esta forma.
+
+### Resolución (The House Way)
+
+1. **Remoción de .headers() obsoletos**: Se removieron todas las llamadas explícitas a `.headers()` en `MatchCardLive.tsx` y `MatchPredictionCard.tsx`.
+2. **Inyección en Fetch Global de Supabase**: En su lugar, se configuró la cabecera `cache: 'no-store'` de manera global en la inicialización del browser client en `src/utils/supabase/client.ts`, extendiendo la propiedad `global.fetch` en las opciones de configuración de `createBrowserClient`.
+3. **Uso de la Clase Headers Nativa para Evitar Pérdida de Autenticación**: Al interceptar `fetch`, si se intenta hacer una desestructuración de `options.headers` (ej: `{ ...options?.headers }`), el operador de propagación fallará silenciosamente y devolverá un objeto vacío `{}` en caso de que `options.headers` sea una instancia de la clase `Headers` del navegador (ya que sus métodos y propiedades internas no son enumerables). Esto elimina las cabeceras `apikey` y `Authorization` que Supabase necesita, provocando errores `401 Unauthorized` silenciosos en consola y el fallo de carga del módulo (`Error cargando el modulo live hub: {}`). La solución correcta es inicializar una copia usando la clase nativa:
+   ```typescript
+   const headers = new Headers(options?.headers);
+   headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+   headers.set('Pragma', 'no-cache');
+   headers.set('Expires', '0');
+   ```
+   Esto mantiene a salvo todas las cabeceras previas del SDK e inyecta los metadatos de caché de forma segura.
+
+## 2026-06-15: Interrupción de la Carga de Partidos Futuros por Excepciones en Consultas de Supabase en Live Hub (LL-31)
+
+### Síntoma
+
+Al fallar la consulta inicial a Supabase REST (por ejemplo, debido a timeouts de red o falta de internet en entornos locales de desarrollo), la Card en Vivo del Live Hub dejaba de mostrar tanto el partido en juego como la cuenta regresiva del próximo partido futuro, mostrando en su lugar guiones vacíos (`---`) o una interfaz rota.
+
+### Diagnóstico
+
+En la función de carga inicial `fetchLiveAndNext()`, la consulta inicial `supabase.from("match_results").select("*")` no estaba aislada de forma independiente. Si fallaba y lanzaba una excepción por error de red o timeout, la ejecución del código saltaba directamente al bloque `catch` general del `useEffect`. Esto causaba que el flujo nunca llegara a la rama `else` donde se calculan los partidos futuros programados basándose en el JSON estático local `world-cup-2026.json`. Como consecuencia, el estado `nextMatch` se quedaba en su valor por defecto (`null`), rompiendo el renderizado y eliminando la resiliencia offline.
+
+### Resolución (The House Way)
+
+1. **Aislamiento del Bloque de Red**: Envolvimos la consulta REST a `match_results` de Supabase en su propio bloque `try-catch` independiente.
+2. **Resiliencia y Offline Fallback**: Si ocurre un error de red, este se captura como un warning informativo en consola, manteniendo el flujo vivo. Al no obtenerse un `activeMatch` del servidor, la función pasa limpiamente a la rama `else`, donde lee el JSON estático de partidos locales. Esto poblará el estado `nextMatch` con el encuentro futuro programado correspondiente, manteniendo la interfaz viva con la cuenta regresiva e información del partido incluso si la base de datos está inaccesible en local.
+
+## 2026-06-15: Bucle Infinito de Sincronización (Re-fetch Sync Loop) al Habilitar Realtime en Producción (LL-32)
+
+### Síntoma
+
+Al habilitar la replicación de realtime en producción, la terminal del servidor de desarrollo comenzó a llenarse de peticiones HTTP recurrentes sin detenerse (bucle infinito de re-fetch), consumiendo recursos de forma masiva y saturando las llamadas al sincronizador de la API de deportes.
+
+### Diagnóstico
+
+El Dashboard en `page.tsx` posee un `useEffect` encargado de realizar una sincronización en caliente en segundo plano cuando detecta partidos activos o pendientes mediante la variable `shouldSync`. Este `useEffect` tenía a `[dbMatches]` en su array de dependencias. Al activar Supabase Realtime, cualquier inserción o cambio en Supabase disparaba de inmediato la suscripción WebSocket del cliente, la cual actualizaba la variable de estado `dbMatches`. Al cambiar `dbMatches`, el `useEffect` volvía a dispararse, re-evaluaba `shouldSync` como verdadero, ejecutaba la Server Action `syncLiveMatchesAction()`, la cual actualizaba Supabase y reiniciaba el ciclo en una cascada de re-fetch infinita.
+
+### Resolución (The House Way)
+
+1. **Uso de Referencia de Sesión (useRef)**: Declaramos una variable de referencia `const hasSyncedRef = useRef(false);` en el Dashboard.
+2. **Pestillo de Sincronización Única**: Modificamos el `useEffect` de sincronización para evaluar y bloquear múltiples ejecuciones usando la referencia:
+   ```typescript
+   if (dbMatches.length === 0 || hasSyncedRef.current) return;
+   ...
+   if (shouldSync) {
+     hasSyncedRef.current = true;
+     // Disparar syncLiveMatchesAction
+   }
+   ```
+   Esto asegura que la sincronización en caliente se gatille como máximo una vez al cargar la página por primera vez. Una vez ejecutada, `hasSyncedRef.current` se vuelve `true` y bloquea permanentemente cualquier nueva llamada de sincronización automática en esa sesión, permitiendo que Realtime WebSocket actualice `dbMatches` sin disparar bucles de red.

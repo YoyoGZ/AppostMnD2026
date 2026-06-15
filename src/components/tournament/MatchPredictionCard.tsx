@@ -35,7 +35,6 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
           .select('equipo_a_goles, equipo_b_goles, is_sealed, points_earned')
           .eq('user_id', userId)
           .eq('match_id', matchInfo.id)
-          .headers({ 'Cache-Control': 'no-cache' })
           .maybeSingle();
           
         if (predData) {
@@ -51,7 +50,6 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
         .from('match_results')
         .select('home_score, away_score, status, elapsed')
         .eq('id', parseInt(matchInfo.id))
-        .headers({ 'Cache-Control': 'no-cache' })
         .maybeSingle();
 
       if (resultData) {
@@ -68,7 +66,6 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
         .from('app_settings')
         .select('value')
         .eq('key', `goal_${matchInfo.id}`)
-        .headers({ 'Cache-Control': 'no-cache' })
         .maybeSingle();
 
       if (settingData?.value) {
@@ -84,7 +81,6 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
         .from('app_settings')
         .select('value')
         .eq('key', `goals_${matchInfo.id}`)
-        .headers({ 'Cache-Control': 'no-cache' })
         .maybeSingle();
 
       if (goalsData?.value) {

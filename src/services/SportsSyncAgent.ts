@@ -1,6 +1,7 @@
 import { APIFootballFixtureResponse, MatchStatus } from "@/types/tournament";
 import { createAdminClient } from "@/utils/supabase/admin";
 import worldCupData from "@/data/world-cup-2026.json";
+import { persistMatchResultToLocalJson } from "@/lib/utils/jsonPersist";
 
 // Diccionario de traducción de nombres de equipos en inglés/español de la API a códigos FIFA
 const TEAM_MAP: Record<string, string> = {
@@ -362,6 +363,13 @@ export class SportsSyncAgent {
     }
 
     console.log(`✅ Sincronización exitosa: ${upserts.length} partidos procesados y actualizados en BD.`);
+
+    // Persistir de forma definitiva los resultados en el JSON local world-cup-2026.json en desarrollo
+    upserts.forEach(m => {
+      if (m.status === 'finished' && m.home_score !== null && m.away_score !== null) {
+        persistMatchResultToLocalJson(m.id, m.home_score, m.away_score);
+      }
+    });
 
     // --- PROCESAMIENTO DE GOLES EN VIVO Y EVENTOS ---
     try {

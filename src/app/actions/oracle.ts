@@ -4,6 +4,7 @@ import { createAdminClient } from "@/utils/supabase/admin";
 import worldCupData from "@/data/world-cup-2026.json";
 import knockoutData from "@/data/knockouts-simulation.json";
 import { calculatePoints } from "@/lib/utils/oracle";
+import { persistMatchResultToLocalJson } from "@/lib/utils/jsonPersist";
 
 /**
  * Oráculo: Sincroniza puntos y duelos para una liga específica.
@@ -25,6 +26,13 @@ export async function processFinishedMatches(leagueId?: string) {
     if (!dbFinished || dbFinished.length === 0) {
       return { success: true, message: "No hay partidos finalizados en base de datos." };
     }
+
+    // Persistir de forma definitiva los resultados en el JSON local world-cup-2026.json en desarrollo
+    dbFinished.forEach(res => {
+      if (res.home_score !== null && res.away_score !== null) {
+        persistMatchResultToLocalJson(res.id, res.home_score, res.away_score);
+      }
+    });
 
     // Para cada partido finalizado en DB, buscamos sus metadatos en los JSON de configuración
     // y construimos la estructura compatible con el resto de la función.

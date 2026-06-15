@@ -16,8 +16,30 @@ export default async function StandingsPage() {
     redirect("/");
   }
 
-  // El Oráculo ahora se ejecuta manualmente vía Server Action (botón "Auditar Puntos")
-  // para evitar sobrecarga y errores de fetch en cada recarga de página.
+  // 1. Validación Pasiva: Ejecutar de forma transparente el Oráculo si se detectan predicciones pendientes de puntuar
+  try {
+    const { data: finishedMatches } = await supabase
+      .from('match_results')
+      .select('id')
+      .eq('status', 'finished');
+
+    const finishedIds = finishedMatches?.map(m => m.id) || [];
+    if (finishedIds.length > 0) {
+      const { data: pendingPreds } = await supabase
+        .from('predictions')
+        .select('id')
+        .in('match_id', finishedIds)
+        .is('points_earned', null)
+        .limit(1);
+
+      if (pendingPreds && pendingPreds.length > 0) {
+        console.log(`[Standings Server Page] 🔔 Detectadas predicciones de partidos finalizados sin evaluar. Forzando ejecución del Oráculo de forma pasiva...`);
+        await processFinishedMatches();
+      }
+    }
+  } catch (oracleErr) {
+    console.error("❌ [Standings Server Page] Error al validar o ejecutar el Oráculo de forma pasiva:", oracleErr);
+  }
 
   // 1.5 Obtener la liga activa de los metadatos del usuario
   let activeLeagueId = user.user_metadata?.active_league_id;

@@ -339,7 +339,7 @@
       "grupo": "A",
       "estado": "finalizado",
       "goles_local": 2,
-      "goles_visitante": 1
+      "goles_visitante": 0
     },
     {
       "id": 13,
@@ -350,8 +350,8 @@
       "fase": "Grupos - J1",
       "grupo": "A",
       "estado": "finalizado",
-      "goles_local": 4,
-      "goles_visitante": 2
+      "goles_local": 2,
+      "goles_visitante": 1
     },
     {
       "id": 2,
@@ -378,7 +378,10 @@
       "local": "BRA",
       "visitante": "MAR",
       "fase": "Grupos - J1",
-      "grupo": "C"
+      "grupo": "C",
+      "estado": "finalizado",
+      "goles_local": 1,
+      "goles_visitante": 1
     },
     {
       "id": 15,
@@ -387,7 +390,10 @@
       "local": "SCO",
       "visitante": "HAI",
       "fase": "Grupos - J1",
-      "grupo": "C"
+      "grupo": "C",
+      "estado": "finalizado",
+      "goles_local": 1,
+      "goles_visitante": 0
     },
     {
       "id": 3,
@@ -396,7 +402,10 @@
       "local": "USA",
       "visitante": "PAR",
       "fase": "Grupos - J1",
-      "grupo": "D"
+      "grupo": "D",
+      "estado": "finalizado",
+      "goles_local": 4,
+      "goles_visitante": 1
     },
     {
       "id": 16,
@@ -405,7 +414,10 @@
       "local": "AUS",
       "visitante": "TUR",
       "fase": "Grupos - J1",
-      "grupo": "D"
+      "grupo": "D",
+      "estado": "finalizado",
+      "goles_local": 2,
+      "goles_visitante": 0
     },
     {
       "id": 5,
@@ -432,7 +444,10 @@
       "local": "NED",
       "visitante": "JPN",
       "fase": "Grupos - J1",
-      "grupo": "F"
+      "grupo": "F",
+      "estado": "finalizado",
+      "goles_local": 2,
+      "goles_visitante": 2
     },
     {
       "id": 18,
@@ -441,7 +456,10 @@
       "local": "TUN",
       "visitante": "SWE",
       "fase": "Grupos - J1",
-      "grupo": "F"
+      "grupo": "F",
+      "estado": "finalizado",
+      "goles_local": 1,
+      "goles_visitante": 5
     },
     {
       "id": 7,
@@ -612,7 +630,10 @@
       "local": "BIH",
       "visitante": "CAN",
       "fase": "Grupos - J1",
-      "grupo": "B"
+      "grupo": "B",
+      "estado": "finalizado",
+      "goles_local": 1,
+      "goles_visitante": 1
     },
     {
       "id": 32,
@@ -621,7 +642,10 @@
       "local": "SUI",
       "visitante": "QAT",
       "fase": "Grupos - J1",
-      "grupo": "B"
+      "grupo": "B",
+      "estado": "finalizado",
+      "goles_local": 1,
+      "goles_visitante": 1
     },
     {
       "id": 33,
@@ -720,7 +744,10 @@
       "local": "CUW",
       "visitante": "GER",
       "fase": "Grupos - J1",
-      "grupo": "E"
+      "grupo": "E",
+      "estado": "finalizado",
+      "goles_local": 1,
+      "goles_visitante": 7
     },
     {
       "id": 44,
@@ -729,7 +756,10 @@
       "local": "ECU",
       "visitante": "CIV",
       "fase": "Grupos - J1",
-      "grupo": "E"
+      "grupo": "E",
+      "estado": "finalizado",
+      "goles_local": 0,
+      "goles_visitante": 1
     },
     {
       "id": 45,
@@ -828,7 +858,10 @@
       "local": "CPV",
       "visitante": "ESP",
       "fase": "Grupos - J1",
-      "grupo": "H"
+      "grupo": "H",
+      "estado": "finalizado",
+      "goles_local": 0,
+      "goles_visitante": 0
     },
     {
       "id": 56,

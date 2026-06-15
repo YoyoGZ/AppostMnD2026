@@ -43,21 +43,29 @@ export function MatchCardLive() {
 
   useEffect(() => {
     const fetchLiveAndNext = async () => {
+      let activeMatch: any = null;
+      let fetchErrorOccurred = false;
+
       try {
         // 1. Consultar si hay algún partido en vivo en match_results
         // Los estados en vivo son aquellos que no son 'pending', 'finished' ni 'bloqueado'
         const { data: dbMatches, error } = await supabase
           .from("match_results")
-          .select("*")
-          .headers({ 'Cache-Control': 'no-cache' });
+          .select("*");
 
         if (error) throw error;
 
-        // Filtrar partidos activos en vivo
-        const activeMatch = (dbMatches || []).find((m: any) => 
+        activeMatch = (dbMatches || []).find((m: any) => 
           m.status && !["pending", "finished", "bloqueado"].includes(m.status)
         );
+      } catch (err) {
+        console.error("Error consultando match_results de Supabase (modo offline fallback):", err);
+        fetchErrorOccurred = true;
+      }
 
+      const now = new Date();
+
+      try {
         if (activeMatch) {
           setLiveMatch({
             id: activeMatch.id,
@@ -78,7 +86,6 @@ export function MatchCardLive() {
             .from("app_settings")
             .select("value")
             .eq("key", `goal_${activeMatch.id}`)
-            .headers({ 'Cache-Control': 'no-cache' })
             .maybeSingle();
 
           if (goalData?.value) {
@@ -94,7 +101,6 @@ export function MatchCardLive() {
             .from("app_settings")
             .select("value")
             .eq("key", `goals_${activeMatch.id}`)
-            .headers({ 'Cache-Control': 'no-cache' })
             .maybeSingle();
 
           if (goalsData?.value) {
@@ -106,14 +112,13 @@ export function MatchCardLive() {
           }
         } else {
           // Si no hay partido activo, verificamos si hay algún partido en juego según la hora local
-          const now = new Date();
           const inminentMatch = worldCupData.partidos.find(m => {
             const matchDate = new Date(m.fecha);
             const diffMinutes = (now.getTime() - matchDate.getTime()) / (60 * 1000);
             return diffMinutes >= 0 && diffMinutes < 150; // ventana de 2.5 horas
           });
 
-          if (inminentMatch) {
+          if (inminentMatch && !fetchErrorOccurred) {
             console.log("[MatchCardLive] Detectado partido inminente que debería estar en vivo según reloj. Disparando sync real...");
             import('@/app/actions/sync').then(({ syncLiveMatchesAction }) => {
               syncLiveMatchesAction();
@@ -130,7 +135,7 @@ export function MatchCardLive() {
           }
         }
       } catch (err) {
-        console.error("Error cargando el modulo live hub:", err);
+        console.error("Error procesando los datos de los partidos en Live Hub:", err);
       } finally {
         setLoading(false);
       }

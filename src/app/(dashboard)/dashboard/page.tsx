@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import worldCupData from "@/data/world-cup-2026.json";
 import { GroupsCarousel } from "@/components/tournament/GroupsCarousel";
 import { MatchPredictionCard } from "@/components/tournament/MatchPredictionCard";
@@ -23,6 +23,7 @@ export default function Dashboard() {
   const [activeGroup, setActiveGroup] = useState("A");
   const [showRules, setShowRules] = useState(false);
   const [showLiveMatch, setShowLiveMatch] = useState(false);
+  const hasSyncedRef = useRef(false);
   const [standings, setStandings] = useState<any[]>([]);
   const [dbMatches, setDbMatches] = useState<any[]>([]);
 
@@ -84,7 +85,7 @@ export default function Dashboard() {
 
   // 3. Sincronización en caliente y en segundo plano de partidos si por fecha corresponde (sin mocks)
   useEffect(() => {
-    if (dbMatches.length === 0) return;
+    if (dbMatches.length === 0 || hasSyncedRef.current) return;
 
     const now = new Date();
     const shouldSync = worldCupData.partidos.some(m => {
@@ -100,6 +101,7 @@ export default function Dashboard() {
     });
 
     if (shouldSync) {
+      hasSyncedRef.current = true; // Prevenir múltiples llamadas en bucle en esta sesión
       console.log("[Dashboard] Detectados partidos en juego o desactualizados según horario. Ejecutando sync en caliente...");
       import('@/app/actions/sync').then(({ syncLiveMatchesAction }) => {
         syncLiveMatchesAction();

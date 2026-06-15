@@ -29,35 +29,57 @@ export async function calculateGroupStandings(): Promise<Record<string, TeamStan
     });
   });
 
-  results?.forEach(res => {
-    if (res.status !== 'finished') return;
-    const match = worldCupData.partidos.find(m => m.id === res.id);
-    if (!match || !match.grupo) return;
+  worldCupData.partidos.forEach(match => {
+    if (!match.grupo) return;
 
-    const groupTeams = standings[match.grupo];
-    const home = groupTeams.find(t => t.teamId === res.home_team_id);
-    const away = groupTeams.find(t => t.teamId === res.away_team_id);
+    // Buscar si hay un registro del partido en la base de datos de Supabase
+    const dbRes = results?.find(r => r.id === match.id);
 
-    if (home && away) {
-      home.pj++;
-      away.pj++;
-      home.gf += res.home_score || 0;
-      home.gc += res.away_score || 0;
-      away.gf += res.away_score || 0;
-      away.gc += res.home_score || 0;
+    // Determinar si el partido está finalizado y extraer los marcadores correspondientes
+    let isFinished = false;
+    let homeScore = 0;
+    let awayScore = 0;
+    let homeTeamId = match.local;
+    let awayTeamId = match.visitante;
 
-      if ((res.home_score || 0) > (res.away_score || 0)) {
-        home.pg++; home.pts += 3;
-        away.pp++;
-      } else if ((res.home_score || 0) < (res.away_score || 0)) {
-        away.pg++; away.pts += 3;
-        home.pp++;
-      } else {
-        home.pe++; home.pts += 1;
-        away.pe++; away.pts += 1;
+    if (match.estado === 'finalizado') {
+      isFinished = true;
+      homeScore = match.goles_local ?? 0;
+      awayScore = match.goles_visitante ?? 0;
+    } else if (dbRes && dbRes.status === 'finished') {
+      isFinished = true;
+      homeScore = dbRes.home_score ?? 0;
+      awayScore = dbRes.away_score ?? 0;
+      homeTeamId = dbRes.home_team_id || homeTeamId;
+      awayTeamId = dbRes.away_team_id || awayTeamId;
+    }
+
+    if (isFinished) {
+      const groupTeams = standings[match.grupo];
+      const home = groupTeams.find(t => t.teamId === homeTeamId);
+      const away = groupTeams.find(t => t.teamId === awayTeamId);
+
+      if (home && away) {
+        home.pj++;
+        away.pj++;
+        home.gf += homeScore;
+        home.gc += awayScore;
+        away.gf += awayScore;
+        away.gc += homeScore;
+
+        if (homeScore > awayScore) {
+          home.pg++; home.pts += 3;
+          away.pp++;
+        } else if (homeScore < awayScore) {
+          away.pg++; away.pts += 3;
+          home.pp++;
+        } else {
+          home.pe++; home.pts += 1;
+          away.pe++; away.pts += 1;
+        }
+        home.dg = home.gf - home.gc;
+        away.dg = away.gf - away.gc;
       }
-      home.dg = home.gf - home.gc;
-      away.dg = away.gf - away.gc;
     }
   });
 

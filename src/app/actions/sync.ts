@@ -3,15 +3,48 @@
 import { sportsSyncAgent } from "@/services/SportsSyncAgent";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { calculateGroupStandings } from "./tournament-engine";
+import worldCupData from "@/data/world-cup-2026.json";
+import { processFinishedMatches } from "./oracle";
+
+// Control de frecuencia de sincronización en memoria del servidor
+let lastSyncGlobalTime = 0;
+const SYNC_COOLDOWN_MS = 60000; // 1 minuto de cooldown entre llamadas reales a la API
 
 export async function syncLiveMatchesAction(): Promise<{ success: boolean; updatedCount: number; error?: string }> {
+  const now = Date.now();
+  if (now - lastSyncGlobalTime < SYNC_COOLDOWN_MS) {
+    console.log(`[Sync Server Action] ⏳ Sincronización bloqueada por límite de frecuencia. Faltan ${Math.ceil((SYNC_COOLDOWN_MS - (now - lastSyncGlobalTime)) / 1000)}s para la próxima consulta real.`);
+    return { success: true, updatedCount: 0 };
+  }
+
+  lastSyncGlobalTime = now;
+  console.log("[Sync Server Action] 🚀 Iniciando sincronización real con la API externa de deportes...");
+
   try {
-    // Generamos los IDs de los 72 partidos de la Fase de Grupos
-    const fixtureIds = Array.from({ length: 72 }, (_, i) => i + 1);
+    // Excluimos los partidos que ya están finalizados en el JSON local de la sincronización de la API externa
+    const fixtureIds = worldCupData.partidos
+      .filter((p: any) => p.estado !== 'finalizado')
+      .map((p: any) => p.id);
+
+    if (fixtureIds.length === 0) {
+      console.log("[Sync Server Action] 🏖️ Todos los partidos de grupos están finalizados en el JSON local. Omitiendo petición a la API.");
+      return { success: true, updatedCount: 0 };
+    }
     
     // Sincronización 100% real de marcadores desde la API
     const result = await sportsSyncAgent.syncMatchesToDatabase(fixtureIds);
     if (result.success) {
+      console.log(`[Sync Server Action] ✅ Sincronización finalizada con éxito. Partidos modificados: ${result.updatedCount}`);
+      
+      // Gatillar el oráculo para recalculado de puntos si hubo cambios en los partidos
+      try {
+        console.log("[Sync Server Action] Gatillando oráculo de recálculo de puntos para partidos finalizados...");
+        const oracleResult = await processFinishedMatches();
+        console.log("[Sync Server Action] Oráculo ejecutado de forma automática:", oracleResult.message);
+      } catch (oracleErr: any) {
+        console.error("[Sync Server Action] Error al ejecutar el oráculo tras sincronización:", oracleErr);
+      }
+
       return { success: true, updatedCount: result.updatedCount };
     } else {
       return { success: false, updatedCount: 0, error: "La sincronización falló. Verifique su API Key de deportes." };
