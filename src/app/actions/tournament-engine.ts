@@ -42,16 +42,16 @@ export async function calculateGroupStandings(): Promise<Record<string, TeamStan
     let homeTeamId = match.local;
     let awayTeamId = match.visitante;
 
-    if (match.estado === 'finalizado') {
-      isFinished = true;
-      homeScore = match.goles_local ?? 0;
-      awayScore = match.goles_visitante ?? 0;
-    } else if (dbRes && dbRes.status === 'finished') {
+    if (dbRes && dbRes.status === 'finished') {
       isFinished = true;
       homeScore = dbRes.home_score ?? 0;
       awayScore = dbRes.away_score ?? 0;
       homeTeamId = dbRes.home_team_id || homeTeamId;
       awayTeamId = dbRes.away_team_id || awayTeamId;
+    } else if (match.estado === 'finalizado') {
+      isFinished = true;
+      homeScore = match.goles_local ?? 0;
+      awayScore = match.goles_visitante ?? 0;
     }
 
     if (isFinished) {
