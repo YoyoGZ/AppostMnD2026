@@ -338,8 +338,8 @@ export class SportsSyncAgent {
       upserts.push({
         id: localMatchId,
         api_fixture_id: apiMatch.fixture.id,
-        home_team_id: homeCode,
-        away_team_id: awayCode,
+        home_team_id: staticMatch ? staticMatch.local : homeCode,
+        away_team_id: staticMatch ? staticMatch.visitante : awayCode,
         home_score: homeScore,
         away_score: awayScore,
         status: apiStatus,
