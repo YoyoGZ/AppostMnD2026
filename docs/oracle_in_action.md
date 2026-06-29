@@ -14,6 +14,7 @@ El sistema opera bajo un esquema de traducción bidireccional entre la base de d
 | **JSON Local (`world-cup-2026.json`)** | `goles_local` | `goles_visitante` | `estado = 'finalizado'` |
 
 ### Normalización de Equipos y Alineación Local/Visitante (Inmutabilidad)
+
 Para prevenir inconsistencias y discrepancias de ganadores en el cálculo de standings y quinielas, el agente de sincronización (`SportsSyncAgent.ts`) fuerza a que las columnas `home_team_id` y `away_team_id` de la tabla `match_results` en Supabase sigan exactamente el mismo orden inmutable que el JSON local (`local` y `visitante`). Si la API de deportes externa reporta el partido con el orden local/visitante invertido, los goles se reasocian de acuerdo a `isHomeSame`, y los equipos se guardan en el orden correcto de la App. Esto previene que se inviertan las victorias en el cálculo de standings e interacciones del Oráculo.
 
 ### Flujo de Traducción en el Oráculo

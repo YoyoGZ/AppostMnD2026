@@ -1,189 +1,368 @@
-
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { calculateGroupStandings, getBestThirdPlaces } from "@/app/actions/tournament-engine";
-import { TeamStanding } from "@/types/tournament";
-import { getTeamFlagUrl } from "@/lib/utils/flags";
-import { Swords, AlertCircle, CheckCircle2, ShieldCheck, Loader2 } from "lucide-react";
+import { 
+  Swords, 
+  AlertCircle, 
+  CheckCircle2, 
+  ShieldCheck, 
+  Loader2, 
+  RefreshCw, 
+  Play,
+  HelpCircle
+} from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
+import knockoutData from "@/data/knockouts-simulation.json";
+import worldCupData from "@/data/world-cup-2026.json";
+import { getTeamFlagUrl, normalizeFIFAId } from "@/lib/utils/flags";
+import { promoteTeamsToRoundOf32, advanceActiveRoundWinnersAction } from "@/app/actions/tournament-engine";
+import { syncKnockoutRoundAction } from "@/app/actions/sync";
 
-import { useRouter } from "next/navigation";
+const getTeamName = (teamId: string | null) => {
+  if (!teamId || teamId === 'TBD') return 'TBD';
+  const id = normalizeFIFAId(teamId);
+  const team = worldCupData.equipos.find(t => t.id === id);
+  return team ? team.nombre : id;
+};
 
 interface KnockoutManagerProps {
   isAdmin?: boolean;
 }
 
+interface DBResult {
+  id: number;
+  home_team_id: string;
+  away_team_id: string;
+  home_score: number | null;
+  away_score: number | null;
+  status: string;
+}
+
 export default function KnockoutManager({ isAdmin = false }: KnockoutManagerProps) {
-  const router = useRouter();
-  const [standings, setStandings] = useState<Record<string, TeamStanding[]>>({});
-  const [bestThirds, setBestThirds] = useState<TeamStanding[]>([]);
+  const [activeTab, setActiveTab] = useState<string>("r32"); // r32, r16, qf, sf, final
+  const [dbResults, setDbResults] = useState<DBResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isAdvancing, setIsAdvancing] = useState(false);
   const [isDeploying, setIsDeploying] = useState(false);
-  const [deployedMatches, setDeployedMatches] = useState<number[]>([]);
+  const [manualWinners, setManualWinners] = useState<Record<number, string>>({});
+  
   const supabase = createClient();
 
-  useEffect(() => {
-    async function loadData() {
-      const s = await calculateGroupStandings();
-      const t = await getBestThirdPlaces(s);
-      setStandings(s);
-      setBestThirds(t);
-
-      // Verificar qué partidos ya están en la DB
-      const { data } = await supabase.from('match_results').select('id').gte('id', 73);
-      if (data) setDeployedMatches(data.map((m: any) => m.id));
-      
-      setIsLoading(false);
-
-    }
-    loadData();
-  }, [supabase]);
-
-  const handleDeploy = async () => {
-    if (!confirm("¿Estás seguro de publicar los cruces de Eliminatorias? Esto abrirá las apuestas para todos los usuarios.")) return;
-    setIsDeploying(true);
-    
+  const loadData = async () => {
+    setIsLoading(true);
     try {
-      // Importamos dinámicamente la acción del servidor para evitar problemas de cliente/servidor
-      const { promoteTeamsToRoundOf32 } = await import("@/app/actions/tournament-engine");
+      const { data, error } = await supabase
+        .from('match_results')
+        .select('id, home_team_id, away_team_id, home_score, away_score, status')
+        .gte('id', 73)
+        .order('id', { ascending: true });
+
+      if (!error && data) {
+        setDbResults(data as DBResult[]);
+      }
+    } catch (e) {
+      console.error("Error cargando base de datos:", e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleDeployInitial = async () => {
+    if (!confirm("¿Estás seguro de publicar los cruces iniciales de 16avos? Esto abrirá las apuestas de esta ronda para todos los usuarios.")) return;
+    setIsDeploying(true);
+    try {
       const res = await promoteTeamsToRoundOf32();
       if (res.success) {
-        alert("¡Cruces desplegados con éxito!");
-        window.location.reload();
+        alert("¡Cruces de 16avos desplegados con éxito!");
+        await loadData();
+      } else {
+        alert("Error: " + res.error);
       }
-    } catch (error) {
-      alert("Error al desplegar cruces.");
+    } catch (e) {
+      alert("Error inesperado de red.");
     } finally {
       setIsDeploying(false);
     }
   };
 
+  const handleSyncRound = async () => {
+    setIsSyncing(true);
+    try {
+      const res = await syncKnockoutRoundAction(activeTab);
+      if (res.success) {
+        alert(`Sincronización de marcadores completa. Partidos actualizados: ${res.updatedCount}`);
+        await loadData();
+      } else {
+        alert("Error de sincronización: " + res.error);
+      }
+    } catch (e) {
+      alert("Error de conexión con el sincronizador.");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleAdvanceRound = async () => {
+    const roundName = knockoutData.rondas.find(r => r.id === activeTab)?.nombre || activeTab;
+    if (!confirm(`¿Estás seguro de avanzar y consolidar los ganadores de la ronda '${roundName}' hacia la siguiente fase?`)) return;
+
+    setIsAdvancing(true);
+    try {
+      const res = await advanceActiveRoundWinnersAction(activeTab, manualWinners);
+      if (res.success) {
+        alert(`¡Avance exitoso! Se actualizaron e inyectaron ${res.advancedCount} partidos en la siguiente ronda.`);
+        await loadData();
+      } else {
+        alert("Error al avanzar llaves: " + res.error);
+      }
+    } catch (e) {
+      alert("Error de red al procesar el avance.");
+    } finally {
+      setIsAdvancing(false);
+    }
+  };
+
+  const handleSelectManualWinner = (matchId: number, teamId: string) => {
+    setManualWinners(prev => ({
+      ...prev,
+      [matchId]: teamId
+    }));
+  };
+
+  // Filtrado de partidos locales según la pestaña
+  const currentRoundMeta = knockoutData.rondas.find(r => r.id === activeTab);
+  const currentRoundMatches = currentRoundMeta?.partidos || [];
+
+  // Mapear con datos de la BD
+  const roundMatchesWithResults = currentRoundMatches.map(m => {
+    const dbMatch = dbResults.find(db => db.id === m.id);
+    return {
+      ...m,
+      home_team_id: dbMatch?.home_team_id || (m as any).home_team_id || 'TBD',
+      away_team_id: dbMatch?.away_team_id || (m as any).away_team_id || 'TBD',
+      home_score: dbMatch?.home_score ?? null,
+      away_score: dbMatch?.away_score ?? null,
+      status: dbMatch?.status || 'pending',
+      isDeployed: !!dbMatch
+    };
+  });
+
+  const isR32Deployed = dbResults.length > 0;
+
   if (isLoading) return (
     <div className="flex flex-col items-center justify-center h-64 gap-4">
       <Loader2 className="w-8 h-8 text-primary animate-spin" />
-      <p className="text-white/40 font-bold uppercase text-[10px] tracking-widest">Calculando llaves oficiales...</p>
+      <p className="text-white/40 font-bold uppercase text-[10px] tracking-widest">Cargando consola de eliminatorias...</p>
     </div>
   );
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
-      {/* Header de Control (Solo Admin) */}
-      {isAdmin && (
-        <div className="bg-primary/5 border border-primary/20 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+    <div className="space-y-8 animate-in fade-in duration-500">
+      
+      {/* Header Admin de Despliegue Inicial (si no está desplegado) */}
+      {isAdmin && !isR32Deployed && (
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center">
-              <ShieldCheck className="w-6 h-6 text-primary" />
+            <div className="w-12 h-12 bg-amber-500/20 rounded-2xl flex items-center justify-center">
+              <ShieldCheck className="w-6 h-6 text-amber-500" />
             </div>
             <div>
-              <h3 className="text-xl font-black text-white uppercase italic">Panel de Control de Llaves</h3>
-              <p className="text-xs text-white/40 font-medium uppercase tracking-wider">Auditoría Pre-Despliegue | FIFA 2026</p>
+              <h3 className="text-lg font-black text-white uppercase tracking-tight">Cruces de 16avos Pendientes de Despliegue</h3>
+              <p className="text-xs text-white/40 font-medium leading-relaxed">
+                Debes inicializar el bracket publicando la ronda de 16avos de final en la base de datos para habilitar las apuestas de los usuarios.
+              </p>
             </div>
           </div>
           <button
-            onClick={handleDeploy}
+            onClick={handleDeployInitial}
             disabled={isDeploying}
-            className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-primary text-primary-foreground font-black uppercase tracking-tighter rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(251,191,36,0.3)] disabled:opacity-50"
+            className="w-full md:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-amber-500 text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)] disabled:opacity-50 cursor-pointer"
           >
-            {isDeploying ? <Loader2 className="w-5 h-5 animate-spin" /> : <Swords className="w-5 h-5" />}
-            Desplegar a la Liga
+            {isDeploying ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-4 h-4" />}
+            Desplegar 16avos
           </button>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Preview de Partidos de 16avos */}
-        <div className={`${isAdmin ? 'lg:col-span-2' : 'lg:col-span-3'} order-1 space-y-6`}>
-          <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-primary/80 px-2 flex items-center gap-2">
-            <Swords className="w-4 h-4" /> {isAdmin ? 'Cruces Proyectados' : 'Llave de Eliminatorias'} (Round of 32)
-          </h4>
-          <div className={`grid grid-cols-1 ${isAdmin ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3'} gap-4`}>
-            {[
-              { id: 73, h: standings['E']?.[0], a: bestThirds[4] }, // Ganador E vs 3ro (Slot E/F...)
-              { id: 74, h: standings['I']?.[0], a: bestThirds[3] }, // Ganador I vs 3ro
-              { id: 75, h: standings['A']?.[1], a: standings['B']?.[1] }, // 2do A vs 2do B
-              { id: 76, h: standings['F']?.[0], a: standings['C']?.[1] }, // Ganador F vs 2do C
-              { id: 77, h: standings['K']?.[1], a: standings['L']?.[1] }, // 2do K vs 2do L
-              { id: 78, h: standings['H']?.[0], a: standings['J']?.[1] }, // Ganador H vs 2do J
-              { id: 79, h: standings['D']?.[0], a: bestThirds[5] }, // Ganador D vs 3ro
-              { id: 80, h: standings['G']?.[0], a: bestThirds[2] }, // Ganador G vs 3ro
-              { id: 81, h: standings['C']?.[0], a: standings['F']?.[1] }, // Ganador C vs 2do F
-              { id: 82, h: standings['E']?.[1], a: standings['I']?.[1] }, // 2do E vs 2do I
-              { id: 83, h: standings['A']?.[0], a: bestThirds[7] }, // Ganador A vs 3ro
-              { id: 84, h: standings['L']?.[0], a: bestThirds[1] }, // Ganador L vs 3ro
-              { id: 85, h: standings['J']?.[0], a: standings['H']?.[1] }, // Ganador J vs 2do H
-              { id: 86, h: standings['D']?.[1], a: standings['G']?.[1] }, // 2do D vs 2do G
-              { id: 87, h: standings['B']?.[0], a: bestThirds[6] }, // Ganador B vs 3ro
-              { id: 88, h: standings['K']?.[0], a: bestThirds[0] }  // Ganador K vs 3ro
-            ].map(m => {
-              const isDeployed = deployedMatches.includes(m.id);
-              return (
-                <div key={m.id} className={`p-5 rounded-[2rem] border-2 flex flex-col gap-4 transition-all duration-300 ${isDeployed ? "bg-green-500/10 border-green-500/30" : "bg-white/[0.03] border-white/10 opacity-70"}`}>
-                   <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Partido #{m.id}</span>
-                      {isDeployed && (
-                        <div className="flex items-center gap-1.5 bg-green-500/20 px-2 py-0.5 rounded-full">
-                          <CheckCircle2 className="w-3 h-3 text-green-400" />
-                          <span className="text-[8px] font-black text-green-400 uppercase">Activo</span>
-                        </div>
-                      )}
-                   </div>
-                   <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                         {m.h && <img src={getTeamFlagUrl(m.h.teamId)!} className="w-7 h-4.5 object-cover rounded-sm shadow-sm" />}
-                         <span className="text-sm font-black text-white/90 truncate tracking-tight">{m.h?.nombre || 'TBD'}</span>
-                      </div>
-                      <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                        <span className="text-[10px] font-black text-white/20 italic">VS</span>
-                      </div>
-                      <div className="flex items-center gap-3 flex-1 min-w-0 justify-end text-right">
-                         <span className="text-sm font-black text-white/90 truncate tracking-tight">{m.a?.nombre || 'TBD'}</span>
-                         {m.a && <img src={getTeamFlagUrl(m.a.teamId)!} className="w-7 h-4.5 object-cover rounded-sm shadow-sm" />}
-                      </div>
-                   </div>
+      {/* Tabs de Rondas */}
+      <div className="flex flex-wrap gap-2 border-b border-white/10 pb-4">
+        {knockoutData.rondas.map(r => (
+          <button
+            key={r.id}
+            onClick={() => setActiveTab(r.id)}
+            className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border ${
+              activeTab === r.id
+                ? 'bg-primary text-primary-foreground border-primary shadow-[0_0_15px_rgba(251,191,36,0.2)]'
+                : 'bg-white/5 text-white/50 border-white/5 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            {r.nombre}
+          </button>
+        ))}
+      </div>
 
-                   {/* Botón de Acción Condicional (Visible si hay enfrentamiento) */}
-                   {!isAdmin && m.h && m.a && (
-                     <button 
-                       onClick={() => router.push('/knockouts/bracket')}
-                       className="w-full mt-2 py-3 bg-primary/10 hover:bg-primary text-white hover:text-primary-foreground border border-primary/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(251,191,36,0)] hover:shadow-[0_0_15px_rgba(251,191,36,0.3)]"
-                     >
-                       Ir a Pronóstico
-                     </button>
-                   )}
-                </div>
-              )
-            })}
+      {/* Controles de Consola Admin (Solo si 16avos está desplegado e isAdmin) */}
+      {isAdmin && isR32Deployed && (
+        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <h3 className="text-md font-black uppercase tracking-wide">
+              Controles de {currentRoundMeta?.nombre}
+            </h3>
+            <p className="text-xs text-white/40 font-medium">
+              Sincronizá los partidos con la API o avanzá a los ganadores hacia la próxima ronda de llaves.
+            </p>
+          </div>
+          <div className="flex gap-3 w-full sm:w-auto">
+            <button
+              onClick={handleSyncRound}
+              disabled={isSyncing}
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-3.5 bg-white/5 hover:bg-white/10 text-white border border-white/10 text-xs font-black uppercase tracking-widest rounded-xl transition-all cursor-pointer disabled:opacity-50"
+            >
+              {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+              Sync con API
+            </button>
+            <button
+              onClick={handleAdvanceRound}
+              disabled={isAdvancing}
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-3.5 bg-primary text-primary-foreground font-black uppercase tracking-widest text-xs rounded-xl hover:scale-102 active:scale-98 transition-all shadow-[0_0_15px_rgba(251,191,36,0.2)] cursor-pointer disabled:opacity-50"
+            >
+              {isAdvancing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Swords className="w-4 h-4" />}
+              Calcular & Avanzar
+            </button>
           </div>
         </div>
+      )}
 
-        {/* Ranking de Mejores Terceros (Solo Admin) */}
-        {isAdmin && (
-          <div className="lg:col-span-1 order-2 space-y-6">
-            <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-orange-400/80 px-2 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4" /> Clasificación de Terceros
-            </h4>
-            <div className="bg-gradient-to-br from-white/[0.05] to-transparent border border-white/10 rounded-[2.5rem] overflow-hidden backdrop-blur-2xl shadow-2xl">
-              <div className="p-5 flex flex-col gap-2.5">
-                {bestThirds.map((team, idx) => (
-                  <div key={team.teamId} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${idx < 8 ? "bg-primary/10 border-primary/20 shadow-lg" : "bg-white/5 border-white/5 opacity-50 grayscale"}`}>
-                    <div className="flex items-center gap-3">
-                      <span className={`text-xs font-black w-5 ${idx < 8 ? "text-primary" : "text-white/20"}`}>{idx + 1}</span>
-                      <img src={getTeamFlagUrl(team.teamId)!} className="w-6 h-4 object-cover rounded-sm" alt="" />
-                      <span className={`text-xs font-bold ${idx < 8 ? "text-white" : "text-white/40"}`}>{team.nombre}</span>
-                    </div>
-                    <div className="flex gap-4 items-center">
-                      <div className="flex flex-col items-end">
-                        <span className={`text-[11px] font-black ${idx < 8 ? "text-green-400" : "text-white/20"}`}>{team.pts} PTS</span>
-                        <span className="text-[9px] font-bold text-white/30">{team.dg} DG</span>
-                      </div>
-                    </div>
+      {/* Listado de partidos de la ronda */}
+      <div className="space-y-4">
+        <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-primary/80 px-2 flex items-center gap-2">
+          <Swords className="w-4 h-4" /> Partidos Programados ({roundMatchesWithResults.length})
+        </h4>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {roundMatchesWithResults.map(m => {
+            const hasTeams = m.home_team_id !== 'TBD' && m.away_team_id !== 'TBD';
+            const isFinished = m.status === 'finished';
+            const isPlaying = !isFinished && m.status !== 'pending' && m.status !== 'bloqueado';
+            const isTie = isFinished && m.home_score === m.away_score;
+            
+            return (
+              <div 
+                key={m.id} 
+                className={`p-6 rounded-[2.5rem] border transition-all duration-300 flex flex-col justify-between gap-5 relative overflow-hidden ${
+                  isPlaying 
+                    ? "bg-red-500/5 border-red-500/20 shadow-[0_0_25px_rgba(239,68,68,0.05)]"
+                    : isFinished
+                      ? "bg-green-500/5 border-green-500/20"
+                      : m.isDeployed 
+                        ? "bg-white/[0.03] border-white/10 hover:border-white/20" 
+                        : "bg-white/[0.01] border-white/5 opacity-55"
+                }`}
+              >
+                {/* Cabecera de la Card */}
+                <div className="flex justify-between items-center">
+                  <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em]">Partido #{m.id}</span>
+                  <div className="flex items-center gap-1.5">
+                    {isPlaying && (
+                      <span className="flex items-center gap-1 bg-red-500/20 px-2 py-0.5 rounded-full text-[8px] font-black text-red-400 uppercase tracking-widest animate-pulse">
+                        En Vivo
+                      </span>
+                    )}
+                    {isFinished && (
+                      <span className="flex items-center gap-1 bg-green-500/20 px-2 py-0.5 rounded-full text-[8px] font-black text-green-400 uppercase tracking-widest">
+                        Finalizado
+                      </span>
+                    )}
+                    {!m.isDeployed && (
+                      <span className="flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-full text-[8px] font-black text-white/30 uppercase tracking-widest">
+                        No Desplegado
+                      </span>
+                    )}
+                    {m.isDeployed && m.status === 'pending' && (
+                      <span className="flex items-center gap-1 bg-blue-500/10 px-2 py-0.5 rounded-full text-[8px] font-black text-blue-400 uppercase tracking-widest">
+                        Pendiente
+                      </span>
+                    )}
                   </div>
-                ))}
+                </div>
+
+                {/* Cuerpo de equipos */}
+                <div className="space-y-4">
+                  {/* Local */}
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      {m.home_team_id !== 'TBD' ? (
+                        <>
+                          <img src={getTeamFlagUrl(m.home_team_id)!} className="w-7 h-4.5 object-cover rounded shadow-sm shrink-0" alt="" />
+                          <span className="text-sm font-black text-white truncate tracking-tight">{getTeamName(m.home_team_id)}</span>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-7 h-4.5 bg-white/5 rounded border border-white/10 shrink-0 flex items-center justify-center">
+                            <HelpCircle className="w-3.5 h-3.5 text-white/20" />
+                          </div>
+                          <span className="text-sm font-bold text-white/30 truncate italic tracking-tight">{m.home_placeholder}</span>
+                        </>
+                      )}
+                    </div>
+                    {isFinished && (
+                      <span className={`text-md font-black ${m.home_score! >= m.away_score! ? 'text-white' : 'text-white/40'}`}>
+                        {m.home_score}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Visitante */}
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      {m.away_team_id !== 'TBD' ? (
+                        <>
+                          <img src={getTeamFlagUrl(m.away_team_id)!} className="w-7 h-4.5 object-cover rounded shadow-sm shrink-0" alt="" />
+                          <span className="text-sm font-black text-white truncate tracking-tight">{getTeamName(m.away_team_id)}</span>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-7 h-4.5 bg-white/5 rounded border border-white/10 shrink-0 flex items-center justify-center">
+                            <HelpCircle className="w-3.5 h-3.5 text-white/20" />
+                          </div>
+                          <span className="text-sm font-bold text-white/30 truncate italic tracking-tight">{m.away_placeholder}</span>
+                        </>
+                      )}
+                    </div>
+                    {isFinished && (
+                      <span className={`text-md font-black ${m.away_score! >= m.home_score! ? 'text-white' : 'text-white/40'}`}>
+                        {m.away_score}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Acciones de Empate y Definición de Penales (Solo Admin en Partidos Empatados) */}
+                {isAdmin && isTie && hasTeams && (
+                  <div className="mt-2 pt-3 border-t border-white/5 flex flex-col gap-2">
+                    <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest pl-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" /> Empate en penales: Definí el ganador
+                    </span>
+                    <select
+                      value={manualWinners[m.id] || ""}
+                      onChange={(e) => handleSelectManualWinner(m.id, e.target.value)}
+                      className="w-full px-3 py-2 bg-black/60 border border-amber-500/30 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500 font-bold"
+                    >
+                      <option value="" disabled>-- Selecciona Ganador --</option>
+                      <option value={m.home_team_id}>{getTeamName(m.home_team_id)} (Clasifica)</option>
+                      <option value={m.away_team_id}>{getTeamName(m.away_team_id)} (Clasifica)</option>
+                    </select>
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
-        )}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

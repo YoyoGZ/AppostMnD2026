@@ -25,16 +25,18 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
   const [goalsList, setGoalsList] = useState<{ team: string; player: string; minute: string }[]>([]);
 
   const supabase = createClient();
+  const matchIdStr = matchInfo.id.toString();
+  const matchIdInt = parseInt(matchIdStr) || 0;
 
   // 1. Cargar apuesta, resultado real, goles y escuchar cambios en vivo
   useEffect(() => {
     const fetchPredictionAndResult = async () => {
-      if (userId) {
+      if (userId && matchIdInt > 0) {
         const { data: predData } = await supabase
           .from('predictions')
           .select('equipo_a_goles, equipo_b_goles, is_sealed, points_earned')
           .eq('user_id', userId)
-          .eq('match_id', matchInfo.id)
+          .eq('match_id', matchIdInt)
           .maybeSingle();
           
         if (predData) {
@@ -45,27 +47,29 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
         }
       }
 
-      // Cargar resultado oficial con elapsed
-      const { data: resultData } = await supabase
-        .from('match_results')
-        .select('home_score, away_score, status, elapsed')
-        .eq('id', parseInt(matchInfo.id))
-        .maybeSingle();
+      if (matchIdInt > 0) {
+        // Cargar resultado oficial con elapsed
+        const { data: resultData } = await supabase
+          .from('match_results')
+          .select('home_score, away_score, status, elapsed')
+          .eq('id', matchIdInt)
+          .maybeSingle();
 
-      if (resultData) {
-        setRealResult({
-          home_score: resultData.home_score ?? 0,
-          away_score: resultData.away_score ?? 0,
-          status: resultData.status,
-          elapsed: resultData.elapsed ?? 0
-        });
+        if (resultData) {
+          setRealResult({
+            home_score: resultData.home_score ?? 0,
+            away_score: resultData.away_score ?? 0,
+            status: resultData.status,
+            elapsed: resultData.elapsed ?? 0
+          });
+        }
       }
 
       // Cargar gol reciente de app_settings
       const { data: settingData } = await supabase
         .from('app_settings')
         .select('value')
-        .eq('key', `goal_${matchInfo.id}`)
+        .eq('key', `goal_${matchIdStr}`)
         .maybeSingle();
 
       if (settingData?.value) {
@@ -80,7 +84,7 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
       const { data: goalsData } = await supabase
         .from('app_settings')
         .select('value')
-        .eq('key', `goals_${matchInfo.id}`)
+        .eq('key', `goals_${matchIdStr}`)
         .maybeSingle();
 
       if (goalsData?.value) {
@@ -98,12 +102,12 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
 
     // Canal en tiempo real para el partido individual
     const channel = supabase
-      .channel(`match-result-${matchInfo.id}`)
+      .channel(`match-result-${matchIdStr}`)
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 
         table: 'match_results',
-        filter: `id=eq.${matchInfo.id}`
+        filter: `id=eq.${matchIdInt}`
       }, (payload: any) => {
         const newRecord = payload.new;
         if (newRecord) {
@@ -119,12 +123,12 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
 
     // Suscribirse a realtime para goles en app_settings
     const goalChannel = supabase
-      .channel(`match-goal-${matchInfo.id}`)
+      .channel(`match-goal-${matchIdStr}`)
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'app_settings',
-        filter: `key=eq.goal_${matchInfo.id}`
+        filter: `key=eq.goal_${matchIdStr}`
       }, (payload: any) => {
         const newRecord = payload.new;
         if (newRecord?.value) {
@@ -139,12 +143,12 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
 
     // Suscribirse a realtime para la lista completa de goles en app_settings
     const goalsChannel = supabase
-      .channel(`match-goals-${matchInfo.id}`)
+      .channel(`match-goals-${matchIdStr}`)
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'app_settings',
-        filter: `key=eq.goals_${matchInfo.id}`
+        filter: `key=eq.goals_${matchIdStr}`
       }, (payload: any) => {
         const newRecord = payload.new;
         if (newRecord?.value) {
@@ -158,11 +162,11 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
       .subscribe();
 
     return () => {
-      channel.unsubscribe();
-      goalChannel.unsubscribe();
-      goalsChannel.unsubscribe();
+      supabase.removeChannel(channel);
+      supabase.removeChannel(goalChannel);
+      supabase.removeChannel(goalsChannel);
     };
-  }, [matchInfo.id, supabase, userId]);
+  }, [matchIdStr, matchIdInt, supabase, userId]);
 
   // Chequear periodicamente si el gol es reciente (< 5 minutos)
   useEffect(() => {
@@ -190,11 +194,17 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
       setLocalTimeText(getLocalMatchTimeText(fechaStr));
       
       const checkLock = () => {
-        const matchDate = new Date(fechaStr);
+        let matchDate = new Date(fechaStr);
+        // Si la fecha es solo YYYY-MM-DD, le agregamos la hora de fin de dia (23:59:59) para desarrollo
+        if (fechaStr.length === 10) {
+          matchDate = new Date(`${fechaStr}T23:59:59`);
+        }
         const lockDate = new Date(matchDate.getTime() - 5 * 60 * 1000); 
         const now = new Date();
         if (now >= lockDate) {
           setIsLockedByTime(true);
+        } else {
+          setIsLockedByTime(false);
         }
       };
 

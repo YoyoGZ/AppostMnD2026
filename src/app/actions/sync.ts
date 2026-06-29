@@ -4,6 +4,7 @@ import { sportsSyncAgent } from "@/services/SportsSyncAgent";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { calculateGroupStandings } from "./tournament-engine";
 import worldCupData from "@/data/world-cup-2026.json";
+import knockoutData from "@/data/knockouts-simulation.json";
 import { processFinishedMatches } from "./oracle";
 
 // Control de frecuencia de sincronización en memoria del servidor
@@ -21,13 +22,18 @@ export async function syncLiveMatchesAction(): Promise<{ success: boolean; updat
   console.log("[Sync Server Action] 🚀 Iniciando sincronización real con la API externa de deportes...");
 
   try {
-    // Excluimos los partidos que ya están finalizados en el JSON local de la sincronización de la API externa
-    const fixtureIds = worldCupData.partidos
-      .filter((p: any) => p.estado !== 'finalizado')
-      .map((p: any) => p.id);
+    const supabase = createAdminClient();
+    
+    // Obtenemos los partidos que no están finalizados directamente de Supabase (grupos y eliminatorias)
+    const { data: dbMatches } = await supabase
+      .from('match_results')
+      .select('id')
+      .neq('status', 'finished');
+
+    const fixtureIds = dbMatches?.map((m: any) => m.id) || [];
 
     if (fixtureIds.length === 0) {
-      console.log("[Sync Server Action] 🏖️ Todos los partidos de grupos están finalizados en el JSON local. Omitiendo petición a la API.");
+      console.log("[Sync Server Action] 🏖️ Todos los partidos en base de datos están finalizados. Omitiendo petición a la API.");
       return { success: true, updatedCount: 0 };
     }
     
@@ -143,5 +149,55 @@ export async function getLiveMatchTestAction(): Promise<{ success: boolean; data
     return { success: false, error: "No hay ningún partido de fútbol jugándose en el mundo en este exacto momento." };
   } catch (error: any) {
     return { success: false, error: error.message };
+  }
+}
+
+export async function syncKnockoutRoundAction(roundSlug: string): Promise<{ success: boolean; updatedCount: number; error?: string }> {
+  try {
+    const round = knockoutData.rondas.find(r => r.id === roundSlug || r.slug === roundSlug);
+    if (!round) {
+      return { success: false, updatedCount: 0, error: "Ronda no válida." };
+    }
+
+    const fixtureIds = round.partidos.map(p => p.id);
+    if (fixtureIds.length === 0) {
+      return { success: true, updatedCount: 0 };
+    }
+
+    console.log(`[HQ Sync Round] 🚀 Sincronizando ronda de eliminatorias: ${round.nombre} (${fixtureIds.join(", ")})`);
+    
+    // Llamada directa sin cooldown
+    const result = await sportsSyncAgent.syncMatchesToDatabase(fixtureIds);
+    
+    if (result.success) {
+      // Procesar oráculo de recálculo de puntos para los partidos de la ronda
+      try {
+        const { processFinishedMatches } = await import("./oracle");
+        await processFinishedMatches();
+      } catch (err) {
+        console.error("Error al procesar puntos de eliminatorias tras sync:", err);
+      }
+
+      // Obtener el estado actualizado de Supabase para contar solo los de esta ronda
+      const supabase = createAdminClient();
+      const { data: dbMatches } = await supabase
+        .from('match_results')
+        .select('id, last_sync')
+        .in('id', fixtureIds);
+
+      const now = new Date();
+      const recentlyUpdated = dbMatches?.filter((m: any) => {
+        if (!m.last_sync) return false;
+        const diff = now.getTime() - new Date(m.last_sync).getTime();
+        return diff >= 0 && diff < 30 * 1000; // actualizados hace menos de 30s
+      }) || [];
+
+      return { success: true, updatedCount: recentlyUpdated.length };
+    } else {
+      return { success: false, updatedCount: 0, error: result.error || "La sincronización con la API de deportes falló." };
+    }
+  } catch (error: any) {
+    console.error("Error en syncKnockoutRoundAction:", error);
+    return { success: false, updatedCount: 0, error: error.message || "Error desconocido" };
   }
 }

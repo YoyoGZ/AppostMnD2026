@@ -42,10 +42,8 @@ export default async function DashboardLayout({
     activeLeague = myLeagues.find(l => l.isCaptain) || myLeagues[0];
     activeLeagueId = activeLeague.id;
 
-    // Actualizar metadatos de forma asíncrona (no bloqueamos el render)
-    await supabase.auth.updateUser({
-      data: { active_league_id: activeLeagueId }
-    });
+    // NOTA: Evitamos actualizar los metadatos de Supabase en caliente dentro del Server Layout
+    // ya que modificar cookies durante el renderizado GET rompe el ciclo de Next.js App Router.
   }
 
   // 4. Resolver el tema de marca corporativa en caliente

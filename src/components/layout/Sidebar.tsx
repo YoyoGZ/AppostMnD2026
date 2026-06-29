@@ -53,8 +53,7 @@ export function Sidebar({
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.push("/login");
-    router.refresh();
+    window.location.href = "/login";
   };
 
   const handleSwitchLeague = async (id: string) => {

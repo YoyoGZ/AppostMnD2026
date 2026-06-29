@@ -139,19 +139,17 @@ export const LoginShield = ({ inviteCode: propInviteCode, leagueInfo }: LoginShi
       if (inviteCode) {
         const targetPath = `/join/${inviteCode}`;
         console.log(`🚀 [LOGINSHIELD] Redirigiendo a página de unión: ${targetPath}`);
-        router.push(targetPath);
+        window.location.href = targetPath;
       } else if (isNewUser && leagueName) {
         console.log(`🚀 [LOGINSHIELD] Redirigiendo al Paywall para activar la liga: ${leagueName}`);
-        router.push(`/paywall?leagueName=${encodeURIComponent(leagueName.trim())}`);
+        window.location.href = `/paywall?leagueName=${encodeURIComponent(leagueName.trim())}`;
       } else if (role === 'super_admin') {
         console.log(`🚀 [LOGINSHIELD] Redirigiendo al Cuartel General (God Mode)`);
-        router.push("/hq");
+        window.location.href = "/hq";
       } else {
         console.log(`🚀 [LOGINSHIELD] Redirigiendo a Dashboard`);
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       }
-
-      router.refresh();
 
     } catch (err: unknown) {
       console.log("Auth attempt failed:", err);

@@ -1,7 +1,7 @@
 import { APIFootballFixtureResponse, MatchStatus } from "@/types/tournament";
 import { createAdminClient } from "@/utils/supabase/admin";
 import worldCupData from "@/data/world-cup-2026.json";
-import { persistMatchResultToLocalJson } from "@/lib/utils/jsonPersist";
+import { persistMatchResultToLocalJson, persistKnockoutMatchResultToLocalJson, persistKnockoutMatchDateToLocalJson } from "@/lib/utils/jsonPersist";
 
 // Diccionario de traducción de nombres de equipos en inglés/español de la API a códigos FIFA
 const TEAM_MAP: Record<string, string> = {
@@ -109,7 +109,7 @@ const TEAM_MAP: Record<string, string> = {
   "uzbekistán": "UZB"
 };
 
-function mapApiTeamToLocalCode(apiTeamName: string): string | null {
+export function mapApiTeamToLocalCode(apiTeamName: string): string | null {
   const name = apiTeamName.toLowerCase().trim();
   
   // 1. Coincidencia exacta o parcial por palabras clave del mapa
@@ -239,11 +239,11 @@ export class SportsSyncAgent {
    * Eje de Sincronización: Obtiene los resultados reales de la API y los empuja
    * directamente a la base de datos oficial del torneo.
    */
-  async syncMatchesToDatabase(fixtureIds: number[]): Promise<{ success: boolean; updatedCount: number }> {
+  async syncMatchesToDatabase(fixtureIds: number[]): Promise<{ success: boolean; updatedCount: number; error?: string }> {
     console.log(`🔄 Sincronizando partidos con Supabase...`);
     if (!this.apiKey) {
       console.error("❌ Abortando sincronización: API_FOOTBALL_KEY no está configurada en este entorno.");
-      return { success: false, updatedCount: 0 };
+      return { success: false, updatedCount: 0, error: "API Key no configurada." };
     }
 
     let liveData: APIFootballFixtureResponse[] = [];
@@ -265,16 +265,22 @@ export class SportsSyncAgent {
       const data = await response.json();
       liveData = data.response || [];
       console.log(`ℹ️ [SportsSyncAgent] Se recibieron ${liveData.length} partidos reales desde la API.`);
-    } catch (error) {
+    } catch (error: any) {
       console.error("❌ Error en SportsSyncAgent syncMatchesToDatabase en vivo:", error);
-      return { success: false, updatedCount: 0 };
+      const msg = error.message?.includes("429") 
+        ? "Límite de solicitudes de la API de deportes excedido (Rate Limit). Espera un minuto."
+        : error.message?.includes("403")
+        ? "Llave de API no autorizada o límite de cuota diario alcanzado."
+        : error.message || "Error de red externa";
+      return { success: false, updatedCount: 0, error: msg };
     }
     
     if (!liveData || liveData.length === 0) {
-      return { success: false, updatedCount: 0 };
+      return { success: false, updatedCount: 0, error: "La API externa no devolvió ningún partido para la copa 2026." };
     }
 
-    const supabase = createAdminClient();
+    try {
+      const supabase = createAdminClient();
     
     const { data: dbMatches } = await supabase
       .from('match_results')
@@ -300,13 +306,14 @@ export class SportsSyncAgent {
         continue;
       }
 
-      let localMatchId: number | null = null;
-      
+      // Buscar si coincide con el JSON estático de grupos
       const staticMatch = worldCupData.partidos.find(m => 
         (m.local === homeCode && m.visitante === awayCode) ||
         (m.local === awayCode && m.visitante === homeCode)
       );
 
+      let localMatchId: number | null = null;
+      
       if (staticMatch) {
         localMatchId = staticMatch.id;
       } else {
@@ -346,6 +353,11 @@ export class SportsSyncAgent {
         elapsed: apiMatch.fixture.status.elapsed ?? 0,
         last_sync: new Date().toISOString()
       });
+
+      // Si es un partido de eliminatorias, actualizamos su fecha en el JSON local con la fecha de la API
+      if (localMatchId >= 73 && (apiMatch.fixture as any).date) {
+        persistKnockoutMatchDateToLocalJson(localMatchId, (apiMatch.fixture as any).date);
+      }
     }
 
     if (upserts.length === 0) {
@@ -364,10 +376,14 @@ export class SportsSyncAgent {
 
     console.log(`✅ Sincronización exitosa: ${upserts.length} partidos procesados y actualizados en BD.`);
 
-    // Persistir de forma definitiva los resultados en el JSON local world-cup-2026.json en desarrollo
+    // Persistir de forma definitiva los resultados en el JSON local en desarrollo
     upserts.forEach(m => {
       if (m.status === 'finished' && m.home_score !== null && m.away_score !== null) {
-        persistMatchResultToLocalJson(m.id, m.home_score, m.away_score);
+        if (m.id >= 73) {
+          persistKnockoutMatchResultToLocalJson(m.id, m.home_score, m.away_score);
+        } else {
+          persistMatchResultToLocalJson(m.id, m.home_score, m.away_score);
+        }
       }
     });
 
@@ -450,7 +466,11 @@ export class SportsSyncAgent {
       console.error("⚠️ Error procesando goles en vivo en SportsSyncAgent:", eventsError);
     }
 
-    return { success: true, updatedCount: upserts.length };
+      return { success: true, updatedCount: upserts.length };
+    } catch (processError: any) {
+      console.error("❌ Error durante el procesamiento de sincronización en BD:", processError);
+      return { success: false, updatedCount: 0, error: processError.message || "Error de procesamiento interno" };
+    }
   }
 
   /**

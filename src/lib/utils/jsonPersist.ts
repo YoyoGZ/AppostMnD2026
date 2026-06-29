@@ -37,3 +37,75 @@ export function persistMatchResultToLocalJson(matchId: number, golesLocal: numbe
     console.warn(`[Local JSON Persist] Ignorando persistencia local para partido ${matchId} (Sistema de archivos Read-Only en producción):`, err.message);
   }
 }
+
+export function persistKnockoutMatchResultToLocalJson(matchId: number, golesLocal: number, golesVisitante: number, fecha?: string) {
+  try {
+    const jsonPath = path.join(process.cwd(), 'src', 'data', 'knockouts-simulation.json');
+    if (!fs.existsSync(jsonPath)) {
+      console.warn(`[Local Knockout JSON Persist] No se encontró el archivo en la ruta: ${jsonPath}`);
+      return;
+    }
+
+    const fileContent = fs.readFileSync(jsonPath, 'utf8');
+    const data = JSON.parse(fileContent);
+
+    let matchFound = false;
+
+    for (const rond of data.rondas) {
+      const match = rond.partidos.find((p: any) => p.id === matchId);
+      if (match) {
+        // Evita toques del watch si no hay cambios reales
+        const isSameResult = match.estado === 'finalizado' && match.goles_local === golesLocal && match.goles_visitante === golesVisitante;
+        const isSameDate = !fecha || match.fecha === fecha;
+        if (isSameResult && isSameDate) {
+          return;
+        }
+
+        match.estado = 'finalizado';
+        match.goles_local = golesLocal;
+        match.goles_visitante = golesVisitante;
+        if (fecha) {
+          match.fecha = fecha;
+        }
+        matchFound = true;
+        break;
+      }
+    }
+
+    if (matchFound) {
+      fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2), 'utf8');
+      console.log(`[Local Knockout JSON Persist] ✅ Partido de Eliminatorias ${matchId} persistido localmente en knockouts-simulation.json (${golesLocal} - ${golesVisitante})`);
+    }
+  } catch (err: any) {
+    console.warn(`[Local Knockout JSON Persist] Ignorando persistencia local para partido de eliminatorias ${matchId}:`, err.message);
+  }
+}
+
+export function persistKnockoutMatchDateToLocalJson(matchId: number, fecha: string) {
+  try {
+    const jsonPath = path.join(process.cwd(), 'src', 'data', 'knockouts-simulation.json');
+    if (!fs.existsSync(jsonPath)) return;
+
+    const fileContent = fs.readFileSync(jsonPath, 'utf8');
+    const data = JSON.parse(fileContent);
+
+    let matchFound = false;
+
+    for (const rond of data.rondas) {
+      const match = rond.partidos.find((p: any) => p.id === matchId);
+      if (match) {
+        if (match.fecha === fecha) return; // Sin cambios
+        match.fecha = fecha;
+        matchFound = true;
+        break;
+      }
+    }
+
+    if (matchFound) {
+      fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2), 'utf8');
+      console.log(`[Local Knockout JSON Persist] 📅 Fecha del partido ${matchId} actualizada a ${fecha} en knockouts-simulation.json`);
+    }
+  } catch (err: any) {
+    console.warn(`[Local Knockout JSON Persist] Ignorando actualización de fecha local para partido ${matchId}:`, err.message);
+  }
+}

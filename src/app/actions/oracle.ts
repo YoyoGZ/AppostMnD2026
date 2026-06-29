@@ -171,44 +171,120 @@ export async function processFinishedMatches(leagueId?: string) {
     }
 
     // 6. --- AVANCE DE LLAVES (KNOCKOUT PROGRESSION) ---
-    const knockoutFinalized = finishedMatches.filter(m => (m as any).path);
+    const KNOCKOUT_PATH_MAP: Record<number, { next_match: number; next_pos: 'home' | 'away' }> = {
+      // 16avos -> Octavos
+      73: { next_match: 90, next_pos: 'home' },
+      74: { next_match: 89, next_pos: 'home' },
+      75: { next_match: 90, next_pos: 'away' },
+      76: { next_match: 93, next_pos: 'home' },
+      77: { next_match: 89, next_pos: 'away' },
+      78: { next_match: 93, next_pos: 'away' },
+      79: { next_match: 94, next_pos: 'home' },
+      80: { next_match: 94, next_pos: 'away' },
+      81: { next_match: 92, next_pos: 'home' },
+      82: { next_match: 92, next_pos: 'away' },
+      83: { next_match: 91, next_pos: 'home' },
+      84: { next_match: 91, next_pos: 'away' },
+      85: { next_match: 96, next_pos: 'home' },
+      86: { next_match: 95, next_pos: 'home' },
+      87: { next_match: 96, next_pos: 'away' },
+      88: { next_match: 95, next_pos: 'away' },
+
+      // Octavos -> Cuartos
+      89: { next_match: 97, next_pos: 'home' },
+      90: { next_match: 97, next_pos: 'away' },
+      91: { next_match: 99, next_pos: 'home' },
+      92: { next_match: 99, next_pos: 'away' },
+      93: { next_match: 98, next_pos: 'home' },
+      94: { next_match: 98, next_pos: 'away' },
+      95: { next_match: 100, next_pos: 'home' },
+      96: { next_match: 100, next_pos: 'away' },
+
+      // Cuartos -> Semifinales
+      97: { next_match: 101, next_pos: 'home' },
+      98: { next_match: 101, next_pos: 'away' },
+      99: { next_match: 102, next_pos: 'home' },
+      100: { next_match: 102, next_pos: 'away' }
+    };
+
+    const knockoutFinalized = finishedMatches.filter(m => m.id >= 73);
     console.log(`[Oráculo] Procesando ${knockoutFinalized.length} partidos knockout finalizados...`);
     
     if (knockoutFinalized.length > 0) {
       const advancementUpdates: any[] = [];
 
       for (const match of knockoutFinalized) {
-        const path = (match as any).path;
-        console.log(`[Oráculo] Evaluando avance para partido ${match.id}. Path:`, path);
-
-        // Determinar ganador
+        // Determinar ganador y perdedor
         let winnerId = null;
+        let loserId = null;
         if (match.goles_local > match.goles_visitante) {
           winnerId = match.equipo_local;
+          loserId = match.equipo_visitante;
         } else if (match.goles_visitante > match.goles_local) {
           winnerId = match.equipo_visitante;
+          loserId = match.equipo_local;
         } else {
           winnerId = match.winner_id_manual || match.equipo_local; 
+          loserId = winnerId === match.equipo_local ? match.equipo_visitante : match.equipo_local;
         }
 
-        if (winnerId) {
-          // Forzar RSA sobre ZA (FIFA Standard)
-          const finalWinnerId = winnerId === 'ZA' ? 'RSA' : winnerId;
-          
-          console.log(`[Oráculo] Ganador detectado: ${finalWinnerId}. Promoviendo a ${path.next_match}`);
+        if (winnerId) winnerId = winnerId === 'ZA' ? 'RSA' : winnerId;
+        if (loserId) loserId = loserId === 'ZA' ? 'RSA' : loserId;
+
+        // Avanzar según el mapa
+        const path = KNOCKOUT_PATH_MAP[match.id];
+        if (path && winnerId) {
+          console.log(`[Oráculo] Ganador detectado para partido #${match.id}: ${winnerId}. Promoviendo a #${path.next_match} (${path.next_pos})`);
           advancementUpdates.push({
             id: path.next_match,
-            home_team_id: path.next_pos === 'home' ? finalWinnerId : undefined,
-            away_team_id: path.next_pos === 'away' ? finalWinnerId : undefined,
-            status: 'pending',
-            last_sync: new Date().toISOString()
+            home_team_id: path.next_pos === 'home' ? winnerId : undefined,
+            away_team_id: path.next_pos === 'away' ? winnerId : undefined
           });
+        }
+
+        // Semifinales -> Final y 3er puesto
+        if (match.id === 101) {
+          if (winnerId) {
+            console.log(`[Oráculo] Ganador de Semifinal #101: ${winnerId}. Promoviendo a Final #104 (home)`);
+            advancementUpdates.push({ id: 104, home_team_id: winnerId });
+          }
+          if (loserId) {
+            console.log(`[Oráculo] Perdedor de Semifinal #101: ${loserId}. Promoviendo a 3er Puesto #103 (home)`);
+            advancementUpdates.push({ id: 103, home_team_id: loserId });
+          }
+        } else if (match.id === 102) {
+          if (winnerId) {
+            console.log(`[Oráculo] Ganador de Semifinal #102: ${winnerId}. Promoviendo a Final #104 (away)`);
+            advancementUpdates.push({ id: 104, away_team_id: winnerId });
+          }
+          if (loserId) {
+            console.log(`[Oráculo] Perdedor de Semifinal #102: ${loserId}. Promoviendo a 3er Puesto #103 (away)`);
+            advancementUpdates.push({ id: 103, away_team_id: loserId });
+          }
         }
       }
 
       if (advancementUpdates.length > 0) {
-        console.log(`[Oráculo] Enviando ${advancementUpdates.length} actualizaciones a match_results:`, advancementUpdates);
-        const { error: advError } = await supabase.from('match_results').upsert(advancementUpdates);
+        // Leer partidos de destino actuales para no borrar el otro clasificado (Fusión Inteligente)
+        const targetIds = advancementUpdates.map(u => u.id);
+        const { data: currentTargets } = await supabase
+          .from('match_results')
+          .select('id, home_team_id, away_team_id')
+          .in('id', targetIds);
+
+        const mergedUpdates = advancementUpdates.map(update => {
+          const current = currentTargets?.find(t => t.id === update.id);
+          return {
+            id: update.id,
+            home_team_id: update.home_team_id !== undefined ? update.home_team_id : (current?.home_team_id || null),
+            away_team_id: update.away_team_id !== undefined ? update.away_team_id : (current?.away_team_id || null),
+            status: 'pending',
+            last_sync: new Date().toISOString()
+          };
+        });
+
+        console.log(`[Oráculo] Enviando ${mergedUpdates.length} actualizaciones fusionadas a match_results:`, mergedUpdates);
+        const { error: advError } = await supabase.from('match_results').upsert(mergedUpdates);
         if (advError) {
           console.error("[Oráculo] Error en avance de llaves:", advError);
         } else {
