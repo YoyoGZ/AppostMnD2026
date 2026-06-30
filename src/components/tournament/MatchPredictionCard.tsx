@@ -8,6 +8,8 @@ import { createClient } from "@/utils/supabase/client";
 import { getTeamFlagUrl } from "@/lib/utils/flags";
 import { cn } from "@/lib/utils";
 
+const supabase = createClient();
+
 export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInfo, userId: string | null }) => {
   const [localTimeText, setLocalTimeText] = useState<string>("");
   const [homeScore, setHomeScore] = useState<string>("");
@@ -17,6 +19,7 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showConfirmMode, setShowConfirmMode] = useState<boolean>(false);
+  const [isFlipped, setIsFlipped] = useState<boolean>(false);
   
   const [realResult, setRealResult] = useState<{ home_score: number; away_score: number; status: string; elapsed?: number } | null>(null);
   const [pointsEarned, setPointsEarned] = useState<number | null>(null);
@@ -24,7 +27,6 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
   const [isGoalRecent, setIsGoalRecent] = useState<boolean>(false);
   const [goalsList, setGoalsList] = useState<{ team: string; player: string; minute: string }[]>([]);
 
-  const supabase = createClient();
   const matchIdStr = matchInfo.id.toString();
   const matchIdInt = parseInt(matchIdStr) || 0;
 
@@ -216,10 +218,8 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
 
   const isEntryDisabled = isSealed || isLockedByTime;
 
-  // ⚠️ SAFETY GATE: Si la fecha del partido es en el futuro, NUNCA mostrar resultado real
-  // independientemente de lo que diga Supabase. Previene que datos mock contaminen la UX.
-  const isMatchInFuture = matchInfo.fecha ? new Date(matchInfo.fecha) > new Date() : false;
-  const displayRealResult = isMatchInFuture ? null : realResult;
+  // Para eliminatorias y simulación, mostramos el resultado de Supabase según su estado oficial ('playing' o 'finished') incondicionalmente
+  const displayRealResult = realResult;
 
   // Use trim() to fix mobile keyboards appending spaces
   const hasBothScores = homeScore.trim().length > 0 && awayScore.trim().length > 0;
@@ -281,14 +281,23 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
     );
   }
 
-  return (
+  const isFinalMatch = matchIdInt === 104;
+
+  const normalCard = (
     <div className={`bento-card w-full shadow-2xl transition-all duration-500 border-white/5 overflow-hidden p-0 flex flex-col h-full group select-none
       ${isEntryDisabled ? "bg-card-body/40 scale-[0.98] border-green-500/10" : "bg-card-body/60 hover:scale-[1.02]"}
     `}>
       {/* Header */}
       <div className="bg-card-header/80 px-7 py-4 flex items-center justify-between border-b border-white/5">
         <span className="text-[10px] text-title font-black uppercase tracking-[0.2em] drop-shadow-[0_0_8px_rgba(0,212,255,0.3)]">{matchInfo.fase}</span>
-        {matchInfo.fecha && (
+        {isFinalMatch && isFlipped ? (
+          <button 
+            onClick={() => setIsFlipped(false)}
+            className="text-[9px] font-black text-yellow-500 bg-yellow-500/10 px-2.5 py-1 rounded-lg border border-yellow-500/20 uppercase tracking-widest hover:bg-yellow-500/20 transition-all active:scale-95 z-20"
+          >
+            Ticket ✕
+          </button>
+        ) : matchInfo.fecha && (
           <span className="text-[10px] text-white/40 font-bold uppercase">
             {new Date(matchInfo.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }).replace('.', '')}
           </span>
@@ -509,6 +518,58 @@ export const MatchPredictionCard = ({ matchInfo, userId }: { matchInfo: MatchInf
             </span>
           </div>
         )}
+      </div>
+    </div>
+  );
+
+  if (!isFinalMatch) {
+    return normalCard;
+  }
+
+  return (
+    <div className="w-full [perspective:1500px] min-h-[300px]">
+      <div className={cn(
+        "relative w-full h-full min-h-[300px] transition-transform duration-1000 [transform-style:preserve-3d]",
+        isFlipped ? "[transform:rotateY(180deg)]" : ""
+      )}>
+        {/* CARA FRONTAL: TICKET DE ORO PREMIUM */}
+        <div className="absolute inset-0 [backface-visibility:hidden] rounded-[2rem] border border-yellow-500/30 bg-gradient-to-br from-[#1a1200] via-[#0d0900] to-black p-8 flex flex-col justify-between overflow-hidden shadow-[0_0_50px_rgba(250,204,21,0.25)] group/final">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] h-[220px] bg-yellow-500/5 rounded-full blur-[75px] group-hover/final:bg-yellow-500/10 transition-all duration-700 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="flex justify-between items-center w-full relative z-10">
+            <span className="text-[10px] text-yellow-400 font-black tracking-[0.25em] uppercase drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]">LA GRAN FINAL</span>
+            <Trophy className="w-4 h-4 text-yellow-400 animate-pulse" />
+          </div>
+
+          <div className="flex flex-col items-center justify-center py-6 gap-3 relative z-10">
+            <span className="text-[9px] font-black text-yellow-500/45 uppercase tracking-[0.2em]">Copa del Mundo 2026</span>
+            <div className="flex items-center justify-center gap-4 w-full px-2">
+              <span className="font-black text-lg md:text-xl text-white truncate max-w-[130px] uppercase tracking-tight drop-shadow-[0_2px_10px_rgba(255,255,255,0.15)]">{matchInfo.home.nombre}</span>
+              <span className="text-xs font-black text-yellow-400/50 shrink-0">VS</span>
+              <span className="font-black text-lg md:text-xl text-white truncate max-w-[130px] uppercase tracking-tight drop-shadow-[0_2px_10px_rgba(255,255,255,0.15)]">{matchInfo.away.nombre}</span>
+            </div>
+            {matchInfo.fecha && (
+              <span className="text-[9.5px] text-yellow-500/60 font-black uppercase tracking-[0.15em] mt-1 bg-yellow-500/10 border border-yellow-500/20 px-3 py-1 rounded-full">
+                {new Date(matchInfo.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'long' })}
+              </span>
+            )}
+          </div>
+
+          <button 
+            onClick={() => setIsFlipped(true)}
+            className="w-full py-3.5 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-black font-black text-[10px] tracking-[0.25em] uppercase rounded-2xl shadow-[0_10px_25px_rgba(250,204,21,0.3)] transition-all duration-300 hover:scale-[1.02] relative z-10 active:scale-[0.98]"
+          >
+            INGRESAR PRONÓSTICO 🏆
+          </button>
+        </div>
+
+        {/* CARA TRASERA: LA CARD REAL DE APUESTA */}
+        <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-[2rem] border border-yellow-500/30 bg-gradient-to-br from-black via-[#0d0900] to-[#120e00] shadow-[0_0_50px_rgba(250,204,21,0.15)] flex flex-col overflow-hidden">
+          <div className="w-full h-full">
+            {normalCard}
+          </div>
+        </div>
       </div>
     </div>
   );

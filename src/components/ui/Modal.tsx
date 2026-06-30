@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -11,35 +11,9 @@ interface ModalProps {
 }
 
 const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
-  // Sincronización con el historial para el botón "Atrás" de Android/iOS
-  useEffect(() => {
-    if (!isOpen) return;
-
-    // Cuando el modal se abre, agregamos un estado a la historia si no existe
-    if (window.location.hash !== "#modal") {
-      window.history.pushState(null, "", window.location.pathname + window.location.search + "#modal");
-    }
-
-    const handlePopState = () => {
-      // Si el hash ya no es #modal (ej. el usuario presionó Atrás)
-      if (window.location.hash !== "#modal") {
-        onClose();
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [isOpen, onClose]);
-
-  const handleClose = () => {
-    // Si el usuario cierra el modal por UI (botón X, backdrop, Escape), 
-    // debemos limpiar la historia para no dejar el #modal atascado.
-    if (window.location.hash === "#modal") {
-      window.history.back();
-    } else {
-      onClose();
-    }
-  };
+  const handleClose = useCallback(() => {
+    onClose();
+  }, [onClose]);
 
   // Cerrar con Escape
   useEffect(() => {

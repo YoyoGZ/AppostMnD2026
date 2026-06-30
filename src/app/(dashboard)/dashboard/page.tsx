@@ -17,6 +17,8 @@ import { useAuth } from "@/context/AuthContext";
 import { MatchCardLive } from "@/components/tournament/MatchCardLive";
 import { cn } from "@/lib/utils";
 
+import knockoutData from "@/data/knockouts-simulation.json";
+
 export default function Dashboard() {
   const { brandTheme } = useSidebar();
   const { user } = useAuth();
@@ -88,7 +90,10 @@ export default function Dashboard() {
     if (dbMatches.length === 0 || hasSyncedRef.current) return;
 
     const now = new Date();
-    const shouldSync = worldCupData.partidos.some(m => {
+    const knockoutMatches = knockoutData.rondas.flatMap(r => r.partidos);
+    
+    const shouldSync = knockoutMatches.some(m => {
+      if (!m.fecha) return false;
       const matchDate = new Date(m.fecha);
       const diffMinutes = (now.getTime() - matchDate.getTime()) / (60 * 1000);
       
@@ -102,7 +107,7 @@ export default function Dashboard() {
 
     if (shouldSync) {
       hasSyncedRef.current = true; // Prevenir múltiples llamadas en bucle en esta sesión
-      console.log("[Dashboard] Detectados partidos en juego o desactualizados según horario. Ejecutando sync en caliente...");
+      console.log("[Dashboard] Detectados partidos de eliminatorias en juego o desactualizados según horario. Ejecutando sync en caliente...");
       import('@/app/actions/sync').then(({ syncLiveMatchesAction }) => {
         syncLiveMatchesAction();
       });

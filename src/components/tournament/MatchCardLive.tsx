@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import worldCupData from "@/data/world-cup-2026.json";
+import knockoutData from "@/data/knockouts-simulation.json";
 import { getTeamFlagUrl } from "@/lib/utils/flags";
 import { Swords, Clock, Trophy, Play, Calendar, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,6 +27,8 @@ type GoalEvent = {
   timestamp: string;
 };
 
+const supabase = createClient();
+
 export function MatchCardLive() {
   const [liveMatch, setLiveMatch] = useState<LiveMatchData | null>(null);
   const [nextMatch, setNextMatch] = useState<any | null>(null);
@@ -34,8 +37,7 @@ export function MatchCardLive() {
   const [loading, setLoading] = useState<boolean>(true);
   const [localElapsed, setLocalElapsed] = useState<number>(0);
   const [goalsList, setGoalsList] = useState<any[]>([]);
-
-  const supabase = createClient();
+  const hasSyncedRef = useRef(false);
 
   // Mapa de equipos para obtener nombres completos
   const teamMap = new Map<string, string>();
@@ -111,24 +113,27 @@ export function MatchCardLive() {
             }
           }
         } else {
-          // Si no hay partido activo, verificamos si hay algún partido en juego según la hora local
-          const inminentMatch = worldCupData.partidos.find(m => {
+          // Si no hay partido activo, verificamos si hay algún partido de eliminatorias en juego según la hora local
+          const knockoutMatches = knockoutData.rondas.flatMap(r => r.partidos);
+          const inminentMatch = knockoutMatches.find(m => {
+            if (!m.fecha) return false;
             const matchDate = new Date(m.fecha);
             const diffMinutes = (now.getTime() - matchDate.getTime()) / (60 * 1000);
             return diffMinutes >= 0 && diffMinutes < 150; // ventana de 2.5 horas
           });
 
-          if (inminentMatch && !fetchErrorOccurred) {
-            console.log("[MatchCardLive] Detectado partido inminente que debería estar en vivo según reloj. Disparando sync real...");
+          if (inminentMatch && !fetchErrorOccurred && !hasSyncedRef.current) {
+            hasSyncedRef.current = true;
+            console.log("[MatchCardLive] Detectado partido inminente de eliminatorias según reloj. Disparando sync real...");
             import('@/app/actions/sync').then(({ syncLiveMatchesAction }) => {
               syncLiveMatchesAction();
             });
           }
 
-          // Buscamos el primer partido futuro programado
-          const futureMatches = worldCupData.partidos
-            .filter(m => new Date(m.fecha) > now)
-            .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
+          // Buscamos el primer partido futuro programado de eliminatorias
+          const futureMatches = knockoutMatches
+            .filter(m => m.fecha && new Date(m.fecha) > now)
+            .sort((a, b) => new Date(a.fecha || 0).getTime() - new Date(b.fecha || 0).getTime());
 
           if (futureMatches.length > 0) {
             setNextMatch(futureMatches[0]);
@@ -338,7 +343,7 @@ export function MatchCardLive() {
           {nextMatch ? (
             <>
               <span className="text-white bg-black/40 px-2.5 py-1 rounded-lg border border-white/5 font-black mx-1 tracking-widest inline-block select-all">
-                {nextMatch.local} vs {nextMatch.visitante}
+                {teamMap.get(nextMatch.home_team_id) || nextMatch.home_placeholder || "TBD"} vs {teamMap.get(nextMatch.away_team_id) || nextMatch.away_placeholder || "TBD"}
               </span>
               , el próximo <span className="text-primary font-black">{formatDateLabel(nextMatch.fecha)}</span>
             </>

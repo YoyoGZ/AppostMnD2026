@@ -12,9 +12,11 @@
           "fecha": "2026-06-29T20:30:00+00:00",
           "estadio": "Gillette Stadium",
           "ciudad": "Foxborough",
-          "estado": "bloqueado",
+          "estado": "finalizado",
           "home_team_id": "GER",
-          "away_team_id": "PAR"
+          "away_team_id": "PAR",
+          "goles_local": 1,
+          "goles_visitante": 1
         },
         {
           "id": 74,
@@ -102,9 +104,11 @@
           "fecha": "2026-06-29T17:00:00+00:00",
           "estadio": "NRG Stadium",
           "ciudad": "Houston",
-          "estado": "bloqueado",
+          "estado": "finalizado",
           "home_team_id": "BRA",
-          "away_team_id": "JPN"
+          "away_team_id": "JPN",
+          "goles_local": 2,
+          "goles_visitante": 1
         },
         {
           "id": 82,
